@@ -11,10 +11,10 @@
     ]
   },
   "scripts": {
-    "dev": "concurrently \"vite\" \"node server/dev-server.js\"",
+    "dev": "concurrently \"vite\" \"node ../server/dev-server.js 5001\"",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
-    "build:server": "vite build --config vite.config.server.js",
+    "build:server": "vite build --config ../server/vite.config.server.js",
     "vercel-build": "npm run build:client",
     "start": "node dist/server/node-build.mjs",
     "build:export": "npm run build && node scripts/assemble-build.mjs",

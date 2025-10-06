@@ -61,7 +61,7 @@ export function createServer() {
 
   // API routes
   app.get("/api/ping", (_req, res) => {
-    res.json({ message: "Hello from Express server v2!" });
+    res.json({ message: "Hello from Express server VenueKart" });
   });
 
   app.get("/api/demo", handleDemo);

@@ -1,12 +1,18 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const apiPort = process.env.API_PORT || "5001";
 
 export default defineConfig({
   plugins: [react()],
+  root: path.resolve(process.cwd(), "."),
   resolve: {
     alias: {
-      "@": path.resolve(process.cwd(), "./client"),
+      "@": path.resolve(process.cwd(), "."),
       "@shared": path.resolve(process.cwd(), "./shared"),
     },
   },
@@ -16,13 +22,13 @@ export default defineConfig({
   },
   server: {
     host: "0.0.0.0",
-    port: 8080,
+    port: 5173,
     hmr: {
-      clientPort: 8080,
+      clientPort: 5173,
     },
     proxy: {
       "/api": {
-        target: "http://localhost:5000",
+        target: `http://localhost:${apiPort}`,
         changeOrigin: true,
       },
     },
