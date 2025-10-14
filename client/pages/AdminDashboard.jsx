@@ -386,13 +386,13 @@ export default function AdminDashboard() {
 
   const renderVenues = () => (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-col sm:flex-row gap-3 sm:gap-0">
         <div>
           <h1 className="text-3xl font-bold text-venue-dark">Venue Management</h1>
           <p className="text-gray-600">Manage your venue listings and details</p>
         </div>
         <Button
-          className="bg-venue-indigo hover:bg-venue-purple text-white"
+          className="bg-venue-indigo hover:bg-venue-purple text-white w-full sm:w-auto"
           onClick={() => setShowAddVenueForm(true)}
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -400,7 +400,7 @@ export default function AdminDashboard() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-start">
         {loading ? (
           <div className="col-span-full text-center py-8 text-gray-500">Loading venues...</div>
         ) : venues.length === 0 ? (
@@ -412,14 +412,14 @@ export default function AdminDashboard() {
           venues.map((venue) => (
             <Card key={venue.id || venue._id}>
               <CardContent className="p-6">
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <img
                     src={venue.images && venue.images.length > 0 ? venue.images[0] : "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=400&h=300&fit=crop"}
                     alt={venue.name}
-                    className="w-24 h-24 object-cover rounded-lg"
+                    className="w-full h-40 sm:w-24 sm:h-24 object-cover rounded-lg"
                   />
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-venue-dark mb-2">{venue.name}</h3>
+                    <h3 className="text-base sm:text-lg font-semibold text-venue-dark mb-2">{venue.name}</h3>
                     <div className="space-y-1 text-sm text-gray-600">
                       <div className="flex items-center">
                         <MapPin className="h-4 w-4 mr-1" />
@@ -438,16 +438,16 @@ export default function AdminDashboard() {
                         {venue.booking_count || 0} bookings
                       </div>
                     </div>
-                    <div className="flex items-center justify-between mt-4">
+                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${venue.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                         {venue.status ? venue.status.charAt(0).toUpperCase() + venue.status.slice(1) : 'Active'}
                       </span>
-                      <div className="flex gap-2">
+                      <div className="grid grid-cols-2 sm:flex gap-2">
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => openEditForm(venue)}
-                          className="border-venue-indigo text-venue-indigo hover:bg-venue-lavender"
+                          className="border-venue-indigo text-venue-indigo hover:bg-venue-lavender w-full sm:w-auto justify-center"
                         >
                           Edit
                         </Button>
@@ -455,7 +455,7 @@ export default function AdminDashboard() {
                         size="sm"
                         variant="outline"
                         onClick={() => handleDeleteVenue(venue.id || venue._id, venue.name)}
-                          className="text-red-600 hover:text-white hover:bg-red-600 border-red-300"
+                          className="text-red-600 hover:text-white hover:bg-red-600 border-red-300 w-full sm:w-auto justify-center"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
