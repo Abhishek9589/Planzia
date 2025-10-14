@@ -444,7 +444,7 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
                   type="button"
                   variant="outline"
                   onClick={addFacility}
-                  className="w-full h-10 text-sm border-gray-300 hover:bg-gray-50"
+                  className="w-full h-10 text-sm border-gray-300 hover:bg-gray-50 text-venue-indigo hover:text-venue-indigo focus:text-venue-indigo"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Another Facility
