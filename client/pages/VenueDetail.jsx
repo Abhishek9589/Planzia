@@ -253,7 +253,7 @@ export default function VenueDetail() {
       <div className="w-full px-4 py-8">
         {/* Back Button */}
         <div className="max-w-7xl mx-auto mb-6">
-          <Button asChild variant="ghost" className="text-venue-indigo hover:text-venue-purple" onClick={scrollToTop}>
+          <Button asChild variant="ghost" className="text-venue-indigo" onClick={scrollToTop}>
             <Link to="/venues">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Venues
