@@ -340,7 +340,7 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
             </div>
 
             {/* Venue Type and Area */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Venue Type (Optional)
@@ -379,7 +379,7 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
             </div>
 
             {/* Footfall Capacity and Price */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Footfall Capacity *
@@ -511,7 +511,7 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
             </div>
 
             {/* Submit Buttons */}
-            <div className="flex gap-3 pt-4 border-t">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
               <Button
                 type="button"
                 variant="outline"
