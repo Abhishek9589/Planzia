@@ -106,16 +106,12 @@ export default function SignIn() {
           </Card>
         )}
 
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-venue-dark">Welcome back</h1>
+          <p className="text-gray-600">Sign in to your VenueKart account</p>
+        </div>
         <Card className="shadow-2xl border-0">
-          <CardHeader className="space-y-2 text-center pb-6">
-            <CardTitle className="text-2xl font-bold text-venue-dark">
-              Welcome back
-            </CardTitle>
-            <CardDescription className="text-gray-600">
-              Sign in to your VenueKart account
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-6">
             {error && (
               <Alert variant="destructive" className="border-red-200 bg-red-50">
                 <AlertCircle className="h-4 w-4" />
