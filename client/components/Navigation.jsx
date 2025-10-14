@@ -90,7 +90,7 @@ export default function Navigation() {
                     </span>
                   )}
                 </div>
-                {isVenueOwner() ? (
+                {(isVenueOwner() || user?.userType === 'admin') ? (
                   <Button asChild variant="outline" className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white" onClick={scrollToTop}>
                     <Link to="/admin/dashboard">
                       <Building className="h-4 w-4 mr-2" />
@@ -190,7 +190,7 @@ export default function Navigation() {
                         </span>
                       )}
                     </div>
-                    {isVenueOwner() ? (
+                    {(isVenueOwner() || user?.userType === 'admin') ? (
                       <Button asChild variant="outline" className="w-full border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white">
                         <Link to="/admin/dashboard" onClick={() => {
                           setIsMenuOpen(false);
