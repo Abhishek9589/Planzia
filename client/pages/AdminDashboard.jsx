@@ -473,7 +473,7 @@ export default function AdminDashboard() {
 
   const renderBookings = () => (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-col sm:flex-row gap-3 sm:gap-0">
         <div>
           <h1 className="text-3xl font-bold text-venue-dark">Booking Overview</h1>
           <p className="text-gray-600">Track and manage venue bookings</p>
@@ -496,7 +496,7 @@ export default function AdminDashboard() {
           }}
           disabled={loading}
           variant="outline"
-          className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white"
+          className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white w-full sm:w-auto"
         >
           {loading ? (
             <>
@@ -510,12 +510,12 @@ export default function AdminDashboard() {
       </div>
 
       {/* Booking Status Filter */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 mb-4">
         <Button
           variant={!statusFilter || statusFilter === 'all' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setStatusFilter('all')}
-          className={!statusFilter || statusFilter === 'all' ? 'bg-venue-indigo hover:bg-venue-purple text-white' : 'border-venue-indigo text-venue-indigo hover:bg-venue-lavender'}
+          className={`${!statusFilter || statusFilter === 'all' ? 'bg-venue-indigo hover:bg-venue-purple text-white' : 'border-venue-indigo text-venue-indigo hover:bg-venue-lavender'} w-full sm:w-auto`}
         >
           All Bookings ({bookings.length})
         </Button>
@@ -523,7 +523,7 @@ export default function AdminDashboard() {
           variant={statusFilter === 'pending' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setStatusFilter('pending')}
-          className={statusFilter === 'pending' ? 'bg-venue-purple hover:bg-venue-indigo text-white' : 'border-venue-purple text-venue-purple hover:bg-venue-lavender'}
+          className={`${statusFilter === 'pending' ? 'bg-venue-purple hover:bg-venue-indigo text-white' : 'border-venue-purple text-venue-purple hover:bg-venue-lavender'} w-full sm:w-auto`}
         >
           Pending ({bookings.filter(b => b.status === 'pending').length})
         </Button>
@@ -531,7 +531,7 @@ export default function AdminDashboard() {
           variant={statusFilter === 'confirmed' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setStatusFilter('confirmed')}
-          className={statusFilter === 'confirmed' ? 'bg-venue-indigo hover:bg-venue-purple text-white' : 'border-venue-indigo text-venue-indigo hover:bg-venue-lavender'}
+          className={`${statusFilter === 'confirmed' ? 'bg-venue-indigo hover:bg-venue-purple text-white' : 'border-venue-indigo text-venue-indigo hover:bg-venue-lavender'} w-full sm:w-auto`}
         >
           Confirmed ({bookings.filter(b => b.status === 'confirmed').length})
         </Button>
@@ -539,7 +539,7 @@ export default function AdminDashboard() {
           variant={statusFilter === 'cancelled' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setStatusFilter('cancelled')}
-          className={statusFilter === 'cancelled' ? 'bg-venue-dark hover:bg-gray-700 text-white' : 'border-venue-dark text-venue-dark hover:bg-gray-100'}
+          className={`${statusFilter === 'cancelled' ? 'bg-venue-dark hover:bg-gray-700 text-white' : 'border-venue-dark text-venue-dark hover:bg-gray-100'} w-full sm:w-auto`}
         >
           Declined ({bookings.filter(b => b.status === 'cancelled').length})
         </Button>
@@ -551,7 +551,7 @@ export default function AdminDashboard() {
           <CardDescription>Complete timeline of all venue bookings with customer details</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto hidden md:block">
             <table className="w-full">
               <thead>
                 <tr className="border-b">
@@ -607,6 +607,42 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+
+          <div className="md:hidden space-y-3 mt-4">
+            {loading ? (
+              <div className="p-4 text-center text-gray-500">Loading bookings...</div>
+            ) : bookings.filter(booking => !statusFilter || statusFilter === 'all' || booking.status === statusFilter).length === 0 ? (
+              <div className="p-4 text-center text-gray-500">No bookings found</div>
+            ) : (
+              bookings
+                .filter(booking => !statusFilter || statusFilter === 'all' || booking.status === statusFilter)
+                .map((booking) => (
+                  <div key={booking.id || booking._id} className="p-4 border rounded-lg bg-white">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-venue-dark">{booking.customer_name}</p>
+                        <p className="text-sm text-gray-600">{booking.venue_name}</p>
+                      </div>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                        booking.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                      </span>
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-gray-700">
+                      <div>📅 {new Date(booking.event_date).toLocaleDateString()}</div>
+                      <div>👥 {booking.guest_count} guests</div>
+                      <div className="col-span-2 font-medium text-venue-dark">{formatPrice(booking.amount)}</div>
+                    </div>
+                    {booking.status !== 'pending' && (
+                      <p className="mt-2 text-xs text-gray-500">Updated {new Date(booking.updated_at).toLocaleDateString()}</p>
+                    )}
+                  </div>
+                ))
+            )}
+          </div>
+
         </CardContent>
       </Card>
     </div>
