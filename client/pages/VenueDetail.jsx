@@ -486,7 +486,7 @@ export default function VenueDetail() {
                       <form onSubmit={handleInquireSubmit} className="space-y-6">
                         <div className="grid gap-6 md:grid-cols-[360px_1fr]">
                           {/* Left: Calendar */}
-                          <div>
+                          <div className="md:max-w-[360px]">
                             <Label className="text-base font-semibold">Select Event Date</Label>
                             <div className="mt-2 border rounded-lg p-2">
                               <Calendar
