@@ -105,7 +105,7 @@ export default function Navigation() {
                     </Link>
                   </Button>
                 )}
-                <Button onClick={handleLogout} variant="ghost" className="text-venue-indigo hover:text-venue-purple">
+                <Button onClick={handleLogout} variant="ghost" className="text-venue-indigo active:opacity-90">
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
                 </Button>
@@ -199,7 +199,7 @@ export default function Navigation() {
                         </Link>
                       </Button>
                     )}
-                    <Button onClick={handleLogout} variant="ghost" className="w-full text-venue-indigo hover:text-venue-purple">
+                    <Button onClick={handleLogout} variant="ghost" className="w-full text-venue-indigo active:opacity-90">
                       <LogOut className="h-4 w-4 mr-2" />
                       Logout
                     </Button>
