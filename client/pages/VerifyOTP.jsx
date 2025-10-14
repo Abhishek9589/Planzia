@@ -152,7 +152,7 @@ export default function VerifyOTP() {
                   value={digit}
                   onChange={(e) => handleOtpChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-12 h-14 text-center text-xl font-semibold rounded-xl border-2 border-gray-200 focus:border-venue-purple focus:ring-2 focus:ring-venue-purple/20 focus:outline-none transition-all duration-200 bg-white/70"
+                  className="w-12 h-14 text-center text-xl font-semibold rounded-xl border-2 border-gray-200 focus:border-transparent focus:ring-2 focus:ring-venue-purple/20 focus:outline-none transition-all duration-200 bg-white/70"
 
 
 
