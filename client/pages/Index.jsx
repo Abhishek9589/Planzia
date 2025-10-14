@@ -208,17 +208,11 @@ export default function Index() {
         <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
             <h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
               className="text-4xl md:text-6xl font-bold text-white mb-4 font-poppins"
             >
               Find the Perfect Venue for Your Event
             </h1>
             <p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
               className="text-xl text-white/90 mb-8 max-w-3xl mx-auto"
             >
               Discover verified venues with transparent pricing
@@ -226,9 +220,6 @@ export default function Index() {
 
             {/* Search Bar */}
             <div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
               className="max-w-4xl mx-auto"
             >
               <form
@@ -278,10 +269,7 @@ export default function Index() {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            viewport={{ once: true, margin: "-100px" }}
+
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
@@ -298,18 +286,6 @@ export default function Index() {
               return (
                 <div
                   key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: index * 0.1,
-                    ease: "easeOut"
-                  }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  whileHover={{
-                    y: -5,
-                    transition: { duration: 0.2 }
-                  }}
                 >
                   <Card className="text-center hover:shadow-lg transition-shadow duration-300 h-full">
                     <CardHeader>
@@ -335,10 +311,7 @@ export default function Index() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            viewport={{ once: true, margin: "-100px" }}
+
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
