@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { scrollToTop } from '@/lib/navigation';
 import { Button } from './ui/button';
 import { Menu, X, LogOut, User, Building, Heart } from 'lucide-react';
@@ -35,10 +35,10 @@ export default function Navigation() {
   const currentNavLinks = isLoggedIn ? userNavLinks : navLinks;
 
   return (
-    <motion.nav
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+    <nav
+
+
+
       className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm"
     >
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-venue-indigo text-white px-3 py-2 rounded-md">Skip to content</a>
@@ -136,13 +136,13 @@ export default function Navigation() {
         </div>
 
         {/* Mobile Navigation */}
-        <AnimatePresence>
+        
           {isMenuOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
+            <div
+
+
+
+
               className="md:hidden overflow-hidden"
             >
               <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
@@ -216,10 +216,10 @@ export default function Navigation() {
                 )}
               </div>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        
       </div>
-    </motion.nav>
+    </nav>
   );
 }

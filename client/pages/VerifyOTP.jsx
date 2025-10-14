@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import { Button } from '@/components/ui/button';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserFriendlyError } from '../lib/errorMessages';
@@ -11,7 +11,7 @@ export default function VerifyOTP() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
+  const [timeLeft, setTimeLeft] = useState(60); // 1 minute
   const { verifyOTP, resendOTP } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -105,7 +105,7 @@ export default function VerifyOTP() {
 
     try {
       await resendOTP(email);
-      setTimeLeft(300); // Reset timer
+      setTimeLeft(60); // Reset timer
       setOtp(['', '', '', '', '', '']); // Clear OTP input
       setSuccess('New verification code sent!');
       setTimeout(() => setSuccess(''), 3000);
@@ -118,10 +118,10 @@ export default function VerifyOTP() {
 
   return (
     <div className="h-screen bg-gradient-to-br from-venue-lavender/20 to-venue-purple/10 flex items-center justify-center px-4 overflow-hidden">
-      <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+      <div
+
+
+
         className="max-w-md w-full"
       >
         {/* Background Card */}
@@ -130,15 +130,20 @@ export default function VerifyOTP() {
           <div className="text-center mb-8">
             <h1 className="text-2xl font-semibold text-venue-dark mb-3">Verify OTP</h1>
             <p className="text-gray-600 text-sm leading-relaxed">
-              Enter the 6-digit code sent to your mobile
+              Enter the 6-digit code sent to your email
             </p>
+            <div className="mt-2 flex justify-center">
+              <span className="inline-flex items-center rounded-full bg-venue-purple/10 text-venue-purple border border-venue-purple/20 px-3 py-1 text-xs font-medium">
+                {email}
+              </span>
+            </div>
           </div>
 
           {/* OTP Input */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex justify-center gap-3 mb-6">
               {otp.map((digit, index) => (
-                <motion.input
+                <input
                   key={index}
                   ref={el => inputRefs.current[index] = el}
                   type="text"
@@ -148,33 +153,33 @@ export default function VerifyOTP() {
                   onChange={(e) => handleOtpChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
                   className="w-12 h-14 text-center text-xl font-semibold rounded-xl border-2 border-gray-200 focus:border-venue-purple focus:ring-2 focus:ring-venue-purple/20 focus:outline-none transition-all duration-200 bg-white/70"
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
+
+
+
                 />
               ))}
             </div>
 
             {/* Success Message */}
             {success && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
+              <div
+  
+  
                 className="text-center text-green-600 text-sm bg-green-50 py-2 px-4 rounded-lg border border-green-200"
               >
                 {success}
-              </motion.div>
+              </div>
             )}
 
             {/* Error Message */}
             {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
+              <div
+  
+  
                 className="text-center text-red-600 text-sm bg-red-50 py-2 px-4 rounded-lg border border-red-200"
               >
                 {error}
-              </motion.div>
+              </div>
             )}
 
             {/* Verify Button */}
@@ -209,7 +214,7 @@ export default function VerifyOTP() {
             </div>
           </form>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

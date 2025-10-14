@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import { scrollToTop } from '@/lib/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -207,28 +207,19 @@ export default function Index() {
         {/* Content */}
         <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+            <h1
               className="text-4xl md:text-6xl font-bold text-white mb-4 font-poppins"
             >
               Find the Perfect Venue for Your Event
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+            </h1>
+            <p
               className="text-xl text-white/90 mb-8 max-w-3xl mx-auto"
             >
               Discover verified venues with transparent pricing
-            </motion.p>
+            </p>
 
             {/* Search Bar */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
+            <div
               className="max-w-4xl mx-auto"
             >
               <form
@@ -269,7 +260,7 @@ export default function Index() {
                   </Button>
                 </div>
               </form>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -277,11 +268,8 @@ export default function Index() {
       {/* Features Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            viewport={{ once: true, margin: "-100px" }}
+          <div
+
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
@@ -290,26 +278,14 @@ export default function Index() {
             <p className="text-gray-600 max-w-2xl mx-auto">
               We make venue booking simple, transparent, and reliable with our premium features
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: index * 0.1,
-                    ease: "easeOut"
-                  }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  whileHover={{
-                    y: -5,
-                    transition: { duration: 0.2 }
-                  }}
                 >
                   <Card className="text-center hover:shadow-lg transition-shadow duration-300 h-full">
                     <CardHeader>
@@ -324,7 +300,7 @@ export default function Index() {
                       </CardDescription>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
               );
             })}
           </div>
@@ -334,11 +310,8 @@ export default function Index() {
       {/* Popular Venues */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            viewport={{ once: true, margin: "-100px" }}
+          <div
+
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
@@ -347,7 +320,7 @@ export default function Index() {
             <p className="text-gray-600 max-w-2xl mx-auto">
               Discover our most loved venues, perfect for any celebration
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {loading ? (
