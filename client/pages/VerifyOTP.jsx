@@ -130,8 +130,13 @@ export default function VerifyOTP() {
           <div className="text-center mb-8">
             <h1 className="text-2xl font-semibold text-venue-dark mb-3">Verify OTP</h1>
             <p className="text-gray-600 text-sm leading-relaxed">
-              Enter the 6-digit code sent to your mobile
+              Enter the 6-digit code sent to your email
             </p>
+            <div className="mt-2 flex justify-center">
+              <span className="inline-flex items-center rounded-full bg-venue-purple/10 text-venue-purple border border-venue-purple/20 px-3 py-1 text-xs font-medium">
+                {email}
+              </span>
+            </div>
           </div>
 
           {/* OTP Input */}
