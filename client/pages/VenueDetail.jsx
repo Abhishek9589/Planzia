@@ -475,7 +475,7 @@ export default function VenueDetail() {
                   </div>
 
                   <Dialog open={showBookingForm} onOpenChange={setShowBookingForm}>
-                    <DialogContent className="max-w-4xl sm:rounded-2xl">
+                    <DialogContent className="max-w-5xl sm:rounded-2xl">
                       <DialogHeader>
                         <DialogTitle>Start Booking</DialogTitle>
                         <DialogDescription>
