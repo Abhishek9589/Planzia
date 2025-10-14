@@ -106,7 +106,9 @@ const buttonRevealVariants = {
     scale: 1,
     transition: {
       duration: 0.6,
-      ease: easing
+      ease: easing,
+      staggerChildren: 0.12,
+      delayChildren: 0.1
     }
   }
 };
@@ -316,9 +318,6 @@ export default function Index() {
                 onSubmit={(e) => { e.preventDefault(); handleSearch(); }}
                 className="bg-white rounded-2xl shadow-2xl p-6 border border-gray-100"
                 variants={buttonRevealVariants}
-                initial="hidden"
-                animate="visible"
-                transition={{ staggerChildren: 0.12, delayChildren: 0.1 }}
               >
                 <div className="flex flex-col lg:flex-row gap-4 items-center">
                   <div className="flex flex-col sm:flex-row gap-4 flex-1 w-full">
