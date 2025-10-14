@@ -138,13 +138,14 @@ export default function Navigation() {
         {/* Mobile Navigation */}
         
           {isMenuOpen && (
-            <div
-
-
-
-
-              className="md:hidden overflow-hidden"
-            >
+            <>
+              <div
+                className="fixed inset-0 z-40 bg-black/30 md:hidden"
+                onClick={() => setIsMenuOpen(false)}
+              />
+              <div
+                className="md:hidden fixed top-16 inset-x-0 z-50 max-h-[calc(100vh-4rem)] overflow-y-auto bg-white border-t border-gray-200 shadow-lg"
+              >
               <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
               {currentNavLinks.map((link) => (
                 <Link
@@ -217,6 +218,7 @@ export default function Navigation() {
               </div>
               </div>
             </div>
+          </>
           )}
         
       </div>
