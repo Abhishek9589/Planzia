@@ -488,13 +488,13 @@ export default function VenueDetail() {
                           {/* Left: Calendar */}
                           <div className="md:max-w-[360px]">
                             <Label className="text-base font-semibold">Select Event Date</Label>
-                            <div className="mt-2 border rounded-lg p-2">
+                            <div className="mt-2 inline-block w-max border rounded-lg p-2">
                               <Calendar
                                 mode="single"
                                 selected={selectedDate}
                                 onSelect={setSelectedDate}
                                 disabled={(date) => date < new Date()}
-                                className="w-full"
+                                className="w-auto" classNames={{ table: "w-auto" }}
                               />
                             </div>
                             {selectedDate && (
