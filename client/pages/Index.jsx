@@ -229,25 +229,25 @@ export default function Index() {
                 <div className="flex flex-col lg:flex-row gap-4 items-center">
                   <div className="flex flex-col sm:flex-row gap-4 flex-1 w-full">
                     <div className="relative flex-1">
-                      <MapPin className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-venue-indigo" />
+                      <MapPin className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-venue-indigo z-10" />
                       <AutocompleteInput
                         options={filterOptionsLoading ? ['Loading...'] : locations}
                         value={searchLocation}
                         onChange={setSearchLocation}
                         placeholder={filterOptionsLoading ? 'Loading...' : 'Search city or area'}
                         disabled={filterOptionsLoading}
-                        className="pl-12 h-12 border-2 border-gray-200 focus:border-venue-indigo bg-white rounded-xl text-gray-700 placeholder:text-gray-400 font-medium transition-all duration-200 hover:border-venue-purple focus:ring-2 focus:ring-venue-indigo/20"
+                        className="pl-12 h-12 border-2 border-gray-200 focus:border-transparent bg-white rounded-xl text-gray-700 placeholder:text-gray-400 font-medium transition-all duration-200 hover:border-venue-purple focus:ring-2 focus:ring-venue-indigo/20"
                       />
                     </div>
                     <div className="relative flex-1">
-                      <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-venue-indigo" />
+                      <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-venue-indigo z-10" />
                       <AutocompleteInput
                         options={filterOptionsLoading ? ['Loading...'] : venueTypes}
                         value={searchVenue}
                         onChange={setSearchVenue}
                         placeholder={filterOptionsLoading ? 'Loading...' : 'Select venue type'}
                         disabled={filterOptionsLoading}
-                        className="pl-12 h-12 border-2 border-gray-200 focus:border-venue-indigo bg-white rounded-xl text-gray-700 placeholder:text-gray-400 font-medium transition-all duration-200 hover:border-venue-purple focus:ring-2 focus:ring-venue-indigo/20"
+                        className="pl-12 h-12 border-2 border-gray-200 focus:border-transparent bg-white rounded-xl text-gray-700 placeholder:text-gray-400 font-medium transition-all duration-200 hover:border-venue-purple focus:ring-2 focus:ring-venue-indigo/20"
                       />
                     </div>
                   </div>

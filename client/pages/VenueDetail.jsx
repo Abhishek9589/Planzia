@@ -4,6 +4,7 @@ import { scrollToTop } from '@/lib/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -253,7 +254,7 @@ export default function VenueDetail() {
       <div className="w-full px-4 py-8">
         {/* Back Button */}
         <div className="max-w-7xl mx-auto mb-6">
-          <Button asChild variant="ghost" className="text-venue-indigo hover:text-venue-purple" onClick={scrollToTop}>
+          <Button asChild variant="ghost" className="text-venue-indigo" onClick={scrollToTop}>
             <Link to="/venues">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Venues
@@ -459,147 +460,159 @@ export default function VenueDetail() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {!showBookingForm ? (
-                    <div className="space-y-4">
-                      <div className="text-center p-6 bg-gray-50 rounded-lg">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2">Ready to book?</h3>
-                        <p className="text-gray-600 mb-4">Select your event date and fill in your details to send an inquiry.</p>
-                        <Button
-                          onClick={() => setShowBookingForm(true)}
-                          className="w-full bg-venue-indigo hover:bg-venue-purple text-white"
-                          size="lg"
-                        >
-                          Start Booking Process
-                        </Button>
-                      </div>
+                  <div className="space-y-4">
+                    <div className="text-center p-6 bg-gray-50 rounded-lg">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">Ready to book?</h3>
+                      <p className="text-gray-600 mb-4">Select your event date and fill in your details to send an inquiry.</p>
+                      <Button
+                        onClick={() => setShowBookingForm(true)}
+                        className="w-full bg-venue-indigo hover:bg-venue-purple text-white"
+                        size="lg"
+                      >
+                        Start Booking Process
+                      </Button>
                     </div>
-                  ) : (
-                    <form onSubmit={handleInquireSubmit} className="space-y-6">
-                      {/* Calendar */}
-                      <div>
-                        <Label className="text-base font-semibold">Select Event Date</Label>
-                        <div className="mt-2 border rounded-lg p-2">
-                          <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={setSelectedDate}
-                            disabled={(date) => date < new Date()}
-                            className="w-full"
-                          />
+                  </div>
+
+                  <Dialog open={showBookingForm} onOpenChange={setShowBookingForm}>
+                    <DialogContent className="max-w-5xl sm:rounded-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Start Booking</DialogTitle>
+                        <DialogDescription>
+                          Provide your details to send an inquiry to {venue?.name}.
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <form onSubmit={handleInquireSubmit} className="space-y-6">
+                        <div className="grid gap-6 md:grid-cols-[360px_1fr]">
+                          {/* Left: Calendar */}
+                          <div className="md:max-w-[360px]">
+                            <Label className="text-base font-semibold">Select Event Date</Label>
+                            <div className="mt-2 inline-block w-max border rounded-lg p-2">
+                              <Calendar
+                                mode="single"
+                                selected={selectedDate}
+                                onSelect={setSelectedDate}
+                                disabled={(date) => date < new Date()}
+                                className="w-auto" classNames={{ table: "w-auto" }}
+                              />
+                            </div>
+                            {selectedDate && (
+                              <p className="text-sm text-venue-indigo mt-2 font-medium">
+                                Selected: {selectedDate.toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Right: Details */}
+                          <div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="fullName">Full Name*</Label>
+                                <Input
+                                  id="fullName"
+                                  name="fullName"
+                                  value={bookingForm.fullName}
+                                  onChange={handleBookingFormChange}
+                                  placeholder="Enter your full name"
+                                  required
+                                  className="mt-1"
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="email">Email*</Label>
+                                <Input
+                                  id="email"
+                                  name="email"
+                                  type="email"
+                                  value={bookingForm.email}
+                                  onChange={handleBookingFormChange}
+                                  placeholder="name@example.com"
+                                  required
+                                  className="mt-1"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                              <div>
+                                <Label htmlFor="phone">Phone Number*</Label>
+                                <Input
+                                  id="phone"
+                                  name="phone"
+                                  type="tel"
+                                  value={bookingForm.phone}
+                                  onChange={handleBookingFormChange}
+                                  placeholder="10-digit mobile number"
+                                  required
+                                  className="mt-1"
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="eventType">Event Type*</Label>
+                                <Input
+                                  id="eventType"
+                                  name="eventType"
+                                  value={bookingForm.eventType}
+                                  onChange={handleBookingFormChange}
+                                  placeholder="e.g., Wedding Reception, Conference"
+                                  required
+                                  className="mt-1"
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="guestCount">Expected Guest Count*</Label>
+                                <Input
+                                  id="guestCount"
+                                  name="guestCount"
+                                  type="number"
+                                  value={bookingForm.guestCount}
+                                  onChange={handleBookingFormChange}
+                                  placeholder="Expected number of guests"
+                                  required
+                                  className="mt-1"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="mt-4">
+                              <Label htmlFor="specialRequests">Special Requests</Label>
+                              <Textarea
+                                id="specialRequests"
+                                name="specialRequests"
+                                value={bookingForm.specialRequests}
+                                onChange={handleBookingFormChange}
+                                placeholder="Any special requests or details (optional)"
+                                rows={4}
+                                className="mt-1"
+                              />
+                            </div>
+                          </div>
                         </div>
-                        {selectedDate && (
-                          <p className="text-sm text-venue-indigo mt-2 font-medium">
-                            Selected: {selectedDate.toLocaleDateString()}
-                          </p>
-                        )}
-                      </div>
 
-                      {/* User Details Form */}
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="fullName">Full Name*</Label>
-                          <Input
-                            id="fullName"
-                            name="fullName"
-                            value={bookingForm.fullName}
-                            onChange={handleBookingFormChange}
-                            required
-                            className="mt-1"
-                          />
+                        <DialogFooter>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setShowBookingForm(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            type="submit"
+                            disabled={isSubmitting || !selectedDate}
+                            className="bg-venue-indigo hover:bg-venue-purple text-white"
+                          >
+                            {isSubmitting ? 'Sending Inquiry...' : 'Send Inquiry'}
+                          </Button>
+                        </DialogFooter>
+
+                        <div className="text-xs text-gray-500 text-center">
+                          Your inquiry will be sent to the venue owner and our team. We'll get back to you within 24 hours.
                         </div>
-
-                        <div>
-                          <Label htmlFor="email">Email*</Label>
-                          <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={bookingForm.email}
-                            onChange={handleBookingFormChange}
-                            required
-                            className="mt-1"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="phone">Phone Number*</Label>
-                          <Input
-                            id="phone"
-                            name="phone"
-                            type="tel"
-                            value={bookingForm.phone}
-                            onChange={handleBookingFormChange}
-                            required
-                            className="mt-1"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="eventType">Event Type*</Label>
-                          <Input
-                            id="eventType"
-                            name="eventType"
-                            value={bookingForm.eventType}
-                            onChange={handleBookingFormChange}
-                            placeholder="e.g., Wedding, Conference, Birthday"
-                            required
-                            className="mt-1"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="guestCount">Expected Guest Count*</Label>
-                          <Input
-                            id="guestCount"
-                            name="guestCount"
-                            type="number"
-                            value={bookingForm.guestCount}
-                            onChange={handleBookingFormChange}
-                            placeholder="Number of guests"
-                            required
-                            className="mt-1"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="specialRequests">Special Requests</Label>
-                          <Textarea
-                            id="specialRequests"
-                            name="specialRequests"
-                            value={bookingForm.specialRequests}
-                            onChange={handleBookingFormChange}
-                            placeholder="Any special requirements or questions..."
-                            rows={3}
-                            className="mt-1"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Submit Buttons */}
-                      <div className="space-y-3">
-                        <Button
-                          type="submit"
-                          disabled={isSubmitting || !selectedDate}
-                          className="w-full bg-venue-indigo hover:bg-venue-purple text-white"
-                          size="lg"
-                        >
-                          {isSubmitting ? 'Sending Inquiry...' : 'Send Inquiry'}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setShowBookingForm(false)}
-                          className="w-full"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-
-                      <div className="text-xs text-gray-500 text-center">
-                        Your inquiry will be sent to the venue owner and our team. We'll get back to you within 24 hours.
-                      </div>
-                    </form>
-                  )}
+                      </form>
+                    </DialogContent>
+                  </Dialog>
                 </CardContent>
               </Card>
             </div>
