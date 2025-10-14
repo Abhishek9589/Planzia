@@ -236,7 +236,7 @@ export default function Index() {
                         onChange={setSearchLocation}
                         placeholder={filterOptionsLoading ? 'Loading...' : 'Search city or area'}
                         disabled={filterOptionsLoading}
-                        className="pl-12 h-12 border-2 border-gray-200 focus:border-venue-indigo bg-white rounded-xl text-gray-700 placeholder:text-gray-400 font-medium transition-all duration-200 hover:border-venue-purple focus:ring-2 focus:ring-venue-indigo/20"
+                        className="pl-12 h-12 border-2 border-gray-200 focus:border-transparent bg-white rounded-xl text-gray-700 placeholder:text-gray-400 font-medium transition-all duration-200 hover:border-venue-purple focus:ring-2 focus:ring-venue-indigo/20"
                       />
                     </div>
                     <div className="relative flex-1">
@@ -247,7 +247,7 @@ export default function Index() {
                         onChange={setSearchVenue}
                         placeholder={filterOptionsLoading ? 'Loading...' : 'Select venue type'}
                         disabled={filterOptionsLoading}
-                        className="pl-12 h-12 border-2 border-gray-200 focus:border-venue-indigo bg-white rounded-xl text-gray-700 placeholder:text-gray-400 font-medium transition-all duration-200 hover:border-venue-purple focus:ring-2 focus:ring-venue-indigo/20"
+                        className="pl-12 h-12 border-2 border-gray-200 focus:border-transparent bg-white rounded-xl text-gray-700 placeholder:text-gray-400 font-medium transition-all duration-200 hover:border-venue-purple focus:ring-2 focus:ring-venue-indigo/20"
                       />
                     </div>
                   </div>
