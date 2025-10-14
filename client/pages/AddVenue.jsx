@@ -144,8 +144,7 @@ export default function AddVenue() {
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div
-            initial={{ opacity: 0, y: -30 }}
-            animate={{ opacity: 1, y: 0 }}
+                        
             className="text-center mb-12"
           >
             <div className="flex items-center justify-center gap-3 mb-4">
@@ -160,19 +159,17 @@ export default function AddVenue() {
 
           {/* Form Card */}
           <div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-          >
+                        
+                      >
             <Card className="shadow-2xl border-0 rounded-3xl bg-white/70 backdrop-blur-xl border border-white/20">
               <CardContent className="p-10">
                 <form onSubmit={handleSubmit} className="space-y-10">
                   
                   {/* Venue Name - Full Width */}
                   <div
-                    initial={{ opacity: 0, x: -20 }}
+                    
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 }}
+                    
                     className="space-y-3"
                   >
                     <label className="text-lg font-semibold text-gray-800 flex items-center gap-3">
@@ -189,8 +186,8 @@ export default function AddVenue() {
                     />
                     {errors.venueName && (
                       <p 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        
+                        
                         className="text-red-500 text-sm flex items-center gap-2"
                       >
                         <span className="w-1 h-1 bg-red-500 rounded-full"></span>
@@ -202,9 +199,9 @@ export default function AddVenue() {
                   {/* Area and Venue Type Row */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div
-                      initial={{ opacity: 0, x: -20 }}
+                      
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.5 }}
+                      
                       className="space-y-3"
                     >
                       <label className="text-lg font-semibold text-gray-800 flex items-center gap-3">
@@ -222,8 +219,8 @@ export default function AddVenue() {
                       />
                       {errors.area && (
                         <p 
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
+                          
+                          
                           className="text-red-500 text-sm flex items-center gap-2"
                         >
                           <span className="w-1 h-1 bg-red-500 rounded-full"></span>
@@ -233,9 +230,9 @@ export default function AddVenue() {
                     </div>
 
                     <div
-                      initial={{ opacity: 0, x: 20 }}
+                      
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.6 }}
+                      
                       className="space-y-3"
                     >
                       <label className="text-lg font-semibold text-gray-800 flex items-center gap-3">
@@ -253,8 +250,8 @@ export default function AddVenue() {
                       />
                       {errors.venueType && (
                         <p 
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
+                          
+                          
                           className="text-red-500 text-sm flex items-center gap-2"
                         >
                           <span className="w-1 h-1 bg-red-500 rounded-full"></span>
@@ -267,9 +264,9 @@ export default function AddVenue() {
                   {/* Capacity and Price Row */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div
-                      initial={{ opacity: 0, x: -20 }}
+                      
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.7 }}
+                      
                       className="space-y-3"
                     >
                       <label className="text-lg font-semibold text-gray-800 flex items-center gap-3">
@@ -287,8 +284,8 @@ export default function AddVenue() {
                       />
                       {errors.capacity && (
                         <p 
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
+                          
+                          
                           className="text-red-500 text-sm flex items-center gap-2"
                         >
                           <span className="w-1 h-1 bg-red-500 rounded-full"></span>
@@ -298,9 +295,9 @@ export default function AddVenue() {
                     </div>
 
                     <div
-                      initial={{ opacity: 0, x: 20 }}
+                      
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.8 }}
+                      
                       className="space-y-3"
                     >
                       <label className="text-lg font-semibold text-gray-800 flex items-center gap-3">
@@ -318,8 +315,8 @@ export default function AddVenue() {
                       />
                       {errors.price && (
                         <p 
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
+                          
+                          
                           className="text-red-500 text-sm flex items-center gap-2"
                         >
                           <span className="w-1 h-1 bg-red-500 rounded-full"></span>
@@ -331,9 +328,9 @@ export default function AddVenue() {
 
                   {/* Amenities */}
                   <div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9 }}
+                    
+                    
+                    
                     className="space-y-6"
                   >
                     <label className="text-lg font-semibold text-gray-800 flex items-center gap-3">
@@ -346,9 +343,9 @@ export default function AddVenue() {
                       {AVAILABLE_AMENITIES.map((amenity, index) => (
                         <div
                           key={amenity}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 1 + (index * 0.05) }}
+                          
+                          
+                          
                         >
                           <Badge
                             variant={formData.amenities.includes(amenity) ? "default" : "outline"}
@@ -366,8 +363,8 @@ export default function AddVenue() {
                     </div>
                     {errors.amenities && (
                       <p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        
+                        
                         className="text-red-500 text-sm flex items-center gap-2"
                       >
                         <span className="w-1 h-1 bg-red-500 rounded-full"></span>
@@ -376,8 +373,8 @@ export default function AddVenue() {
                     )}
                     {errors.images && (
                       <p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        
+                        
                         className="text-red-500 text-sm flex items-center gap-2"
                       >
                         <span className="w-1 h-1 bg-red-500 rounded-full"></span>
@@ -388,9 +385,9 @@ export default function AddVenue() {
 
                   {/* Description */}
                   <div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.1 }}
+                    
+                    
+                    
                     className="space-y-3"
                   >
                     <label className="text-lg font-semibold text-gray-800 flex items-center gap-3">
@@ -407,8 +404,8 @@ export default function AddVenue() {
                     />
                     {errors.description && (
                       <p 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        
+                        
                         className="text-red-500 text-sm flex items-center gap-2"
                       >
                         <span className="w-1 h-1 bg-red-500 rounded-full"></span>
@@ -419,9 +416,9 @@ export default function AddVenue() {
 
                   {/* Image Upload */}
                   <div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.2 }}
+                    
+                    
+                    
                     className="space-y-6"
                   >
                     <label className="text-lg font-semibold text-gray-800 flex items-center gap-3">
@@ -453,16 +450,16 @@ export default function AddVenue() {
                     {/* Image Preview */}
                     {uploadedImages.length > 0 && (
                       <div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        
+                        
                         className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
                       >
                         {uploadedImages.map((image, index) => (
                           <div 
                             key={image.id}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.1 }}
+                            
+                            
+                            
                             className="relative group"
                           >
                             <img
@@ -485,9 +482,9 @@ export default function AddVenue() {
 
                   {/* Action Buttons */}
                   <div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.3 }}
+                    
+                    
+                    
                     className="flex flex-col sm:flex-row gap-6 pt-8"
                   >
                     <Button
