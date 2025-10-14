@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -143,7 +143,7 @@ export default function AddVenue() {
       <div className="relative z-10 py-12 px-4">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
-          <motion.div
+          <div
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-12"
@@ -156,10 +156,10 @@ export default function AddVenue() {
               <Heart className="w-8 h-8 text-pink-400" />
             </div>
             <p className="text-gray-600 text-lg">Create a magical listing that will enchant your guests</p>
-          </motion.div>
+          </div>
 
           {/* Form Card */}
-          <motion.div
+          <div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
@@ -169,7 +169,7 @@ export default function AddVenue() {
                 <form onSubmit={handleSubmit} className="space-y-10">
                   
                   {/* Venue Name - Full Width */}
-                  <motion.div
+                  <div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 }}
@@ -188,20 +188,20 @@ export default function AddVenue() {
                       className="h-14 rounded-2xl border-0 bg-white/60 backdrop-blur-sm shadow-lg text-lg font-medium placeholder:text-gray-400 focus:bg-white/80 transition-all duration-300"
                     />
                     {errors.venueName && (
-                      <motion.p 
+                      <p 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className="text-red-500 text-sm flex items-center gap-2"
                       >
                         <span className="w-1 h-1 bg-red-500 rounded-full"></span>
                         {errors.venueName}
-                      </motion.p>
+                      </p>
                     )}
-                  </motion.div>
+                  </div>
 
                   {/* Area and Venue Type Row */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <motion.div
+                    <div
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.5 }}
@@ -221,18 +221,18 @@ export default function AddVenue() {
                         className="h-14 rounded-2xl border-0 bg-white/60 backdrop-blur-sm shadow-lg text-lg font-medium placeholder:text-gray-400 focus:bg-white/80 transition-all duration-300"
                       />
                       {errors.area && (
-                        <motion.p 
+                        <p 
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           className="text-red-500 text-sm flex items-center gap-2"
                         >
                           <span className="w-1 h-1 bg-red-500 rounded-full"></span>
                           {errors.area}
-                        </motion.p>
+                        </p>
                       )}
-                    </motion.div>
+                    </div>
 
-                    <motion.div
+                    <div
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.6 }}
@@ -252,21 +252,21 @@ export default function AddVenue() {
                         className="h-14 rounded-2xl border-0 bg-white/60 backdrop-blur-sm shadow-lg text-lg font-medium placeholder:text-gray-400 focus:bg-white/80 transition-all duration-300"
                       />
                       {errors.venueType && (
-                        <motion.p 
+                        <p 
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           className="text-red-500 text-sm flex items-center gap-2"
                         >
                           <span className="w-1 h-1 bg-red-500 rounded-full"></span>
                           {errors.venueType}
-                        </motion.p>
+                        </p>
                       )}
-                    </motion.div>
+                    </div>
                   </div>
 
                   {/* Capacity and Price Row */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <motion.div
+                    <div
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.7 }}
@@ -286,18 +286,18 @@ export default function AddVenue() {
                         className="h-14 rounded-2xl border-0 bg-white/60 backdrop-blur-sm shadow-lg text-lg font-medium placeholder:text-gray-400 focus:bg-white/80 transition-all duration-300"
                       />
                       {errors.capacity && (
-                        <motion.p 
+                        <p 
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           className="text-red-500 text-sm flex items-center gap-2"
                         >
                           <span className="w-1 h-1 bg-red-500 rounded-full"></span>
                           {errors.capacity}
-                        </motion.p>
+                        </p>
                       )}
-                    </motion.div>
+                    </div>
 
-                    <motion.div
+                    <div
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.8 }}
@@ -317,20 +317,20 @@ export default function AddVenue() {
                         className="h-14 rounded-2xl border-0 bg-white/60 backdrop-blur-sm shadow-lg text-lg font-medium placeholder:text-gray-400 focus:bg-white/80 transition-all duration-300"
                       />
                       {errors.price && (
-                        <motion.p 
+                        <p 
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           className="text-red-500 text-sm flex items-center gap-2"
                         >
                           <span className="w-1 h-1 bg-red-500 rounded-full"></span>
                           {errors.price}
-                        </motion.p>
+                        </p>
                       )}
-                    </motion.div>
+                    </div>
                   </div>
 
                   {/* Amenities */}
-                  <motion.div
+                  <div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.9 }}
@@ -344,7 +344,7 @@ export default function AddVenue() {
                     </label>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                       {AVAILABLE_AMENITIES.map((amenity, index) => (
-                        <motion.div
+                        <div
                           key={amenity}
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
@@ -361,33 +361,33 @@ export default function AddVenue() {
                           >
                             {amenity}
                           </Badge>
-                        </motion.div>
+                        </div>
                       ))}
                     </div>
                     {errors.amenities && (
-                      <motion.p
+                      <p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className="text-red-500 text-sm flex items-center gap-2"
                       >
                         <span className="w-1 h-1 bg-red-500 rounded-full"></span>
                         {errors.amenities}
-                      </motion.p>
+                      </p>
                     )}
                     {errors.images && (
-                      <motion.p
+                      <p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className="text-red-500 text-sm flex items-center gap-2"
                       >
                         <span className="w-1 h-1 bg-red-500 rounded-full"></span>
                         {errors.images}
-                      </motion.p>
+                      </p>
                     )}
-                  </motion.div>
+                  </div>
 
                   {/* Description */}
-                  <motion.div
+                  <div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.1 }}
@@ -406,19 +406,19 @@ export default function AddVenue() {
                       className="min-h-[140px] rounded-2xl border-0 bg-white/60 backdrop-blur-sm shadow-lg text-lg resize-none placeholder:text-gray-400 focus:bg-white/80 transition-all duration-300"
                     />
                     {errors.description && (
-                      <motion.p 
+                      <p 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className="text-red-500 text-sm flex items-center gap-2"
                       >
                         <span className="w-1 h-1 bg-red-500 rounded-full"></span>
                         {errors.description}
-                      </motion.p>
+                      </p>
                     )}
-                  </motion.div>
+                  </div>
 
                   {/* Image Upload */}
-                  <motion.div
+                  <div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.2 }}
@@ -445,20 +445,20 @@ export default function AddVenue() {
                         <div className="mx-auto mb-6 p-4 bg-gradient-to-br from-venue-purple to-venue-indigo rounded-3xl w-20 h-20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                           <Upload className="w-8 h-8 text-white" />
                         </div>
-                        <p className="text-gray-700 mb-2 text-lg font-medium">Drop your stunning photos here ✨</p>
+                        <p className="text-gray-700 mb-2 text-lg font-medium">Drop your stunning photos here ��</p>
                         <p className="text-gray-500">or click to browse • JPG, PNG, WebP (Max 5MB each)</p>
                       </label>
                     </div>
 
                     {/* Image Preview */}
                     {uploadedImages.length > 0 && (
-                      <motion.div
+                      <div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
                       >
                         {uploadedImages.map((image, index) => (
-                          <motion.div 
+                          <div 
                             key={image.id}
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
@@ -477,14 +477,14 @@ export default function AddVenue() {
                             >
                               <X className="w-4 h-4" />
                             </button>
-                          </motion.div>
+                          </div>
                         ))}
-                      </motion.div>
+                      </div>
                     )}
-                  </motion.div>
+                  </div>
 
                   {/* Action Buttons */}
-                  <motion.div
+                  <div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.3 }}
@@ -517,11 +517,11 @@ export default function AddVenue() {
                     >
                       Maybe Later
                     </Button>
-                  </motion.div>
+                  </div>
                 </form>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>
