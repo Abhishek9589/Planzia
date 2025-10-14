@@ -12,6 +12,7 @@ import venueService from '../services/venueService';
 import apiClient from '../lib/apiClient';
 import { getUserFriendlyError } from '../lib/errorMessages';
 import { formatPrice } from '@/lib/priceUtils';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import {
   Building,
   Home,
@@ -60,6 +61,23 @@ export default function AdminDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [inquiries, setInquiries] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    title: '',
+    description: '',
+    confirmText: 'Confirm',
+    cancelText: 'Cancel',
+    onConfirm: null,
+  });
+  const openConfirm = (config) => setConfirmDialog({
+    open: true,
+    title: '',
+    description: '',
+    confirmText: 'Confirm',
+    cancelText: 'Cancel',
+    onConfirm: null,
+    ...config,
+  });
   const navigate = useNavigate();
   const { user, logout, isVenueOwner } = useAuth();
 
@@ -301,7 +319,7 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="space-y-3">
               {bookings.filter(b => b.status === 'pending').slice(0, 3).map((inquiry) => (
-                <div key={inquiry.id || inquiry._id} className="flex items-center justify-between p-4 bg-white border border-yellow-200 rounded-lg hover:border-yellow-300 transition-colors">
+                <div key={inquiry.id || inquiry._id} className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between p-4 bg-white border border-yellow-200 rounded-lg hover:border-yellow-300 transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <div className="w-8 h-8 bg-gradient-to-r from-venue-indigo to-venue-purple rounded-full flex items-center justify-center text-white text-xs font-bold">
@@ -312,12 +330,12 @@ export default function AdminDashboard() {
                     </div>
                     <p className="text-sm text-gray-600 ml-10">{inquiry.venue_name} • {new Date(inquiry.event_date).toLocaleDateString()} • {inquiry.guest_count} guests</p>
                   </div>
-                  <div className="text-right">
+                  <div className="md:text-right">
                     <p className="font-semibold text-venue-dark mb-2">{formatPrice(inquiry.amount)}</p>
-                    <div className="flex gap-2">
+                    <div className="grid grid-cols-2 gap-2 md:flex md:grid-cols-none">
                       <Button
                         size="sm"
-                        className="bg-venue-purple hover:bg-venue-indigo text-white"
+                        className="bg-venue-purple hover:bg-venue-indigo text-white w-full md:w-auto justify-center"
                         onClick={() => handleBookingAction(inquiry.id, 'confirmed')}
                       >
                         Accept
@@ -326,6 +344,7 @@ export default function AdminDashboard() {
                         size="sm"
                         variant="destructive"
                         onClick={() => handleBookingAction(inquiry.id, 'cancelled')}
+                        className="w-full md:w-auto justify-center"
                       >
                         Decline
                       </Button>
@@ -364,12 +383,12 @@ export default function AdminDashboard() {
               <div className="text-center py-4 text-gray-500">No confirmed or cancelled bookings yet</div>
             ) : (
               bookings.filter(b => b.status !== 'pending').slice(0, 3).map((booking) => (
-                <div key={booking.id || booking._id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={booking.id || booking._id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg">
                   <div>
                     <h4 className="font-semibold text-venue-dark">{booking.customer_name}</h4>
                     <p className="text-sm text-gray-600">{booking.venue_name} • {new Date(booking.event_date).toLocaleDateString()}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="sm:text-right">
                     <p className="font-semibold text-venue-dark">{formatPrice(booking.amount)}</p>
                     <p className={`text-sm ${booking.status === 'confirmed' ? 'text-green-600' : booking.status === 'cancelled' ? 'text-red-600' : 'text-yellow-600'}`}>
                       {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
@@ -922,31 +941,31 @@ export default function AdminDashboard() {
     setShowEditVenueForm(true);
   };
 
-  const handleDeleteVenue = async (venueId, venueName) => {
-    if (!window.confirm(`Are you sure you want to delete "${venueName}"? This action cannot be undone.`)) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      // Use the proper venueService instead of custom apiCall
-      await venueService.deleteVenue(venueId);
-
-      showSuccess('Venue deleted successfully');
-
-      // Reload venues and stats after successful deletion
-      await loadVenues();
-      await loadDashboardStats();
-    } catch (error) {
-      console.error('Error deleting venue:', error);
-      showError(getUserFriendlyError(error, 'general'));
-    } finally {
-      setLoading(false);
-    }
+  const handleDeleteVenue = (venueId, venueName) => {
+    openConfirm({
+      title: 'Delete Venue',
+      description: `Are you sure you want to delete "${venueName}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        try {
+          setLoading(true);
+          await venueService.deleteVenue(venueId);
+          showSuccess('Venue deleted successfully');
+          await loadVenues();
+          await loadDashboardStats();
+        } catch (error) {
+          console.error('Error deleting venue:', error);
+          showError(getUserFriendlyError(error, 'general'));
+        } finally {
+          setLoading(false);
+        }
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+      },
+    });
   };
 
-  const handleBookingAction = async (bookingId, newStatus) => {
+  const handleBookingAction = (bookingId, newStatus) => {
     const actionText = newStatus === 'confirmed' ? 'accept' : 'reject';
     const booking = bookings.find(b => b.id === bookingId);
 
@@ -955,53 +974,44 @@ export default function AdminDashboard() {
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to ${actionText} the booking for ${booking.customer_name} at ${booking.venue_name}?`)) {
-      return;
-    }
-
-    // Optimistic update for immediate UI feedback
-    const originalBookings = [...bookings];
-    setBookings(prevBookings =>
-      prevBookings.map(b =>
-        b.id === bookingId ? { ...b, status: newStatus } : b
-      )
-    );
-
-    // Update inquiry count immediately
-    setInquiryCount(prev => Math.max(0, prev - 1));
-
-    try {
-      await apiCall(`/api/bookings/${bookingId}/status`, {
-        method: 'PUT',
-        body: JSON.stringify({ status: newStatus })
-      });
-
-      // Show detailed success message
-      showSuccess(
-        newStatus === 'confirmed'
-          ? `✅ Booking accepted! ${booking.customer_name} has been notified via email.`
-          : `❌ Booking declined. ${booking.customer_name} has been notified via email.`
-      );
-
-      // Reload data to ensure consistency with server
-      await Promise.all([
-        loadBookings(),
-        loadDashboardStats(),
-        loadInquiryCount()
-      ]);
-
-      // Trigger notification updates for affected customers
-      notificationService.triggerUpdate();
-
-    } catch (error) {
-      console.error(`Error ${actionText}ing booking:`, error);
-
-      // Revert optimistic update on error
-      setBookings(originalBookings);
-      setInquiryCount(prev => prev + 1);
-
-      showError(`Failed to ${actionText} booking. Please try again.`);
-    }
+    openConfirm({
+      title: newStatus === 'confirmed' ? 'Accept Booking' : 'Decline Booking',
+      description: `Are you sure you want to ${actionText} the booking for ${booking.customer_name} at ${booking.venue_name}?`,
+      confirmText: newStatus === 'confirmed' ? 'Accept' : 'Decline',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        const originalBookings = [...bookings];
+        setBookings(prevBookings =>
+          prevBookings.map(b =>
+            b.id === bookingId ? { ...b, status: newStatus } : b
+          )
+        );
+        setInquiryCount(prev => Math.max(0, prev - 1));
+        try {
+          await apiCall(`/api/bookings/${bookingId}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status: newStatus })
+          });
+          showSuccess(
+            newStatus === 'confirmed'
+              ? `✅ Booking accepted! ${booking.customer_name} has been notified via email.`
+              : `❌ Booking declined. ${booking.customer_name} has been notified via email.`
+          );
+          await Promise.all([
+            loadBookings(),
+            loadDashboardStats(),
+            loadInquiryCount()
+          ]);
+          notificationService.triggerUpdate();
+        } catch (error) {
+          console.error(`Error ${actionText}ing booking:`, error);
+          setBookings(originalBookings);
+          setInquiryCount(prev => prev + 1);
+          showError(`Failed to ${actionText} booking. Please try again.`);
+        }
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+      },
+    });
   };
 
   const renderContent = () => {
@@ -1311,6 +1321,19 @@ export default function AdminDashboard() {
           </Card>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        confirmText={confirmDialog.confirmText}
+        cancelText={confirmDialog.cancelText}
+        onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}
+        onConfirm={async () => {
+          const fn = confirmDialog.onConfirm;
+          if (fn) await fn();
+        }}
+      />
 
       {/* Notification Container */}
       <NotificationContainer
