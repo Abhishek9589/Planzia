@@ -107,7 +107,7 @@ export default function SignIn() {
         )}
 
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-venue-dark">Welcome back</h1>
+          <h1 className="text-3xl font-bold text-venue-dark mb-2">Welcome back</h1>
           <p className="text-gray-600">Sign in to your VenueKart account</p>
         </div>
         <Card className="shadow-2xl border-0">
