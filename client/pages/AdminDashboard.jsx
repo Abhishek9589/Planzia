@@ -12,6 +12,7 @@ import venueService from '../services/venueService';
 import apiClient from '../lib/apiClient';
 import { getUserFriendlyError } from '../lib/errorMessages';
 import { formatPrice } from '@/lib/priceUtils';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import {
   Building,
   Home,
@@ -60,6 +61,23 @@ export default function AdminDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [inquiries, setInquiries] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    title: '',
+    description: '',
+    confirmText: 'Confirm',
+    cancelText: 'Cancel',
+    onConfirm: null,
+  });
+  const openConfirm = (config) => setConfirmDialog({
+    open: true,
+    title: '',
+    description: '',
+    confirmText: 'Confirm',
+    cancelText: 'Cancel',
+    onConfirm: null,
+    ...config,
+  });
   const navigate = useNavigate();
   const { user, logout, isVenueOwner } = useAuth();
 
@@ -923,31 +941,31 @@ export default function AdminDashboard() {
     setShowEditVenueForm(true);
   };
 
-  const handleDeleteVenue = async (venueId, venueName) => {
-    if (!window.confirm(`Are you sure you want to delete "${venueName}"? This action cannot be undone.`)) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      // Use the proper venueService instead of custom apiCall
-      await venueService.deleteVenue(venueId);
-
-      showSuccess('Venue deleted successfully');
-
-      // Reload venues and stats after successful deletion
-      await loadVenues();
-      await loadDashboardStats();
-    } catch (error) {
-      console.error('Error deleting venue:', error);
-      showError(getUserFriendlyError(error, 'general'));
-    } finally {
-      setLoading(false);
-    }
+  const handleDeleteVenue = (venueId, venueName) => {
+    openConfirm({
+      title: 'Delete Venue',
+      description: `Are you sure you want to delete "${venueName}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        try {
+          setLoading(true);
+          await venueService.deleteVenue(venueId);
+          showSuccess('Venue deleted successfully');
+          await loadVenues();
+          await loadDashboardStats();
+        } catch (error) {
+          console.error('Error deleting venue:', error);
+          showError(getUserFriendlyError(error, 'general'));
+        } finally {
+          setLoading(false);
+        }
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+      },
+    });
   };
 
-  const handleBookingAction = async (bookingId, newStatus) => {
+  const handleBookingAction = (bookingId, newStatus) => {
     const actionText = newStatus === 'confirmed' ? 'accept' : 'reject';
     const booking = bookings.find(b => b.id === bookingId);
 
@@ -956,53 +974,44 @@ export default function AdminDashboard() {
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to ${actionText} the booking for ${booking.customer_name} at ${booking.venue_name}?`)) {
-      return;
-    }
-
-    // Optimistic update for immediate UI feedback
-    const originalBookings = [...bookings];
-    setBookings(prevBookings =>
-      prevBookings.map(b =>
-        b.id === bookingId ? { ...b, status: newStatus } : b
-      )
-    );
-
-    // Update inquiry count immediately
-    setInquiryCount(prev => Math.max(0, prev - 1));
-
-    try {
-      await apiCall(`/api/bookings/${bookingId}/status`, {
-        method: 'PUT',
-        body: JSON.stringify({ status: newStatus })
-      });
-
-      // Show detailed success message
-      showSuccess(
-        newStatus === 'confirmed'
-          ? `✅ Booking accepted! ${booking.customer_name} has been notified via email.`
-          : `❌ Booking declined. ${booking.customer_name} has been notified via email.`
-      );
-
-      // Reload data to ensure consistency with server
-      await Promise.all([
-        loadBookings(),
-        loadDashboardStats(),
-        loadInquiryCount()
-      ]);
-
-      // Trigger notification updates for affected customers
-      notificationService.triggerUpdate();
-
-    } catch (error) {
-      console.error(`Error ${actionText}ing booking:`, error);
-
-      // Revert optimistic update on error
-      setBookings(originalBookings);
-      setInquiryCount(prev => prev + 1);
-
-      showError(`Failed to ${actionText} booking. Please try again.`);
-    }
+    openConfirm({
+      title: newStatus === 'confirmed' ? 'Accept Booking' : 'Decline Booking',
+      description: `Are you sure you want to ${actionText} the booking for ${booking.customer_name} at ${booking.venue_name}?`,
+      confirmText: newStatus === 'confirmed' ? 'Accept' : 'Decline',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        const originalBookings = [...bookings];
+        setBookings(prevBookings =>
+          prevBookings.map(b =>
+            b.id === bookingId ? { ...b, status: newStatus } : b
+          )
+        );
+        setInquiryCount(prev => Math.max(0, prev - 1));
+        try {
+          await apiCall(`/api/bookings/${bookingId}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status: newStatus })
+          });
+          showSuccess(
+            newStatus === 'confirmed'
+              ? `✅ Booking accepted! ${booking.customer_name} has been notified via email.`
+              : `❌ Booking declined. ${booking.customer_name} has been notified via email.`
+          );
+          await Promise.all([
+            loadBookings(),
+            loadDashboardStats(),
+            loadInquiryCount()
+          ]);
+          notificationService.triggerUpdate();
+        } catch (error) {
+          console.error(`Error ${actionText}ing booking:`, error);
+          setBookings(originalBookings);
+          setInquiryCount(prev => prev + 1);
+          showError(`Failed to ${actionText} booking. Please try again.`);
+        }
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+      },
+    });
   };
 
   const renderContent = () => {
@@ -1312,6 +1321,19 @@ export default function AdminDashboard() {
           </Card>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        confirmText={confirmDialog.confirmText}
+        cancelText={confirmDialog.cancelText}
+        onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}
+        onConfirm={async () => {
+          const fn = confirmDialog.onConfirm;
+          if (fn) await fn();
+        }}
+      />
 
       {/* Notification Container */}
       <NotificationContainer
