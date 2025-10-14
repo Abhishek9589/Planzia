@@ -236,9 +236,7 @@ export default function SignIn() {
           </CardContent>
         </Card>
 
-        <div className="mt-6 text-center text-xs text-white/80">
-          <p>© 2024 VenueKart. All rights reserved.</p>
-        </div>
+        <div className="mt-6 text-center text-xs text-white/80" />
       </div>
     </div>
   );
