@@ -64,8 +64,8 @@ export default function AdminDashboard() {
   const { user, logout, isVenueOwner } = useAuth();
 
   useEffect(() => {
-    // Check if user is authenticated as venue owner
-    if (!user || !isVenueOwner()) {
+    // Check if user is authenticated as venue owner or admin
+    if (!user || (!isVenueOwner() && user?.userType !== 'admin')) {
       navigate('/signin');
     } else {
       loadDashboardData();
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
 
   // Real-time updates with dynamic polling
   useEffect(() => {
-    if (user && isVenueOwner()) {
+    if (user && (isVenueOwner() || user?.userType === 'admin')) {
       let interval;
 
       const setupPolling = () => {
