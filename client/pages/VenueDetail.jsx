@@ -475,7 +475,7 @@ export default function VenueDetail() {
                   </div>
 
                   <Dialog open={showBookingForm} onOpenChange={setShowBookingForm}>
-                    <DialogContent className="max-w-5xl sm:rounded-2xl">
+                    <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-5xl sm:rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Start Booking</DialogTitle>
                         <DialogDescription>
@@ -488,9 +488,9 @@ export default function VenueDetail() {
                         <div>
                           <div className="flex flex-col md:flex-row gap-2 items-start">
                             {/* Left: Calendar */}
-                            <div className="md:w-[296px]">
+                            <div className="w-full md:w-[296px]">
                               <Label className="text-base font-semibold">Select Event Date</Label>
-                              <div className="mt-2 inline-block w-max border rounded-lg p-2">
+                              <div className="mt-2 w-full overflow-x-auto border rounded-lg p-2">
                                 <Calendar
                                   mode="single"
                                   selected={selectedDate}
@@ -507,7 +507,7 @@ export default function VenueDetail() {
                             </div>
 
                             {/* Right: Details */}
-                            <div className="flex-1">
+                            <div className="flex-1 w-full">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                   <Label htmlFor="fullName">Full Name*</Label>
@@ -593,18 +593,19 @@ export default function VenueDetail() {
                           </div>
                         </div>
 
-                        <DialogFooter>
+                        <DialogFooter className="gap-2">
                           <Button
                             type="button"
                             variant="outline"
                             onClick={() => setShowBookingForm(false)}
+                            className="w-full sm:w-auto"
                           >
                             Cancel
                           </Button>
                           <Button
                             type="submit"
                             disabled={isSubmitting || !selectedDate}
-                            className="bg-venue-indigo hover:bg-venue-purple text-white"
+                            className="bg-venue-indigo hover:bg-venue-purple text-white w-full sm:w-auto"
                           >
                             {isSubmitting ? 'Sending Inquiry...' : 'Send Inquiry'}
                           </Button>
