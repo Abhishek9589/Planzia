@@ -998,14 +998,6 @@ export default function AdminDashboard() {
             >
               <X className="h-6 w-6" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="h-6 w-6" />
-            </Button>
           </div>
         </div>
 
