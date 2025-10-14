@@ -484,108 +484,111 @@ export default function VenueDetail() {
                       </DialogHeader>
 
                       <form onSubmit={handleInquireSubmit} className="space-y-6">
-                        <div className="grid gap-6 md:grid-cols-[360px_1fr]">
-                          {/* Left: Calendar */}
-                          <div className="md:max-w-[360px]">
-                            <Label className="text-base font-semibold">Select Event Date</Label>
-                            <div className="mt-2 inline-block w-max border rounded-lg p-2">
-                              <Calendar
-                                mode="single"
-                                selected={selectedDate}
-                                onSelect={setSelectedDate}
-                                disabled={(date) => date < new Date()}
-                                className="w-auto" classNames={{ table: "w-auto" }}
-                              />
-                            </div>
-                            {selectedDate && (
-                              <p className="text-sm text-venue-indigo mt-2 font-medium">
-                                Selected: {selectedDate.toLocaleDateString()}
-                              </p>
-                            )}
-                          </div>
-
-                          {/* Right: Details */}
-                          <div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="fullName">Full Name*</Label>
-                                <Input
-                                  id="fullName"
-                                  name="fullName"
-                                  value={bookingForm.fullName}
-                                  onChange={handleBookingFormChange}
-                                  placeholder="Enter your full name"
-                                  required
-                                  className="mt-1"
+                        {/* Calendar + Details */}
+                        <div>
+                          <div className="flex flex-col md:flex-row gap-2 items-start">
+                            {/* Left: Calendar */}
+                            <div className="md:w-[296px]">
+                              <Label className="text-base font-semibold">Select Event Date</Label>
+                              <div className="mt-2 inline-block w-max border rounded-lg p-2">
+                                <Calendar
+                                  mode="single"
+                                  selected={selectedDate}
+                                  onSelect={setSelectedDate}
+                                  disabled={(date) => date < new Date()}
+                                  className="w-auto" classNames={{ table: "w-auto" }}
                                 />
                               </div>
-                              <div>
-                                <Label htmlFor="email">Email*</Label>
-                                <Input
-                                  id="email"
-                                  name="email"
-                                  type="email"
-                                  value={bookingForm.email}
-                                  onChange={handleBookingFormChange}
-                                  placeholder="name@example.com"
-                                  required
-                                  className="mt-1"
-                                />
-                              </div>
+                              {selectedDate && (
+                                <p className="text-sm text-venue-indigo mt-2 font-medium">
+                                  Selected: {selectedDate.toLocaleDateString()}
+                                </p>
+                              )}
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                              <div>
-                                <Label htmlFor="phone">Phone Number*</Label>
-                                <Input
-                                  id="phone"
-                                  name="phone"
-                                  type="tel"
-                                  value={bookingForm.phone}
-                                  onChange={handleBookingFormChange}
-                                  placeholder="10-digit mobile number"
-                                  required
-                                  className="mt-1"
-                                />
+                            {/* Right: Details */}
+                            <div className="flex-1">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <Label htmlFor="fullName">Full Name*</Label>
+                                  <Input
+                                    id="fullName"
+                                    name="fullName"
+                                    value={bookingForm.fullName}
+                                    onChange={handleBookingFormChange}
+                                    placeholder="Enter your full name"
+                                    required
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <Label htmlFor="email">Email*</Label>
+                                  <Input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    value={bookingForm.email}
+                                    onChange={handleBookingFormChange}
+                                    placeholder="name@example.com"
+                                    required
+                                    className="mt-1"
+                                  />
+                                </div>
                               </div>
-                              <div>
-                                <Label htmlFor="eventType">Event Type*</Label>
-                                <Input
-                                  id="eventType"
-                                  name="eventType"
-                                  value={bookingForm.eventType}
-                                  onChange={handleBookingFormChange}
-                                  placeholder="e.g., Wedding Reception, Conference"
-                                  required
-                                  className="mt-1"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="guestCount">Expected Guest Count*</Label>
-                                <Input
-                                  id="guestCount"
-                                  name="guestCount"
-                                  type="number"
-                                  value={bookingForm.guestCount}
-                                  onChange={handleBookingFormChange}
-                                  placeholder="Expected number of guests"
-                                  required
-                                  className="mt-1"
-                                />
-                              </div>
-                            </div>
 
-                            <div className="mt-4">
-                              <Label htmlFor="specialRequests">Special Requests</Label>
-                              <Textarea
-                                id="specialRequests"
-                                name="specialRequests"
-                                value={bookingForm.specialRequests}
-                                onChange={handleBookingFormChange}
-                                placeholder="Any special requests or details (optional)"
-                                rows={4}
-                                className="mt-1"
-                              />
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                <div>
+                                  <Label htmlFor="phone">Phone Number*</Label>
+                                  <Input
+                                    id="phone"
+                                    name="phone"
+                                    type="tel"
+                                    value={bookingForm.phone}
+                                    onChange={handleBookingFormChange}
+                                    placeholder="10-digit mobile number"
+                                    required
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <Label htmlFor="eventType">Event Type*</Label>
+                                  <Input
+                                    id="eventType"
+                                    name="eventType"
+                                    value={bookingForm.eventType}
+                                    onChange={handleBookingFormChange}
+                                    placeholder="e.g., Wedding Reception, Conference"
+                                    required
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <Label htmlFor="guestCount">Expected Guest Count*</Label>
+                                  <Input
+                                    id="guestCount"
+                                    name="guestCount"
+                                    type="number"
+                                    value={bookingForm.guestCount}
+                                    onChange={handleBookingFormChange}
+                                    placeholder="Expected number of guests"
+                                    required
+                                    className="mt-1"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="mt-4">
+                                <Label htmlFor="specialRequests">Special Requests</Label>
+                                <Textarea
+                                  id="specialRequests"
+                                  name="specialRequests"
+                                  value={bookingForm.specialRequests}
+                                  onChange={handleBookingFormChange}
+                                  placeholder="Any special requests or details (optional)"
+                                  rows={4}
+                                  className="mt-1"
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
