@@ -11,7 +11,7 @@ export default function VerifyOTP() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
+  const [timeLeft, setTimeLeft] = useState(60); // 1 minute
   const { verifyOTP, resendOTP } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -105,7 +105,7 @@ export default function VerifyOTP() {
 
     try {
       await resendOTP(email);
-      setTimeLeft(300); // Reset timer
+      setTimeLeft(60); // Reset timer
       setOtp(['', '', '', '', '', '']); // Clear OTP input
       setSuccess('New verification code sent!');
       setTimeout(() => setSuccess(''), 3000);
