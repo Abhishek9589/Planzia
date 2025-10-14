@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { scrollToTop } from '@/lib/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AutocompleteInput } from '@/components/ui/autocomplete-input';
 import venueService from '../services/venueService';
@@ -95,7 +94,7 @@ export default function Index() {
 
   const handleFavoriteClick = async (venueId) => {
     if (!isLoggedIn) {
-      alert('Please sign in to add venues to your favorites');
+      window.dispatchEvent(new CustomEvent('app-error', { detail: { title: 'Sign in required', message: 'Please sign in to add venues to your favorites.' } }));
       return;
     }
     await toggleFavorite(venueId);
@@ -120,7 +119,7 @@ export default function Index() {
         const pricingInfo = getPricingInfo(basePrice, 'listing');
 
         return {
-          id: venue.id,
+          id: venue._id || venue.id,
           name: venue.name,
           location: venue.location,
           capacity: `Up to ${venue.capacity} guests`,
@@ -414,12 +413,12 @@ export default function Index() {
                         </Badge>
                       ))}
                     </div>
-                    <div className="flex items-center justify-between mt-auto">
-                      <span className="text-2xl font-bold text-venue-indigo">{venue.price}</span>
+                    <CardFooter className="flex items-center justify-between mt-4 p-0">
+                      <span className="text-2xl font-bold text-venue-indigo">{venue.price || '₹0'}</span>
                       <Button asChild className="bg-venue-indigo hover:bg-venue-purple" onClick={scrollToTop}>
                         <Link to={`/venue/${venue.id}`}>View Details</Link>
                       </Button>
-                    </div>
+                    </CardFooter>
                   </CardContent>
                 </Card>
               ))

@@ -3,28 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { scrollToTop } from '@/lib/navigation';
 import { Button } from './ui/button';
-import { Menu, X, MapPin, LogOut, User, Building, Heart } from 'lucide-react';
+import { Menu, X, LogOut, User, Building, Heart } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-
-import apiClient from '../lib/apiClient.js';
-
-// API service wrapper
-const getAuthHeader = () => {
-  const token = localStorage.getItem('accessToken');
-  return token ? { 'Authorization': `Bearer ${token}` } : {};
-};
-
-const apiCall = async (url, options = {}) => {
-  try {
-    if (!options.method || options.method.toUpperCase() === 'GET') {
-      return await apiClient.getJson(url, options);
-    }
-    return await apiClient.callJson(url, options);
-  } catch (error) {
-    console.error('API call error:', error);
-    throw error;
-  }
-};
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -61,6 +41,7 @@ export default function Navigation() {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm"
     >
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-venue-indigo text-white px-3 py-2 rounded-md">Skip to content</a>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}

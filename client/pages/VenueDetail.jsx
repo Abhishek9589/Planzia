@@ -80,7 +80,8 @@ export default function VenueDetail() {
         if (venueData.images && typeof venueData.images === 'string') {
           venueData.images = JSON.parse(venueData.images);
         }
-        setVenue(venueData);
+        const normalized = { ...venueData, id: venueData.id || venueData._id };
+        setVenue(normalized);
       } catch (err) {
         console.error('Error fetching venue details:', err);
         const userFriendlyMessage = getUserFriendlyError(err.message || err, 'general');

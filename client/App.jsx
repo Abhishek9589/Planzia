@@ -12,6 +12,7 @@ import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import ErrorBoundary from "./components/ui/error-boundary";
 import TokenExpiredNotice from "./components/TokenExpiredNotice";
+import ErrorDialog from "./components/ErrorDialog";
 import Index from "./pages/Index";
 import Venues from "./pages/Venues";
 import About from "./pages/About";
@@ -40,7 +41,9 @@ const queryClient = new QueryClient();
 const Layout = ({ children }) => (
   <>
     <Navigation />
-    {children}
+    <main id="main-content" tabIndex="-1" className="outline-none focus:ring-2 focus:ring-ring">
+      {children}
+    </main>
     <Footer />
     <TokenExpiredNotice />
   </>
@@ -49,7 +52,9 @@ const Layout = ({ children }) => (
 const AuthLayout = ({ children }) => (
   <>
     <Navigation />
-    {children}
+    <main id="main-content" tabIndex="-1" className="outline-none focus:ring-2 focus:ring-ring">
+      {children}
+    </main>
   </>
 );
 
@@ -60,6 +65,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <ErrorDialog />
           <BrowserRouter>
           <Routes>
             <Route path="/" element={<Layout><Index /></Layout>} />

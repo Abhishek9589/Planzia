@@ -99,8 +99,9 @@ export default function UserDashboard() {
         apiCall('/api/bookings/customer/notifications'),
         apiCall('/api/bookings/customer/notification-count')
       ]);
-      
-      setBookings(bookingsData || []);
+
+      const normalizedBookings = Array.isArray(bookingsData) ? bookingsData.map(b => ({ ...b, id: b.id || b._id })) : [];
+      setBookings(normalizedBookings);
       setNotifications(notificationsData || []);
       setNotificationCount(notificationCountData.unreadCount || 0);
     } catch (error) {
@@ -117,6 +118,22 @@ export default function UserDashboard() {
 
   const updateProfile = async () => {
     try {
+      // Client-side phone validation for better UX
+      const digits = String(profileData.phone || '').replace(/\D/g, '');
+      let d = digits;
+      if (d.length === 12 && d.startsWith('91')) d = d.slice(2);
+      if (d.length === 11 && d.startsWith('0')) d = d.slice(1);
+      if (d) {
+        if (d.length < 10) {
+          toast({ title: 'Invalid phone number', description: 'Phone number is too short. Enter exactly 10 digits.', variant: 'destructive' });
+          return;
+        }
+        if (d.length > 10) {
+          toast({ title: 'Invalid phone number', description: 'Phone number is too long. Enter exactly 10 digits.', variant: 'destructive' });
+          return;
+        }
+      }
+
       setProfileLoading(true);
       await apiCall('/api/auth/update-profile', {
         method: 'PUT',
@@ -126,7 +143,7 @@ export default function UserDashboard() {
           mobileNumber: profileData.phone
         })
       });
-      
+
       toast({
         title: "Success",
         description: "Profile updated successfully!",
@@ -135,8 +152,8 @@ export default function UserDashboard() {
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
-        title: "Error", 
-        description: "Failed to update profile. Please try again.",
+        title: "Error",
+        description: error?.message || "Failed to update profile. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -216,7 +233,7 @@ export default function UserDashboard() {
                   <div className="space-y-4">
                     {bookings.map((booking) => (
                       <div
-                        key={booking.id}
+                        key={booking.id || booking._id}
                         className={`border rounded-lg p-4 hover:bg-gray-50 transition-colors ${
                           booking.status === 'confirmed' ? 'border-l-4 border-l-green-500 bg-green-50/30' :
                           booking.status === 'cancelled' ? 'border-l-4 border-l-red-500 bg-red-50/30' :

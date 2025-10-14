@@ -103,7 +103,7 @@ export default function AddVenue() {
     // Check if user is logged in and is a venue owner
     if (!isLoggedIn) {
       showError('Please log in to add a venue');
-      navigate('/login');
+      navigate('/signin');
       return;
     }
 
@@ -116,7 +116,7 @@ export default function AddVenue() {
     try {
       await venueService.createVenue(formData, uploadedImages);
 
-      showSuccess('Venue added successfully! ����');
+      showSuccess('Venue added successfully! 🎉');
       navigate('/admin/dashboard');
     } catch (error) {
       console.error('Error adding venue:', error);

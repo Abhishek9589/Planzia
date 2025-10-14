@@ -47,7 +47,7 @@ export default function Venues() {
 
   const handleFavoriteClick = async (venueId) => {
     if (!isLoggedIn) {
-      alert('Please sign in to add venues to your favorites');
+      window.dispatchEvent(new CustomEvent('app-error', { detail: { title: 'Sign in required', message: 'Please sign in to add venues to your favorites.' } }));
       return;
     }
     await toggleFavorite(venueId);
@@ -145,7 +145,7 @@ export default function Venues() {
 
       // Format API venues data
       const apiVenues = response.venues.map(venue => ({
-        id: venue.id,
+        id: venue._id || venue.id,
         name: venue.name,
         location: venue.location,
         capacity: venue.capacity,
@@ -287,7 +287,7 @@ export default function Venues() {
 
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Filters Sidebar */}
-          <div className={`lg:w-72 space-y-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+          <div className={`lg:w-72 space-y-6 ${showFilters ? 'block' : 'hidden lg:block'} lg:sticky lg:top-24 lg:self-start`}>
             <Card className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">

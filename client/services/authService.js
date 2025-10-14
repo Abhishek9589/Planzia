@@ -1,12 +1,18 @@
-import apiClient from '../lib/apiClient.js';
 import { getUserFriendlyError } from '../lib/errorMessages.js';
+import apiClient from '../lib/apiClient.js';
 
 const API_BASE = '/api/auth';
 
 class AuthService {
   constructor() {
-    this.accessToken = localStorage.getItem('accessToken');
-    this.refreshToken = localStorage.getItem('refreshToken');
+    // Safely access localStorage (iframes or privacy settings can block it)
+    try {
+      this.accessToken = window.localStorage ? localStorage.getItem('accessToken') : null;
+      this.refreshToken = window.localStorage ? localStorage.getItem('refreshToken') : null;
+    } catch (_err) {
+      this.accessToken = null;
+      this.refreshToken = null;
+    }
   }
 
   async login(email, password) {
@@ -71,14 +77,27 @@ class AuthService {
   }
 
   async getCurrentUser() {
-    if (!this.accessToken) {
+    // Re-read latest token to avoid stale constructor value
+    let token = null;
+    try {
+      token = window.localStorage ? localStorage.getItem('accessToken') : this.accessToken;
+    } catch (_err) {
+      token = this.accessToken;
+    }
+    if (!token || token === 'undefined' || token === 'null') {
       return null;
     }
 
     try {
       return await apiClient.getJson(`${API_BASE}/me`);
     } catch (error) {
-      console.error('Get current user error:', error);
+      // On network errors, clear tokens silently to stop repeated failing calls
+      if (String(error.message).toLowerCase().includes('failed to fetch') || String(error.message).toLowerCase().includes('network')) {
+        this.clearTokens();
+        return null;
+      }
+      // For other errors (e.g., 401), also clear tokens
+      this.clearTokens();
       return null;
     }
   }
@@ -116,9 +135,13 @@ class AuthService {
   setTokens(accessToken, refreshToken) {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
-    localStorage.setItem('accessToken', accessToken);
-    if (refreshToken) {
-      localStorage.setItem('refreshToken', refreshToken);
+    try {
+      localStorage.setItem('accessToken', accessToken);
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+    } catch (_err) {
+      // Ignore storage errors in restricted environments
     }
     // Update apiClient tokens as well
     apiClient.setTokens(accessToken, refreshToken);
@@ -127,9 +150,13 @@ class AuthService {
   clearTokens() {
     this.accessToken = null;
     this.refreshToken = null;
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user'); // Clear old user data
+    try {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user'); // Clear old user data
+    } catch (_err) {
+      // Ignore storage errors
+    }
     // Clear apiClient tokens as well
     apiClient.clearTokens();
   }

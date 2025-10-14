@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,7 +16,6 @@ import {
   Building,
   Home,
   Calendar,
-  BarChart3,
   Settings,
   LogOut,
   Menu,
@@ -62,7 +61,6 @@ export default function AdminDashboard() {
   const [inquiries, setInquiries] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
   const navigate = useNavigate();
-  const location = useLocation();
   const { user, logout, isVenueOwner } = useAuth();
 
   useEffect(() => {
@@ -146,7 +144,8 @@ export default function AdminDashboard() {
   const loadInquiries = async () => {
     try {
       const data = await apiCall('/api/bookings/owner/inquiries');
-      setInquiries(data);
+      const normalized = Array.isArray(data) ? data.map(i => ({ ...i, id: i.id || i._id })) : [];
+      setInquiries(normalized);
     } catch (error) {
       console.error('Error loading inquiries:', error);
     }
@@ -155,7 +154,8 @@ export default function AdminDashboard() {
   const loadVenues = async () => {
     try {
       const data = await apiCall('/api/venues/owner/my-venues');
-      setVenues(data);
+      const normalized = Array.isArray(data) ? data.map(v => ({ ...v, id: v.id || v._id })) : [];
+      setVenues(normalized);
     } catch (error) {
       console.error('Error loading venues:', error);
     }
@@ -164,7 +164,8 @@ export default function AdminDashboard() {
   const loadBookings = async () => {
     try {
       const data = await apiCall('/api/bookings/owner?limit=10');
-      setBookings(data);
+      const normalized = Array.isArray(data) ? data.map(b => ({ ...b, id: b.id || b._id })) : [];
+      setBookings(normalized);
     } catch (error) {
       console.error('Error loading bookings:', error);
     }
@@ -300,7 +301,7 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="space-y-3">
               {bookings.filter(b => b.status === 'pending').slice(0, 3).map((inquiry) => (
-                <div key={inquiry.id} className="flex items-center justify-between p-4 bg-white border border-yellow-200 rounded-lg hover:border-yellow-300 transition-colors">
+                <div key={inquiry.id || inquiry._id} className="flex items-center justify-between p-4 bg-white border border-yellow-200 rounded-lg hover:border-yellow-300 transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <div className="w-8 h-8 bg-gradient-to-r from-venue-indigo to-venue-purple rounded-full flex items-center justify-center text-white text-xs font-bold">
@@ -363,7 +364,7 @@ export default function AdminDashboard() {
               <div className="text-center py-4 text-gray-500">No confirmed or cancelled bookings yet</div>
             ) : (
               bookings.filter(b => b.status !== 'pending').slice(0, 3).map((booking) => (
-                <div key={booking.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={booking.id || booking._id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div>
                     <h4 className="font-semibold text-venue-dark">{booking.customer_name}</h4>
                     <p className="text-sm text-gray-600">{booking.venue_name} • {new Date(booking.event_date).toLocaleDateString()}</p>
@@ -409,7 +410,7 @@ export default function AdminDashboard() {
           </div>
         ) : (
           venues.map((venue) => (
-            <Card key={venue.id}>
+            <Card key={venue.id || venue._id}>
               <CardContent className="p-6">
                 <div className="flex gap-4">
                   <img
@@ -451,9 +452,9 @@ export default function AdminDashboard() {
                           Edit
                         </Button>
                         <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteVenue(venue.id, venue.name)}
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteVenue(venue.id || venue._id, venue.name)}
                           className="text-red-600 hover:text-white hover:bg-red-600 border-red-300"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -575,7 +576,7 @@ export default function AdminDashboard() {
                   bookings
                     .filter(booking => !statusFilter || statusFilter === 'all' || booking.status === statusFilter)
                     .map((booking) => (
-                    <tr key={booking.id} className="border-b">
+                    <tr key={booking.id || booking._id} className="border-b">
                       <td className="p-4">
                         <div>
                           <p className="font-medium">{booking.customer_name}</p>
@@ -1121,7 +1122,7 @@ export default function AdminDashboard() {
                     ) : (
                       inquiries.slice(0, 6).map((inquiry, index) => (
                         <div
-                          key={inquiry.id}
+                          key={inquiry.id || inquiry._id}
                           className="p-4 border-b border-gray-100 hover:bg-gradient-to-r hover:from-venue-lavender/20 hover:to-venue-lavender/10 transition-all duration-200 cursor-pointer group"
                           onClick={() => {
                             setActiveSection('bookings');

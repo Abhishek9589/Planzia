@@ -23,7 +23,11 @@ export default function Favorites() {
     try {
       setLoading(true);
       const data = await apiClient.getJson('/api/favorites');
-      setFavorites(data);
+      // Normalize IDs for consistent routing and actions
+      const normalized = Array.isArray(data)
+        ? data.map(v => ({ ...v, id: v._id || v.id }))
+        : [];
+      setFavorites(normalized);
     } catch (error) {
       console.error('Error loading favorites:', error);
     } finally {
