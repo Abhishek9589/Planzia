@@ -108,3 +108,8 @@
     height: 0;
   }
 }
+
+/* Home page hero background image */
+.home-hero-image {
+  background-image: url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&h=800&fit=crop');
+}

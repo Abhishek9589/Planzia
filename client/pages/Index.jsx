@@ -28,8 +28,8 @@ import {
 } from 'lucide-react';
 
 import apiClient from '../lib/apiClient.js';
+import { motion } from 'framer-motion';
 
-// API service wrapper that respects VITE_BACKEND_URL
 const apiCall = async (url, options = {}) => {
   if (!options.method || options.method.toUpperCase() === 'GET') {
     return apiClient.getJson(url, options);
@@ -81,6 +81,12 @@ const features = [
   }
 ];
 
+const transition = { duration: 0.5, ease: [0.22, 1, 0.36, 1] };
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0 }
+};
+
 export default function Index() {
   const [searchLocation, setSearchLocation] = useState('');
   const [searchVenue, setSearchVenue] = useState('');
@@ -110,10 +116,8 @@ export default function Index() {
       setLoading(true);
       const data = await apiCall('/api/venues?limit=3');
 
-      // Extract venues array from API response
       const venues = data.venues || data;
 
-      // Format venues data for display
       const formattedVenues = venues.map(venue => {
         const basePrice = parseFloat(venue.price_per_day || venue.price);
         const pricingInfo = getPricingInfo(basePrice, 'listing');
@@ -132,7 +136,6 @@ export default function Index() {
       setPopularVenues(formattedVenues);
     } catch (error) {
       console.error('Error loading popular venues:', error);
-      // Fallback to demo venues if API fails
       const fallbackVenues = [
         {
           id: 1,
@@ -192,35 +195,45 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative h-[70vh] overflow-hidden">
-        {/* Hotel Background Image */}
+      <motion.section
+        className="relative h-[70vh] overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={transition}
+      >
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&h=800&fit=crop')"
-          }}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat home-hero-image"
         >
           <div className="absolute inset-0 bg-black/40"></div>
         </div>
 
-        {/* Content */}
         <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
-            <h1
+            <motion.h1
               className="text-4xl md:text-6xl font-bold text-white mb-4 font-poppins"
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              transition={transition}
             >
               Find the Perfect Venue for Your Event
-            </h1>
-            <p
+            </motion.h1>
+            <motion.p
               className="text-xl text-white/90 mb-8 max-w-3xl mx-auto"
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              transition={{ ...transition, delay: 0.1 }}
             >
               Discover verified venues with transparent pricing
-            </p>
+            </motion.p>
 
-            {/* Search Bar */}
-            <div
+            <motion.div
               className="max-w-4xl mx-auto"
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              transition={{ ...transition, delay: 0.2 }}
             >
               <form
                 onSubmit={(e) => { e.preventDefault(); handleSearch(); }}
@@ -260,17 +273,20 @@ export default function Index() {
                   </Button>
                 </div>
               </form>
-            </div>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* Features Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div
-
+          <motion.div
             className="text-center mb-16"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
               Why Choose VenueKart?
@@ -278,14 +294,19 @@ export default function Index() {
             <p className="text-gray-600 max-w-2xl mx-auto">
               We make venue booking simple, transparent, and reliable with our premium features
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <div
+                <motion.div
                   key={index}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ ...transition, delay: index * 0.05 }}
                 >
                   <Card className="text-center hover:shadow-lg transition-shadow duration-300 h-full">
                     <CardHeader>
@@ -300,19 +321,22 @@ export default function Index() {
                       </CardDescription>
                     </CardContent>
                   </Card>
-                </div>
+                </motion.div>
               );
             })}
           </div>
         </div>
       </section>
 
-      {/* Popular Venues */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div
-
+          <motion.div
             className="text-center mb-16"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
               Popular Venues
@@ -320,7 +344,7 @@ export default function Index() {
             <p className="text-gray-600 max-w-2xl mx-auto">
               Discover our most loved venues, perfect for any celebration
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {loading ? (
@@ -340,60 +364,69 @@ export default function Index() {
                 <p className="text-gray-400">Check back later for amazing venue listings</p>
               </div>
             ) : (
-              popularVenues.map((venue) => (
-                <Card key={venue.id} className="overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
-                  <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={venue.image}
-                      alt={venue.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className="absolute top-4 right-4">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 bg-white/90 hover:bg-white"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleFavoriteClick(venue.id);
-                        }}
-                      >
-                        <Heart
-                          className={`h-4 w-4 transition-colors ${
-                            isFavorite(venue.id)
-                              ? 'text-red-500 fill-red-500'
-                              : 'text-gray-600 hover:text-red-500'
-                          }`}
-                        />
-                      </Button>
+              popularVenues.map((venue, idx) => (
+                <motion.div
+                  key={venue.id}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ ...transition, delay: idx * 0.05 }}
+                >
+                  <Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={venue.image}
+                        alt={venue.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute top-4 right-4">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 bg-white/90 hover:bg-white"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleFavoriteClick(venue.id);
+                          }}
+                        >
+                          <Heart
+                            className={`h-4 w-4 transition-colors ${
+                              isFavorite(venue.id)
+                                ? 'text-red-500 fill-red-500'
+                                : 'text-gray-600 hover:text-red-500'
+                            }`}
+                          />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  <CardContent className="p-6 flex flex-col h-full">
-                    <h3 className="text-xl font-semibold text-venue-dark mb-2">{venue.name}</h3>
-                    <div className="flex items-center text-gray-600 mb-2">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{venue.location}</span>
-                    </div>
-                    <div className="flex items-center text-gray-600 mb-3">
-                      <Users className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{venue.capacity}</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {venue.facilities && venue.facilities.slice(0, 4).map((facility, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {facility}
-                        </Badge>
-                      ))}
-                    </div>
-                    <CardFooter className="flex items-center justify-between mt-4 p-0">
-                      <span className="text-2xl font-bold text-venue-indigo">{venue.price || '₹0'}</span>
-                      <Button asChild className="bg-venue-indigo hover:bg-venue-purple" onClick={scrollToTop}>
-                        <Link to={`/venue/${venue.id}`}>View Details</Link>
-                      </Button>
-                    </CardFooter>
-                  </CardContent>
-                </Card>
+                    <CardContent className="p-6 flex flex-col h-full">
+                      <h3 className="text-xl font-semibold text-venue-dark mb-2">{venue.name}</h3>
+                      <div className="flex items-center text-gray-600 mb-2">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        <span className="text-sm">{venue.location}</span>
+                      </div>
+                      <div className="flex items-center text-gray-600 mb-3">
+                        <Users className="h-4 w-4 mr-1" />
+                        <span className="text-sm">{venue.capacity}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {venue.facilities && venue.facilities.slice(0, 4).map((facility, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {facility}
+                          </Badge>
+                        ))}
+                      </div>
+                      <CardFooter className="flex items-center justify-between mt-4 p-0">
+                        <span className="text-2xl font-bold text-venue-indigo">{venue.price || '₹0'}</span>
+                        <Button asChild className="bg-venue-indigo hover:bg-venue-purple" onClick={scrollToTop}>
+                          <Link to={`/venue/${venue.id}`}>View Details</Link>
+                        </Button>
+                      </CardFooter>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))
             )}
           </div>
@@ -409,23 +442,37 @@ export default function Index() {
         </div>
       </section>
 
-      {/* How It Works */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <motion.div
+            className="text-center mb-16"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
               How It Works
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               Book your perfect venue in just three simple steps
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {howItWorks.map((step, index) => {
               const Icon = step.icon;
               return (
-                <div key={step.step} className="text-center relative">
+                <motion.div
+                  key={step.step}
+                  className="text-center relative"
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ ...transition, delay: index * 0.05 }}
+                >
                   <div className="relative w-20 h-20 bg-venue-indigo rounded-full flex items-center justify-center mx-auto mb-6">
                     <Icon className="h-10 w-10 text-white" />
                     <div className="absolute -top-2 -right-2 w-8 h-8 bg-venue-purple rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white">
@@ -439,7 +486,7 @@ export default function Index() {
                       <ArrowRight className="h-6 w-6 text-venue-purple mx-auto" />
                     </div>
                   )}
-                </div>
+                </motion.div>
               );
             })}
           </div>
