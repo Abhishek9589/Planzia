@@ -5,6 +5,7 @@ import { scrollToTop } from '@/lib/navigation';
 import { Button } from './ui/button';
 import { Menu, X, LogOut, User, Building, Heart } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -58,22 +59,31 @@ export default function Navigation() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {currentNavLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                onClick={scrollToTop}
-                className={`font-medium transition-colors duration-200 flex items-center gap-1 ${
-                  isActive(link.path)
-                    ? 'text-venue-indigo border-b-2 border-venue-indigo pb-1'
-                    : 'text-gray-700 hover:text-venue-indigo'
-                }`}
-              >
-                {link.name === 'Favorites' && <Heart className="h-4 w-4" />}
-                {link.name}
-              </Link>
-            ))}
+          <div className="hidden md:flex items-center gap-8">
+            {currentNavLinks.map((link) => {
+              const active = isActive(link.path);
+              return (
+                <div key={link.name} className="relative pb-1">
+                  <Link
+                    to={link.path}
+                    onClick={scrollToTop}
+                    className={`font-medium transition-colors duration-200 flex items-center gap-1 ${
+                      active ? 'text-venue-indigo' : 'text-gray-700 hover:text-venue-indigo'
+                    }`}
+                  >
+                    {link.name === 'Favorites' && <Heart className="h-4 w-4" />}
+                    {link.name}
+                  </Link>
+                  {active && (
+                    <motion.div
+                      layoutId="nav-underline"
+                      className="absolute left-0 right-0 -bottom-0.5 h-0.5 bg-venue-indigo rounded-full"
+                      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           {/* Desktop Auth Buttons */}
