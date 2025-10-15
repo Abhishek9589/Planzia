@@ -7,6 +7,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { User, Building, Mail, Eye, EyeOff, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserFriendlyError } from '../lib/errorMessages';
+import { motion } from 'framer-motion';
+
+const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] };
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0 }
+};
 
 export default function SignUp() {
   const [userType, setUserType] = useState('');
@@ -54,7 +61,6 @@ export default function SignUp() {
 
       await register(formData.email, formData.fullName, userType, formData.password, null);
 
-      // Navigate to OTP verification
       navigate('/verify-otp', {
         state: {
           email: formData.email,
@@ -72,16 +78,23 @@ export default function SignUp() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
-        <div className="text-center">
+        <motion.div
+          className="text-center"
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={transition}
+        >
           <h1 className="text-3xl font-bold text-venue-dark mb-2">Create Your Account</h1>
           <p className="text-gray-600">Join VenueKart to find amazing venues</p>
-        </div>
+        </motion.div>
 
         {/* Main Form Card */}
-        <div
-
-
-
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={{ ...transition, delay: 0.05 }}
         >
           <Card className="shadow-lg border-0">
           <CardContent className="p-8">
@@ -292,7 +305,7 @@ export default function SignUp() {
             </div>
           </CardContent>
           </Card>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
