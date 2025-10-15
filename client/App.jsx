@@ -35,11 +35,8 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AccountSettings from "./pages/AccountSettings";
 import NotFound from "./pages/NotFound";
-import { AnimatePresence, motion } from "framer-motion";
 
 const queryClient = new QueryClient();
-
-const transition = { duration: 0.5, ease: [0.22, 1, 0.36, 1] };
 
 const Shell = () => {
   const location = useLocation();
@@ -50,43 +47,31 @@ const Shell = () => {
     <>
       <Navigation />
       <main id="main-content" tabIndex="-1" className="outline-none focus:ring-2 focus:ring-ring">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={transition}
-          >
-            <Routes location={location}>
-              <Route path="/" element={<Index />} />
-              <Route path="/venues" element={<Venues />} />
-              <Route path="/venue/:id" element={<VenueDetail />} />
-              <Route path="/favorites" element={<Favorites />} />
-              <Route path="/dashboard" element={<UserDashboard />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/support" element={<Support />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/careers" element={<Careers />} />
-              <Route path="/why-venuekart" element={<WhyVenueKart />} />
-              <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/account-settings" element={<AccountSettings />} />
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/verify-otp" element={<VerifyOTP />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              {/* Admin Dashboard Routes */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/add-venue" element={<AddVenue />} />
-              {/* Catch-all */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </motion.div>
-        </AnimatePresence>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/venues" element={<Venues />} />
+          <Route path="/venue/:id" element={<VenueDetail />} />
+          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/why-venuekart" element={<WhyVenueKart />} />
+          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/account-settings" element={<AccountSettings />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/add-venue" element={<AddVenue />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </main>
       {!hideFooter && <Footer />}
       <TokenExpiredNotice />
