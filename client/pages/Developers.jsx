@@ -7,28 +7,24 @@ const fadeUp = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } };
 
 const team = [
   {
-    name: 'Deepti Rathore',
-    role: 'Front-End Developer',
-    photo: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&h=600&fit=crop&crop=faces',
-    quote: 'Elegant, accessible interfaces that feel fast and intuitive.'
+    name: 'Anurag Yadav',
+    role: 'Team Lead, Full-Stack Developer',
+    photo: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=600&h=600&fit=crop&crop=faces'
   },
   {
     name: 'Sanchali Singh',
-    role: 'Front-End Developer',
-    photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&h=600&fit=crop&crop=faces',
-    quote: 'Pixel perfection meets performance.'
-  },
-  {
-    name: 'Anurag Yadav',
-    role: 'Full-Stack Developer',
-    photo: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=600&h=600&fit=crop&crop=faces',
-    quote: 'From API to UI — delivering end-to-end solutions.'
+    role: 'Database & Backend Engineer, Content Writer',
+    photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&h=600&fit=crop&crop=faces'
   },
   {
     name: 'Abhishek Kushwaha',
     role: 'Full-Stack Developer, UI/UX Designer',
-    photo: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=600&h=600&fit=crop&crop=faces',
-    quote: 'Human-centered design with robust engineering.'
+    photo: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=600&h=600&fit=crop&crop=faces'
+  },
+  {
+    name: 'Deepti Rathore',
+    role: 'Front-End Developer, Graphic Designer',
+    photo: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&h=600&fit=crop&crop=faces'
   }
 ];
 
@@ -105,9 +101,6 @@ export default function Developers() {
                   <CardContent className="p-5">
                     <h3 className="text-lg font-semibold text-venue-dark">{member.name}</h3>
                     <p className="text-sm text-venue-indigo font-medium mb-3">{member.role}</p>
-                    {member.quote && (
-                      <p className="text-sm text-gray-600 leading-relaxed">“{member.quote}”</p>
-                    )}
                   </CardContent>
                 </Card>
               </motion.div>
