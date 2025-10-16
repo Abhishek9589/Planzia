@@ -7,52 +7,28 @@ const fadeUp = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } };
 
 const team = [
   {
-    name: 'Aarav Mehta',
-    role: 'Frontend Developer',
-    photo: 'https://images.unsplash.com/photo-1607748851768-897c3b5b1efe?w=600&h=600&fit=crop&crop=faces',
-    quote: 'Crafting delightful user experiences with performance in mind.'
+    name: 'Deepti Rathore',
+    role: 'Front-End Developer',
+    photo: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&h=600&fit=crop&crop=faces',
+    quote: 'Elegant, accessible interfaces that feel fast and intuitive.'
   },
   {
-    name: 'Isha Kapoor',
-    role: 'Backend Engineer',
+    name: 'Sanchali Singh',
+    role: 'Front-End Developer',
     photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&h=600&fit=crop&crop=faces',
-    quote: 'Reliable services, clean APIs, and scalable systems.'
+    quote: 'Pixel perfection meets performance.'
   },
   {
-    name: 'Rohan Sharma',
-    role: 'Full‑Stack Engineer',
+    name: 'Anurag Yadav',
+    role: 'Full-Stack Developer',
     photo: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=600&h=600&fit=crop&crop=faces',
-    quote: 'From pixels to pipelines — I love shipping end to end.'
+    quote: 'From API to UI — delivering end-to-end solutions.'
   },
   {
-    name: 'Neha Singh',
-    role: 'UI/UX Engineer',
-    photo: 'https://images.unsplash.com/photo-1541214113241-7f4c39a7e4bc?w=600&h=600&fit=crop&crop=faces',
-    quote: 'Design is how it works — not just how it looks.'
-  },
-  {
-    name: 'Karan Patel',
-    role: 'Mobile Developer',
+    name: 'Abhishek Kushwaha',
+    role: 'Full-Stack Developer, UI/UX Designer',
     photo: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=600&h=600&fit=crop&crop=faces',
-    quote: 'Smooth, fast, and accessible apps for everyone.'
-  },
-  {
-    name: 'Sara Ali',
-    role: 'DevOps Engineer',
-    photo: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&h=600&fit=crop&crop=faces',
-    quote: 'Automation first. Stability always.'
-  },
-  {
-    name: 'Vikram Rao',
-    role: 'Data Engineer',
-    photo: 'https://images.unsplash.com/photo-1542326237-94b1c5a538d6?w=600&h=600&fit=crop&crop=faces',
-    quote: 'Turning data into decisions.'
-  },
-  {
-    name: 'Ananya Das',
-    role: 'QA Engineer',
-    photo: 'https://images.unsplash.com/photo-1531123414780-f74239ffb0c2?w=600&h=600&fit=crop&crop=faces',
-    quote: 'Quality is everyone’s responsibility — I lead the charge.'
+    quote: 'Human-centered design with robust engineering.'
   }
 ];
 
@@ -106,7 +82,7 @@ export default function Developers() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-8">
             {team.map((member, idx) => (
               <motion.div
                 key={member.name}
@@ -114,7 +90,7 @@ export default function Developers() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.15 }}
-                transition={{ ...transition, delay: (idx % 4) * 0.05 }}
+                transition={{ ...transition, delay: (idx % 2) * 0.05 }}
                 whileHover={{ y: -3 }}
               >
                 <Card className="overflow-hidden hover:shadow-lg transition-all duration-300">
