@@ -23,6 +23,13 @@ import {
   Save,
   Loader2
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] };
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0 }
+};
 
 export default function UserDashboard() {
   const { user, isLoggedIn } = useAuth();
@@ -39,7 +46,6 @@ export default function UserDashboard() {
     phone: ''
   });
 
-  // Initialize profile data from user
   useEffect(() => {
     if (user) {
       setProfileData({
@@ -50,14 +56,12 @@ export default function UserDashboard() {
     }
   }, [user]);
 
-  // Load user bookings and notifications
   useEffect(() => {
     if (isLoggedIn) {
       loadUserData();
     }
   }, [isLoggedIn]);
 
-  // Auto-refresh user data every 60 seconds
   useEffect(() => {
     if (isLoggedIn) {
       const interval = setInterval(async () => {
@@ -65,7 +69,6 @@ export default function UserDashboard() {
           const previousNotificationCount = notificationCount;
           await loadUserData();
 
-          // Show notification if new updates arrived
           if (notificationCount > previousNotificationCount) {
             toast({
               title: "New Updates!",
@@ -76,7 +79,7 @@ export default function UserDashboard() {
         } catch (error) {
           console.error('Error auto-refreshing user data:', error);
         }
-      }, 60000); // 60 seconds
+      }, 60000);
 
       return () => clearInterval(interval);
     }
@@ -118,7 +121,6 @@ export default function UserDashboard() {
 
   const updateProfile = async () => {
     try {
-      // Client-side phone validation for better UX
       const digits = String(profileData.phone || '').replace(/\D/g, '');
       let d = digits;
       if (d.length === 12 && d.startsWith('91')) d = d.slice(2);
@@ -196,16 +198,29 @@ export default function UserDashboard() {
     <div className="min-h-screen bg-gray-50">
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="mb-8">
+        <motion.div
+          className="mb-8"
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={transition}
+        >
           <h1 className="text-3xl font-bold text-venue-dark mb-2">
             Welcome back, {user?.name || 'User'}!
           </h1>
           <p className="text-gray-600">Manage your bookings and profile from your dashboard.</p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Inquired Venues Section - Left Column */}
-          <div className="lg:col-span-2 space-y-6">
+          <motion.div
+            className="lg:col-span-2 space-y-6"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -231,9 +246,14 @@ export default function UserDashboard() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {bookings.map((booking) => (
-                      <div
+                    {bookings.map((booking, idx) => (
+                      <motion.div
                         key={booking.id || booking._id}
+                        variants={fadeUp}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.2 }}
+                        transition={{ ...transition, delay: (idx % 3) * 0.05 }}
                         className={`border rounded-lg p-4 hover:bg-gray-50 transition-colors ${
                           booking.status === 'confirmed' ? 'border-l-4 border-l-green-500 bg-green-50/30' :
                           booking.status === 'cancelled' ? 'border-l-4 border-l-red-500 bg-red-50/30' :
@@ -285,7 +305,6 @@ export default function UserDashboard() {
                                       description: `Payment completed. ID: ${paymentId}`,
                                       variant: "default",
                                     });
-                                    // Refresh booking data to show updated payment status
                                     loadUserData();
                                   }}
                                   onPaymentFailure={(error) => {
@@ -374,16 +393,23 @@ export default function UserDashboard() {
                             </DialogContent>
                           </Dialog>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 )}
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
 
           {/* User Profile Panel - Right Column */}
-          <div className="space-y-6">
+          <motion.div
+            className="space-y-6"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ ...transition, delay: 0.05 }}
+          >
             {/* Notifications Section */}
             <Card>
               <CardHeader>
@@ -502,7 +528,7 @@ export default function UserDashboard() {
               </CardContent>
             </Card>
 
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
