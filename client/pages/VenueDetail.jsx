@@ -75,6 +75,7 @@ export default function VenueDetail() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notification, setNotification] = useState(null);
   const [showFloatingMessage, setShowFloatingMessage] = useState(false);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
 
   useEffect(() => {
@@ -504,10 +505,7 @@ export default function VenueDetail() {
                       <Button
                         onClick={() => {
                           if (!isLoggedIn) {
-                            setNotification({
-                              type: 'error',
-                              message: 'without login you cannot start booking process'
-                            });
+                            setShowLoginDialog(true);
                             return;
                           }
                           setShowBookingForm(true);
@@ -661,6 +659,25 @@ export default function VenueDetail() {
                           Your inquiry will be sent to the venue owner and our team. We'll get back to you within 24 hours.
                         </div>
                       </form>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+                    <DialogContent className="sm:max-w-md sm:rounded-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Sign in required</DialogTitle>
+                        <DialogDescription>
+                          Without logging in, you cannot start the booking process. Please sign in to continue.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter className="gap-2">
+                        <Button variant="outline" onClick={() => setShowLoginDialog(false)}>
+                          Close
+                        </Button>
+                        <Button asChild className="bg-venue-indigo hover:bg-venue-purple text-white">
+                          <Link to="/signin">Go to Sign In</Link>
+                        </Button>
+                      </DialogFooter>
                     </DialogContent>
                   </Dialog>
                 </CardContent>
