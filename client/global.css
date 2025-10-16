@@ -108,3 +108,18 @@
     height: 0;
   }
 }
+
+/* Home page hero background image */
+.home-hero-image {
+  background-image: url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&h=800&fit=crop');
+}
+
+/* About page hero background image */
+.about-hero-image {
+  background-image: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&h=800&fit=crop');
+}
+
+/* Contact page hero background image */
+.contact-hero-image {
+  background-image: url('https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1200&h=800&fit=crop');
+}

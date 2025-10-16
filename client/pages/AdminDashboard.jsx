@@ -29,6 +29,13 @@ import {
   Bell,
   Loader2
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] };
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0 }
+};
 
 // API service functions using the new apiClient
 const apiCall = async (url, options = {}) => {
@@ -1237,7 +1244,15 @@ export default function AdminDashboard() {
 
         {/* Page Content */}
         <main className="p-6">
-          {renderContent()}
+          <motion.div
+            key={activeSection}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            transition={transition}
+          >
+            {renderContent()}
+          </motion.div>
         </main>
       </div>
 
