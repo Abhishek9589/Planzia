@@ -473,7 +473,7 @@ export default function AdminDashboard() {
                           size="sm"
                           variant="outline"
                           onClick={() => openEditForm(venue)}
-                          className="border-venue-indigo text-venue-indigo hover:bg-venue-lavender w-full sm:w-auto justify-center"
+                          className="border-venue-indigo text-venue-indigo hover:bg-venue-lavender hover:text-white active:text-white focus:text-white w-full sm:w-auto justify-center"
                         >
                           Edit
                         </Button>
