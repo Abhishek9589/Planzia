@@ -29,10 +29,16 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 import apiClient from '../lib/apiClient.js';
 
-// API service functions
+const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] };
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0 }
+};
+
 const getAuthHeader = () => {
   const token = localStorage.getItem('accessToken');
   return token ? { 'Authorization': `Bearer ${token}` } : {};
@@ -41,7 +47,7 @@ const getAuthHeader = () => {
 const apiCall = async (url, options = {}) => {
   if (!options.method || options.method.toUpperCase() === 'GET') {
     return apiClient.getJson(url, options);
-  }
+    }
   return apiClient.callJson(url, options);
 };
 
@@ -51,13 +57,11 @@ export default function VenueDetail() {
   const { user, isLoggedIn } = useAuth();
   const { toggleFavorite, isFavorite } = useFavorites();
   
-  // Venue and gallery states
   const [venue, setVenue] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   
-  // Booking form states
   const [selectedDate, setSelectedDate] = useState(null);
   const [bookingForm, setBookingForm] = useState({
     fullName: '',
@@ -97,7 +101,6 @@ export default function VenueDetail() {
     }
   }, [id]);
 
-  // Auto-populate user info if logged in
   useEffect(() => {
     if (isLoggedIn && user) {
       setBookingForm(prev => ({
@@ -150,7 +153,6 @@ export default function VenueDetail() {
     setIsSubmitting(true);
 
     try {
-      // Prepare inquiry data
       const inquiryData = {
         venue_id: venue.id,
         venue_name: venue.name,
@@ -164,7 +166,6 @@ export default function VenueDetail() {
         }
       };
 
-      // Send inquiry to API
       try {
         await apiCall('/api/bookings/inquiry', {
           method: 'POST',
@@ -174,10 +175,8 @@ export default function VenueDetail() {
         console.log('API not available, simulating inquiry submission');
       }
 
-      // Show floating success message
       setShowFloatingMessage(true);
 
-      // Reset form
       setShowBookingForm(false);
       setSelectedDate(null);
       setBookingForm(prev => ({
@@ -187,7 +186,6 @@ export default function VenueDetail() {
         specialRequests: ''
       }));
 
-      // Redirect to home after a short delay (let the user see the success message)
       setTimeout(() => {
         scrollToTop();
         navigate('/');
@@ -253,24 +251,35 @@ export default function VenueDetail() {
 
       <div className="w-full px-4 py-8">
         {/* Back Button */}
-        <div className="max-w-7xl mx-auto mb-6">
+        <motion.div
+          className="max-w-7xl mx-auto mb-6"
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={transition}
+        >
           <Button asChild variant="ghost" className="text-venue-indigo" onClick={scrollToTop}>
             <Link to="/venues">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Venues
             </Link>
           </Button>
-        </div>
+        </motion.div>
 
         {/* Full Width Image Gallery */}
-        <div className="relative w-full h-96 md:h-[500px] mb-8 overflow-hidden">
+        <motion.div
+          className="relative w-full h-96 md:h-[500px] mb-8 overflow-hidden"
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={transition}
+        >
           <img
             src={venueImages[selectedImage]}
             alt={venue.name}
             className="w-full h-full object-cover"
           />
           
-          {/* Image Navigation */}
           {venueImages.length > 1 && (
             <>
               <button
@@ -288,7 +297,6 @@ export default function VenueDetail() {
             </>
           )}
 
-          {/* Image Indicators */}
           {venueImages.length > 1 && (
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
               {venueImages.map((_, index) => (
@@ -303,7 +311,6 @@ export default function VenueDetail() {
             </div>
           )}
 
-          {/* Action Buttons Overlay */}
           <div className="absolute top-4 right-4 flex gap-2">
             <Button
               size="icon"
@@ -318,42 +325,59 @@ export default function VenueDetail() {
             </Button>
           </div>
 
-          {/* Venue Type Badge */}
           <div className="absolute top-4 left-4">
             <Badge className="bg-venue-indigo text-white text-lg px-4 py-2">
               {venue.type || 'Venue'}
             </Badge>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Thumbnail Gallery */}
         {venueImages.length > 1 && (
-          <div className="max-w-7xl mx-auto mb-8">
+          <motion.div
+            className="max-w-7xl mx-auto mb-8"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
             <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
               {venueImages.map((image, index) => (
-                <button
+                <motion.button
                   key={index}
                   onClick={() => setSelectedImage(index)}
                   className={`aspect-video rounded-lg overflow-hidden border-2 transition-all ${
                     selectedImage === index ? 'border-venue-indigo' : 'border-gray-200 hover:border-gray-300'
                   }`}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ ...transition, delay: (index % 8) * 0.03 }}
                 >
                   <img
                     src={image}
                     alt={`${venue.name} ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
-                </button>
+                </motion.button>
               ))}
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Venue Details */}
-            <div className="lg:col-span-2 space-y-6">
+            <motion.div
+              className="lg:col-span-2 space-y-6"
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              transition={transition}
+            >
               {/* Venue Header */}
               <Card>
                 <CardContent className="p-6">
@@ -397,22 +421,35 @@ export default function VenueDetail() {
                     <h2 className="text-2xl font-semibold mb-4">Facilities & Amenities</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {venue.facilities.map((facility, index) => (
-                        <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <motion.div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg"
+                          variants={fadeUp}
+                          initial="hidden"
+                          whileInView="visible"
+                          viewport={{ once: true, amount: 0.2 }}
+                          transition={{ ...transition, delay: (index % 6) * 0.04 }}
+                        >
                           {facility.toLowerCase().includes('wifi') && <Wifi className="h-5 w-5 mr-2 text-venue-indigo" />}
                           {facility.toLowerCase().includes('parking') && <Car className="h-5 w-5 mr-2 text-venue-indigo" />}
                           {facility.toLowerCase().includes('catering') && <Coffee className="h-5 w-5 mr-2 text-venue-indigo" />}
                           <span className="font-medium">{facility}</span>
-                        </div>
+                        </motion.div>
                       ))}
                     </div>
                   </CardContent>
                 </Card>
               )}
 
-            </div>
+            </motion.div>
 
             {/* Right Column - Price Breakdown & Booking */}
-            <div className="space-y-6">
+            <motion.div
+              className="space-y-6"
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ ...transition, delay: 0.05 }}
+            >
               {/* Price Breakdown Card */}
               <Card>
                 <CardHeader>
@@ -619,17 +656,15 @@ export default function VenueDetail() {
                   </Dialog>
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
 
-      {/* Floating success message */}
       <FloatingMessage
         isVisible={showFloatingMessage}
         onClose={() => {
           setShowFloatingMessage(false);
-          // If user closes manually, still redirect to home
           setTimeout(() => {
             scrollToTop();
             navigate('/');
