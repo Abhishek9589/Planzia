@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -286,17 +287,30 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl max-h-[90vh] flex flex-col bg-white rounded-lg">
-        <CardHeader className="flex flex-row items-center justify-between border-b px-6 py-4">
-          <CardTitle className="text-xl font-semibold text-gray-900">Add New Venue</CardTitle>
-          <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
-            <X className="h-5 w-5" />
-          </Button>
-        </CardHeader>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+        >
+          <motion.div
+            initial={{ y: 10, opacity: 0, scale: 0.98 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 8, opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-2xl"
+          >
+            <Card className="w-full max-w-2xl max-h-[90vh] flex flex-col bg-white rounded-lg">
+              <CardHeader className="flex flex-row items-center justify-between border-b px-6 py-4">
+                <CardTitle className="text-xl font-semibold text-gray-900">Add New Venue</CardTitle>
+                <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
+                  <X className="h-5 w-5" />
+                </Button>
+              </CardHeader>
         
         <CardContent className="flex-1 overflow-y-auto px-6 py-6">
           {errors.general && (
@@ -540,7 +554,10 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
             </div>
           </form>
         </CardContent>
-      </Card>
-    </div>
+            </Card>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
