@@ -1105,37 +1105,49 @@ export default function AdminDashboard() {
             <div className="flex items-center space-x-4">
               {/* Enhanced Notification Bell */}
             <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={async () => {
-                  if (!showNotifications) {
-                    await loadInquiries();
-                  }
-                  setShowNotifications(!showNotifications);
-                }}
-                className={`relative transition-all duration-300 ease-in-out transform hover:scale-110 ${
-                  inquiryCount > 0
-                    ? 'text-venue-purple hover:text-venue-indigo hover:bg-venue-lavender/20'
-                    : 'text-gray-500 hover:text-venue-indigo hover:bg-venue-lavender/10'
-                } ${showNotifications ? 'bg-venue-lavender/30 text-venue-indigo' : ''}`}
+              <motion.div
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                className="inline-block"
               >
-                <Bell className={`h-5 w-5 transition-all duration-300 ${
-                  inquiryCount > 0 ? 'animate-pulse' : ''
-                }`} />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={async () => {
+                    if (!showNotifications) {
+                      await loadInquiries();
+                    }
+                    setShowNotifications(!showNotifications);
+                  }}
+                  className={`relative transition-all duration-300 ease-in-out transform hover:scale-110 ${
+                    inquiryCount > 0
+                      ? 'text-venue-purple hover:text-venue-indigo hover:bg-venue-lavender/20'
+                      : 'text-gray-500 hover:text-venue-indigo hover:bg-venue-lavender/10'
+                  } ${showNotifications ? 'bg-venue-lavender/30 text-venue-indigo' : ''}`}
+                >
+                  <motion.span
+                    whileTap={{ rotate: -8, scale: 0.98 }}
+                    transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                    className="inline-flex"
+                  >
+                    <Bell className={`h-5 w-5 transition-all duration-300 ${
+                      inquiryCount > 0 ? 'animate-pulse' : ''
+                    }`} />
+                  </motion.span>
 
-                {/* Enhanced notification badge */}
-                {inquiryCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium shadow-lg animate-bounce">
-                    {inquiryCount > 99 ? '99+' : inquiryCount}
-                  </span>
-                )}
+                  {/* Enhanced notification badge */}
+                  {inquiryCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium shadow-lg animate-bounce">
+                      {inquiryCount > 99 ? '99+' : inquiryCount}
+                    </span>
+                  )}
 
-                {/* Pulse effect for new notifications */}
-                {inquiryCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-400 rounded-full h-5 w-5 animate-ping opacity-75"></span>
-                )}
-              </Button>
+                  {/* Pulse effect for new notifications */}
+                  {inquiryCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-400 rounded-full h-5 w-5 animate-ping opacity-75"></span>
+                  )}
+                </Button>
+              </motion.div>
 
               {/* Enhanced Notifications Dropdown - Sticky & Responsive */}
               {showNotifications && (
