@@ -35,6 +35,7 @@ import WhyVenueKart from "./pages/WhyVenueKart";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AccountSettings from "./pages/AccountSettings";
+import Developers from "./pages/Developers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -72,6 +73,7 @@ const Shell = () => {
               <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/account-settings" element={<AccountSettings />} />
+              <Route path="/developers" element={<Developers />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/verify-otp" element={<VerifyOTP />} />
