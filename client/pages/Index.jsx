@@ -201,11 +201,14 @@ export default function Index() {
         animate={{ opacity: 1 }}
         transition={transition}
       >
-        <div
+        <motion.div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat home-hero-image"
+          initial={{ scale: 1.02 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="absolute inset-0 bg-black/40"></div>
-        </div>
+        </motion.div>
 
         <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
@@ -373,12 +376,12 @@ export default function Index() {
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{ ...transition, delay: idx * 0.05 }}
                 >
-                  <Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
+                  <Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300 group transition-transform hover:-translate-y-0.5">
                     <div className="relative h-48 overflow-hidden">
                       <img
                         src={venue.image}
                         alt={venue.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute top-4 right-4">
                         <Button
