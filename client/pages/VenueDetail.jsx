@@ -502,7 +502,16 @@ export default function VenueDetail() {
                       <h3 className="text-lg font-semibold text-gray-800 mb-2">Ready to book?</h3>
                       <p className="text-gray-600 mb-4">Select your event date and fill in your details to send an inquiry.</p>
                       <Button
-                        onClick={() => setShowBookingForm(true)}
+                        onClick={() => {
+                          if (!isLoggedIn) {
+                            setNotification({
+                              type: 'error',
+                              message: 'without login you cannot start booking process'
+                            });
+                            return;
+                          }
+                          setShowBookingForm(true);
+                        }}
                         className="w-full bg-venue-indigo hover:bg-venue-purple text-white"
                         size="lg"
                       >
