@@ -344,7 +344,7 @@ export default function AccountSettings() {
                           placeholder="Enter your business name"
                         />
                       </div>
-                    })}
+                    )}
 
                     {/* Location */}
                     <div className={`space-y-2 ${user?.user_type === 'venue-owner' ? '' : 'md:col-span-2'}`}>
