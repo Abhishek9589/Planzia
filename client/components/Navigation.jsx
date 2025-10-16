@@ -40,7 +40,7 @@ export default function Navigation() {
 
 
 
-      className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm"
+      className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm transition-colors duration-200"
     >
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-venue-indigo text-white px-3 py-2 rounded-md">Skip to content</a>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
