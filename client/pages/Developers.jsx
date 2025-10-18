@@ -9,22 +9,22 @@ const team = [
   {
     name: 'Anurag Yadav',
     role: 'Team Lead, Full-Stack Developer',
-    photo: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=600&h=600&fit=crop&crop=faces'
+    photo: '/images/developers/anurag.jpg'
   },
   {
     name: 'Sanchali Singh',
     role: 'Database & Backend Engineer, Content Writer',
-    photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&h=600&fit=crop&crop=faces'
+    photo: '/images/developers/sanchali.jpg'
   },
   {
     name: 'Abhishek Kushwaha',
     role: 'Full-Stack Developer, UI/UX Designer',
-    photo: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=600&h=600&fit=crop&crop=faces'
+    photo: '/images/developers/abhishek.jpg'
   },
   {
     name: 'Deepti Rathore',
     role: 'Front-End Developer, Graphic Designer',
-    photo: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&h=600&fit=crop&crop=faces'
+    photo: '/images/developers/deepti.jpg'
   }
 ];
 
