@@ -40,43 +40,43 @@ const apiCall = async (url, options = {}) => {
 const howItWorks = [
   {
     step: 1,
-    title: "Search & Browse",
-    description: "Find venues that match your requirements using our smart filters",
+    title: "Explore & Discover",
+    description: "Browse curated venues with smart filters tailored to your vision",
     icon: Search
   },
   {
     step: 2,
-    title: "Compare & Choose",
-    description: "Compare prices, facilities, and reviews to make the best choice",
+    title: "Compare & Decide",
+    description: "Compare amenities, pricing, and guest experiences side by side",
     icon: CheckCircle
   },
   {
     step: 3,
     title: "Book & Celebrate",
-    description: "Secure your booking and celebrate your special moments worry-free",
+    description: "Confirm your booking with confidence and create unforgettable moments",
     icon: Calendar
   }
 ];
 
 const features = [
   {
-    title: "Verified Listings",
-    description: "All venues are thoroughly verified for authenticity and quality",
+    title: "Hand-Picked Venues",
+    description: "Every venue is expertly verified to guarantee quality, authenticity, and excellence",
     icon: Shield
   },
   {
-    title: "Transparent Pricing",
-    description: "No hidden costs. See all charges upfront before booking",
+    title: "Complete Transparency",
+    description: "Crystal-clear pricing with zero hidden charges—what you see is what you pay",
     icon: DollarSign
   },
   {
-    title: "24/7 Support",
-    description: "Round-the-clock customer support for all your queries",
+    title: "Always Available",
+    description: "Dedicated support available around the clock to guide your journey",
     icon: Clock
   },
   {
-    title: "Quality Assurance",
-    description: "Premium venues curated by our expert team",
+    title: "Premium Selection",
+    description: "Meticulously curated venues that exceed expectations",
     icon: Award
   }
 ];
@@ -219,7 +219,7 @@ export default function Index() {
               animate="visible"
               transition={transition}
             >
-              Find the Perfect Venue for Your Event
+              Your Event Deserves the Perfect Space
             </motion.h1>
             <motion.p
               className="text-xl text-white/90 mb-8 max-w-3xl mx-auto"
@@ -228,7 +228,7 @@ export default function Index() {
               animate="visible"
               transition={{ ...transition, delay: 0.1 }}
             >
-              Discover verified venues with transparent pricing
+              Discover exceptional venues with confidence. Transparent pricing, verified partners, bookings made simple.
             </motion.p>
 
             <motion.div
@@ -292,10 +292,10 @@ export default function Index() {
             transition={transition}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              Why Choose VenueKart?
+              Why Planzia Leads the Way
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              We make venue booking simple, transparent, and reliable with our premium features
+              Experience venue booking reimagined for the modern era—seamless, transparent, and utterly reliable
             </p>
           </motion.div>
 
@@ -342,10 +342,10 @@ export default function Index() {
             transition={transition}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              Popular Venues
+              Trending Venues That Inspire
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Discover our most loved venues, perfect for any celebration
+              Explore our most sought-after venues, each carefully selected to make your celebration unforgettable
             </p>
           </motion.div>
 
@@ -456,10 +456,10 @@ export default function Index() {
             transition={transition}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              How It Works
+              From Vision to Reality in Three Steps
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Book your perfect venue in just three simple steps
+              A streamlined journey to booking your ideal venue with ease and confidence
             </p>
           </motion.div>
 

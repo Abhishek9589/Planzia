@@ -124,7 +124,7 @@ export default function SignIn() {
           transition={transition}
         >
           <h1 className="text-3xl font-bold text-venue-dark mb-2">Welcome back</h1>
-          <p className="text-gray-600">Sign in to your VenueKart account</p>
+          <p className="text-gray-600">Sign in to your Planzia account</p>
         </motion.div>
 
         <motion.div

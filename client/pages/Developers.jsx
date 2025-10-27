@@ -8,23 +8,13 @@ const fadeUp = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } };
 const team = [
   {
     name: 'Anurag Yadav',
-    role: 'Team Lead, Full-Stack Developer',
+    role: 'CEO, Full Stack Developer',
     photo: '/images/developers/anurag.jpg'
   },
   {
-    name: 'Sanchali Singh',
-    role: 'Database & Backend Engineer, Content Writer',
-    photo: '/images/developers/sanchali.jpg'
-  },
-  {
     name: 'Abhishek Kushwaha',
-    role: 'Full-Stack Developer, UI/UX Designer',
+    role: 'CTO, Full Stack Developer, UI/UX Designer',
     photo: '/images/developers/abhishek.jpg'
-  },
-  {
-    name: 'Deepti Rathore',
-    role: 'Front-End Developer, Graphic Designer',
-    photo: '/images/developers/deepti.jpg'
   }
 ];
 
@@ -55,7 +45,7 @@ export default function Developers() {
               animate="visible"
               transition={{ ...transition, delay: 0.1 }}
             >
-              Our engineering team blends innovation, teamwork, and excellence to craft reliable, fast, and user‑friendly experiences across the VenueKart platform.
+              Our engineering team blends innovation, teamwork, and excellence to craft reliable, fast, and user‑friendly experiences across the Planzia platform.
             </motion.p>
           </div>
         </div>

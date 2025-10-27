@@ -5,7 +5,7 @@ import Venue from '../models/Venue.js';
 import User from '../models/User.js';
 import {
   sendVenueInquiryEmail,
-  sendInquiryNotificationToVenueKart,
+  sendInquiryNotificationToPlanzia,
   sendBookingConfirmationEmail,
   sendBookingRejectionEmail,
   sendInquiryAcceptedToAdmin,
@@ -13,6 +13,7 @@ import {
   sendInquiryRejectedToAdmin,
   sendInquiryRejectedToCustomer
 } from '../services/emailService.js';
+import { triggerPaymentReminderForBooking } from '../services/bookingCleanupJob.js';
 
 const router = Router();
 
@@ -20,11 +21,12 @@ const router = Router();
 router.get('/owner', authenticateToken, async (req, res) => {
   try {
     const ownerId = req.user.id;
-    const { status, limit = 20, offset = 0 } = req.query;
+    const { status, payment_status, limit = 20, offset = 0 } = req.query;
 
     const venueIds = await Venue.find({ owner_id: ownerId }, { _id: 1 }).lean();
     const filter = { venue_id: { $in: venueIds.map(v => v._id) } };
     if (status) filter.status = status;
+    if (payment_status) filter.payment_status = payment_status;
 
     const bookings = await Booking.find(filter)
       .sort({ created_at: -1 })
@@ -54,9 +56,13 @@ router.get('/owner', authenticateToken, async (req, res) => {
 router.get('/customer', authenticateToken, async (req, res) => {
   try {
     const customerId = req.user.id;
-    const { limit = 20, offset = 0 } = req.query;
+    const { status, payment_status, limit = 20, offset = 0 } = req.query;
 
-    const bookings = await Booking.find({ customer_id: customerId })
+    const filter = { customer_id: customerId };
+    if (status) filter.status = status;
+    if (payment_status) filter.payment_status = payment_status;
+
+    const bookings = await Booking.find(filter)
       .sort({ created_at: -1 })
       .skip(parseInt(offset))
       .limit(parseInt(limit))
@@ -108,6 +114,7 @@ router.post('/', authenticateToken, async (req, res) => {
 
     const GST_RATE = 0.18;
     const payment_amount = Math.round((venue.price_per_day || amount) * (1 + GST_RATE));
+    const payment_deadline = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     const doc = await Booking.create({
       venue_id: venueId,
@@ -120,10 +127,13 @@ router.post('/', authenticateToken, async (req, res) => {
       guest_count: guestCount,
       amount: amount,
       payment_amount,
+      status: 'pending',
+      payment_status: 'pending',
+      payment_deadline: payment_deadline,
       special_requirements: specialRequirements
     });
 
-    res.status(201).json({ message: 'Booking created successfully', bookingId: doc._id.toString() });
+    res.status(201).json({ message: 'Booking created successfully', bookingId: doc._id.toString(), paymentDeadline: payment_deadline });
   } catch (error) {
     console.error('Error creating booking:', error);
     res.status(500).json({ error: 'Failed to create booking' });
@@ -307,7 +317,7 @@ router.post('/inquiry', authenticateToken, async (req, res) => {
         await sendVenueInquiryEmail(ownerInfo.email, venueOwnerInquiryData);
       }
       const adminInquiryData = { ...baseInquiryData, customer: { name: fullName, email, phone } };
-      await sendInquiryNotificationToVenueKart(adminInquiryData);
+      await sendInquiryNotificationToPlanzia(adminInquiryData);
     } catch (emailError) {
       console.error('Error sending inquiry emails:', emailError);
     }
@@ -352,6 +362,192 @@ router.get('/customer/notification-count', authenticateToken, async (req, res) =
   } catch (error) {
     console.error('Error fetching notification count:', error);
     res.status(500).json({ error: 'Failed to fetch notification count' });
+  }
+});
+
+// Send payment reminder for a booking (protected)
+router.post('/:id/send-payment-reminder', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const customerId = req.user.id;
+
+    const booking = await Booking.findById(id).lean();
+    if (!booking || booking.customer_id.toString() !== customerId) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    if (booking.status !== 'pending' || booking.payment_status !== 'pending') {
+      return res.status(400).json({ error: 'Booking is not eligible for payment reminder' });
+    }
+
+    const result = await triggerPaymentReminderForBooking(id);
+    res.json(result);
+  } catch (error) {
+    console.error('Error sending payment reminder:', error);
+    res.status(500).json({ error: 'Failed to send payment reminder' });
+  }
+});
+
+// Get total revenue for venue owner (protected - venue owner only)
+router.get('/owner/revenue', authenticateToken, async (req, res) => {
+  try {
+    const ownerId = req.user.id;
+
+    const venueIds = await Venue.find({ owner_id: ownerId }, { _id: 1 }).lean();
+    const venueIdArray = venueIds.map(v => v._id);
+
+    const confirmedBookings = await Booking.find({
+      venue_id: { $in: venueIdArray },
+      status: 'confirmed',
+      payment_status: 'completed'
+    }).lean();
+
+    const totalRevenue = confirmedBookings.reduce((sum, booking) => {
+      return sum + (booking.payment_amount || booking.amount || 0);
+    }, 0);
+
+    const totalBookings = confirmedBookings.length;
+
+    const basePrice = confirmedBookings.reduce((sum, booking) => {
+      return sum + (booking.amount || 0);
+    }, 0);
+
+    const gstAmount = totalRevenue - basePrice;
+
+    res.json({
+      totalRevenue,
+      basePrice,
+      gstAmount,
+      totalBookings,
+      currency: 'INR'
+    });
+  } catch (error) {
+    console.error('Error fetching revenue:', error);
+    res.status(500).json({ error: 'Failed to fetch revenue' });
+  }
+});
+
+// Get revenue by venue (protected - venue owner only)
+router.get('/owner/revenue-by-venue', authenticateToken, async (req, res) => {
+  try {
+    const ownerId = req.user.id;
+
+    const venues = await Venue.find({ owner_id: ownerId }, { _id: 1, name: 1, location: 1 }).lean();
+
+    const revenueByVenue = await Promise.all(venues.map(async (venue) => {
+      const bookings = await Booking.find({
+        venue_id: venue._id,
+        status: 'confirmed',
+        payment_status: 'completed'
+      }).lean();
+
+      const totalRevenue = bookings.reduce((sum, booking) => {
+        return sum + (booking.payment_amount || booking.amount || 0);
+      }, 0);
+
+      const basePrice = bookings.reduce((sum, booking) => {
+        return sum + (booking.amount || 0);
+      }, 0);
+
+      return {
+        venue_id: venue._id.toString(),
+        venue_name: venue.name,
+        venue_location: venue.location,
+        totalRevenue,
+        basePrice,
+        gstAmount: totalRevenue - basePrice,
+        totalBookings: bookings.length
+      };
+    }));
+
+    res.json(revenueByVenue);
+  } catch (error) {
+    console.error('Error fetching revenue by venue:', error);
+    res.status(500).json({ error: 'Failed to fetch revenue by venue' });
+  }
+});
+
+// Get revenue summary with statistics (protected - venue owner only)
+router.get('/owner/revenue-summary', authenticateToken, async (req, res) => {
+  try {
+    const ownerId = req.user.id;
+    const { period = '30' } = req.query;
+    const daysBack = parseInt(period) || 30;
+    const startDate = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000);
+
+    const venueIds = await Venue.find({ owner_id: ownerId }, { _id: 1 }).lean();
+    const venueIdArray = venueIds.map(v => v._id);
+
+    const confirmedBookings = await Booking.find({
+      venue_id: { $in: venueIdArray },
+      status: 'confirmed',
+      payment_status: 'completed',
+      payment_completed_at: { $gte: startDate }
+    }).lean();
+
+    const pendingPayments = await Booking.find({
+      venue_id: { $in: venueIdArray },
+      status: 'pending',
+      payment_status: 'pending',
+      payment_deadline: { $gte: new Date() }
+    }).lean();
+
+    const totalRevenue = confirmedBookings.reduce((sum, booking) => {
+      return sum + (booking.payment_amount || booking.amount || 0);
+    }, 0);
+
+    const pendingAmount = pendingPayments.reduce((sum, booking) => {
+      return sum + (booking.payment_amount || booking.amount || 0);
+    }, 0);
+
+    const basePrice = confirmedBookings.reduce((sum, booking) => {
+      return sum + (booking.amount || 0);
+    }, 0);
+
+    const gstAmount = totalRevenue - basePrice;
+
+    const confirmedCount = confirmedBookings.length;
+    const pendingCount = pendingPayments.length;
+
+    const monthlyData = {};
+    confirmedBookings.forEach((booking) => {
+      const month = new Date(booking.payment_completed_at).toLocaleString('en-IN', {
+        year: 'numeric',
+        month: 'short'
+      });
+      if (!monthlyData[month]) {
+        monthlyData[month] = 0;
+      }
+      monthlyData[month] += booking.payment_amount || booking.amount || 0;
+    });
+
+    res.json({
+      summary: {
+        totalRevenue,
+        pendingAmount,
+        basePrice,
+        gstAmount,
+        confirmedBookings: confirmedCount,
+        pendingBookings: pendingCount,
+        period: `${daysBack} days`,
+        currency: 'INR'
+      },
+      monthlyData,
+      recentBookings: confirmedBookings
+        .sort((a, b) => new Date(b.payment_completed_at) - new Date(a.payment_completed_at))
+        .slice(0, 10)
+        .map(booking => ({
+          _id: booking._id.toString(),
+          venue_id: booking.venue_id.toString(),
+          customer_name: booking.customer_name,
+          event_date: booking.event_date,
+          amount: booking.payment_amount || booking.amount,
+          payment_completed_at: booking.payment_completed_at
+        }))
+    });
+  } catch (error) {
+    console.error('Error fetching revenue summary:', error);
+    res.status(500).json({ error: 'Failed to fetch revenue summary' });
   }
 });
 

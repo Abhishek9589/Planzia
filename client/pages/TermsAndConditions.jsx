@@ -21,7 +21,7 @@ export default function TermsAndConditions() {
     const pdfUrl = "/terms-and-conditions.pdf";
     const link = document.createElement('a');
     link.href = pdfUrl;
-    link.download = 'VenueKart-Terms-and-Conditions.pdf';
+    link.download = 'Planzia-Terms-and-Conditions.pdf';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -46,7 +46,7 @@ export default function TermsAndConditions() {
               Terms & Conditions
             </h1>
             <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Please read these terms carefully before using VenueKart platform and services.
+              Please read these terms carefully before using Planzia platform and services.
             </p>
             <div className="flex justify-center items-center space-x-4">
               <Badge variant="secondary" className="text-sm px-3 py-1">
@@ -78,8 +78,8 @@ export default function TermsAndConditions() {
             <p className="text-gray-600 leading-relaxed mb-4">
               These Terms and Conditions ("Terms") constitute a legally binding agreement between <span className="font-semibold">Virtues Seven Events Pvt. Ltd.</span>, 
               a company incorporated under the Companies Act, 2013, having its registered office at Pune, Maharashtra, India 
-              (hereinafter referred to as "VenueKart", "Company", "We", "Us" or "Our"), and any person or entity accessing 
-              or using the VenueKart platform.
+              (hereinafter referred to as "Planzia", "Company", "We", "Us" or "Our"), and any person or entity accessing 
+              or using the Planzia platform.
             </p>
             <p className="text-gray-600 leading-relaxed">
               By accessing, browsing, registering, or using the Platform, you ("User" or "Customer") and/or "Venue Partner" 
@@ -108,7 +108,7 @@ export default function TermsAndConditions() {
               </div>
               <div>
                 <span className="font-semibold text-venue-dark">Services:</span>
-                <span className="text-gray-600 ml-2">Includes venue discovery, booking management, digital listing, marketing support, and related services provided by VenueKart.</span>
+                <span className="text-gray-600 ml-2">Includes venue discovery, booking management, digital listing, marketing support, and related services provided by Planzia.</span>
               </div>
               <div>
                 <span className="font-semibold text-venue-dark">Booking:</span>
@@ -128,8 +128,8 @@ export default function TermsAndConditions() {
           </CardHeader>
           <CardContent>
             <ul className="list-disc list-inside text-gray-600 space-y-2">
-              <li>VenueKart provides an online marketplace that connects Customers with Venue Partners for discovery, inquiry, and booking of venues.</li>
-              <li>VenueKart acts solely as an <span className="font-semibold">intermediary</span> and does not own, operate, or control any venue listed on the Platform.</li>
+              <li>Planzia provides an online marketplace that connects Customers with Venue Partners for discovery, inquiry, and booking of venues.</li>
+              <li>Planzia acts solely as an <span className="font-semibold">intermediary</span> and does not own, operate, or control any venue listed on the Platform.</li>
             </ul>
           </CardContent>
         </Card>
@@ -163,7 +163,7 @@ export default function TermsAndConditions() {
             <ul className="list-disc list-inside text-gray-600 space-y-2">
               <li>Venue Partners shall provide truthful, accurate, and updated information about their venues.</li>
               <li>Venue Partners shall ensure compliance with all statutory licenses, permits, and safety norms.</li>
-              <li>VenueKart reserves the right to verify and/or delist any venue in case of non-compliance or fraudulent activity.</li>
+              <li>Planzia reserves the right to verify and/or delist any venue in case of non-compliance or fraudulent activity.</li>
             </ul>
           </CardContent>
         </Card>
@@ -185,7 +185,7 @@ export default function TermsAndConditions() {
 
               <div>
                 <h3 className="text-lg font-semibold text-venue-dark mb-3">5.2 Payment Gateway</h3>
-                <p className="text-gray-600">All payments shall be processed through authorized payment gateways. VenueKart is not liable for any delays or failures caused by third-party payment processors.</p>
+                <p className="text-gray-600">All payments shall be processed through authorized payment gateways. Planzia is not liable for any delays or failures caused by third-party payment processors.</p>
               </div>
 
               <div>
@@ -199,7 +199,7 @@ export default function TermsAndConditions() {
 
               <div>
                 <h3 className="text-lg font-semibold text-venue-dark mb-3">5.4 Cancellation by Venue Partner</h3>
-                <p className="text-gray-600">In the event a Venue Partner cancels a confirmed booking, the Customer shall receive a <span className="font-semibold text-green-600">full refund</span>. VenueKart may impose penalties on the Venue Partner, including suspension/delisting.</p>
+                <p className="text-gray-600">In the event a Venue Partner cancels a confirmed booking, the Customer shall receive a <span className="font-semibold text-green-600">full refund</span>. Planzia may impose penalties on the Venue Partner, including suspension/delisting.</p>
               </div>
 
               <div>
@@ -220,14 +220,14 @@ export default function TermsAndConditions() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <p className="text-gray-600">VenueKart is only a facilitator and is not responsible for the condition, quality, safety, or legal compliance of venues.</p>
-              <p className="text-gray-600">Customers agree that VenueKart shall not be liable for:</p>
+              <p className="text-gray-600">Planzia is only a facilitator and is not responsible for the condition, quality, safety, or legal compliance of venues.</p>
+              <p className="text-gray-600">Customers agree that Planzia shall not be liable for:</p>
               <ul className="list-disc list-inside text-gray-600 space-y-1 ml-6">
                 <li>Cancellation by Venue Partner</li>
                 <li>Disputes between Customer and Venue Partner</li>
                 <li>Force Majeure events (natural calamities, government restrictions, strikes, etc.)</li>
               </ul>
-              <p className="text-gray-600">VenueKart's maximum liability shall be limited to the booking amount paid by the Customer to VenueKart.</p>
+              <p className="text-gray-600">Planzia's maximum liability shall be limited to the booking amount paid by the Customer to Planzia.</p>
             </div>
           </CardContent>
         </Card>
@@ -265,8 +265,8 @@ export default function TermsAndConditions() {
                 <Mail className="h-5 w-5 text-venue-indigo" />
                 <div>
                   <span className="font-semibold text-venue-dark">Email:</span>
-                  <a href="mailto:support@venuekart.in" className="text-venue-indigo hover:underline ml-2">
-                    support@venuekart.in
+                  <a href="mailto:support@Planzia.in" className="text-venue-indigo hover:underline ml-2">
+                    support@Planzia.in
                   </a>
                 </div>
               </div>

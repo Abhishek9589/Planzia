@@ -51,8 +51,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (email, name, userType, password, mobileNumber) => {
-    return await authService.register(email, name, userType, password, mobileNumber);
+  const register = async (email, name, userType, password, mobileNumber, state = null, city = null, businessName = null) => {
+    return await authService.register(email, name, userType, password, mobileNumber, state, city, businessName);
   };
 
   const verifyOTP = async (email, otp) => {
@@ -90,6 +90,19 @@ export const AuthProvider = ({ children }) => {
     return user && user.userType === 'venue-owner';
   };
 
+  const updateProfile = (profileData) => {
+    setUser(prev => ({
+      ...prev,
+      ...profileData,
+      name: profileData.name || prev?.name,
+      email: profileData.email || prev?.email,
+      mobileNumber: profileData.phone || prev?.mobileNumber,
+      state: profileData.state || prev?.state,
+      city: profileData.city || prev?.city,
+      businessName: profileData.businessName || prev?.businessName
+    }));
+  };
+
   const forgotPassword = async (email) => {
     return await authService.forgotPassword(email);
   };
@@ -109,6 +122,7 @@ export const AuthProvider = ({ children }) => {
     loginWithPassword,
     forgotPassword,
     resetPassword,
+    updateProfile,
     isVenueOwner,
     isLoading,
     isLoggedIn: !!user

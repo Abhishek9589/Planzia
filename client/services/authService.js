@@ -30,14 +30,17 @@ class AuthService {
     }
   }
 
-  async register(email, name, userType = 'customer', password = null, mobileNumber = null) {
+  async register(email, name, userType = 'customer', password = null, mobileNumber = null, state = null, city = null, businessName = null) {
     try {
       const data = await apiClient.postJson(`${API_BASE}/register`, {
         email,
         name,
         userType,
         password,
-        mobileNumber
+        mobileNumber,
+        state,
+        city,
+        businessName
       });
 
       return data;

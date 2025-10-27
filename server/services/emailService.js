@@ -32,28 +32,28 @@ export async function sendOTPEmail(email, otp, name = 'User', purpose = 'Verific
   const isEmailUpdate = purpose === 'Email Update';
   const mailOptions = {
     from: {
-      name: 'VenueKart',
+      name: 'Planzia',
       address: process.env.EMAIL_USER
     },
     to: email,
-    subject: isPasswordReset ? 'VenueKart - Password Reset Verification' :
-             isEmailUpdate ? 'VenueKart - Email Address Verification' :
-             'VenueKart - Account Verification',
+    subject: isPasswordReset ? 'Planzia - Password Reset Verification' :
+             isEmailUpdate ? 'Planzia - Email Address Verification' :
+             'Planzia - Account Verification',
     html: `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>VenueKart Verification</title>
+        <title>Planzia Verification</title>
       </head>
       <body style="margin: 0; padding: 0; background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
         <div style="max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
           
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #3C3B6E 0%, #6C63FF 100%); padding: 40px 30px; text-align: center;">
-            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="VenueKart Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto;" />
-            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">VenueKart</h1>
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="Planzia Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto;" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">Planzia</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 400;">Professional Venue Solutions</p>
           </div>
 
@@ -72,7 +72,7 @@ export async function sendOTPEmail(email, otp, name = 'User', purpose = 'Verific
                 ? 'We received a request to reset your password. Please use the verification code below to proceed with resetting your password.'
                 : isEmailUpdate
                 ? 'To complete the update of your email address, please verify using the code below.'
-                : 'Thank you for registering with VenueKart. To activate your account, please verify your email address using the code below.'
+                : 'Thank you for registering with Planzia. To activate your account, please verify your email address using the code below.'
               }
             </p>
 
@@ -96,10 +96,10 @@ export async function sendOTPEmail(email, otp, name = 'User', purpose = 'Verific
           <!-- Footer -->
           <div style="background: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
             <p style="color: #718096; margin: 0 0 10px 0; font-size: 14px;">
-              This is an automated message from VenueKart. Please do not reply to this email.
+              This is an automated message from Planzia. Please do not reply to this email.
             </p>
             <p style="color: #a0aec0; margin: 0; font-size: 12px;">
-              © ${new Date().getFullYear()} VenueKart. All rights reserved.
+              © ${new Date().getFullYear()} Planzia. All rights reserved.
             </p>
           </div>
         </div>
@@ -131,7 +131,7 @@ export async function sendVenueInquiryEmail(ownerEmail, inquiryData) {
 
   const mailOptions = {
     from: {
-      name: 'VenueKart',
+      name: 'Planzia',
       address: process.env.EMAIL_USER
     },
     to: ownerEmail,
@@ -149,8 +149,8 @@ export async function sendVenueInquiryEmail(ownerEmail, inquiryData) {
           
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #3C3B6E 0%, #6C63FF 100%); padding: 40px 30px; text-align: center;">
-            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="VenueKart Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto;" />
-            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">VenueKart</h1>
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="Planzia Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto;" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">Planzia</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 400;">New Booking Inquiry</p>
           </div>
 
@@ -191,7 +191,7 @@ export async function sendVenueInquiryEmail(ownerEmail, inquiryData) {
                 </table>
                 <div style="background: #fff5cd; border: 1px solid #f6e05e; border-radius: 4px; padding: 15px; margin-top: 15px;">
                   <p style="color: #744210; margin: 0; font-size: 14px; line-height: 1.5;">
-                    <strong>Privacy Notice:</strong> Customer contact details are protected and will be shared upon inquiry acceptance through your VenueKart dashboard.
+                    <strong>Privacy Notice:</strong> Customer contact details are protected and will be shared upon inquiry acceptance through your Planzia dashboard.
                   </p>
                 </div>
               </div>
@@ -243,22 +243,22 @@ export async function sendVenueInquiryEmail(ownerEmail, inquiryData) {
             <div style="background: #e6fffa; border: 1px solid #38b2ac; border-radius: 6px; padding: 20px; margin: 30px 0;">
               <h3 style="color: #234e52; margin: 0 0 10px 0; font-size: 16px; font-weight: 600;">Action Required</h3>
               <p style="color: #285e61; margin: 0; font-size: 14px; line-height: 1.5;">
-                Please review this inquiry and respond through your VenueKart dashboard within 24 hours. Log in to your account to accept or decline this booking request.
+                Please review this inquiry and respond through your Planzia dashboard within 24 hours. Log in to your account to accept or decline this booking request.
               </p>
             </div>
           </div>
 
           <!-- Footer -->
           <div style="background: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">VenueKart</h4>
+            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Planzia</h4>
             <p style="color: #718096; margin: 0 0 15px 0; font-size: 14px;">
               Professional Venue Solutions
             </p>
             <p style="color: #718096; margin: 0 0 10px 0; font-size: 12px;">
-              This inquiry was submitted through VenueKart. Customer contact details will be shared upon acceptance.
+              This inquiry was submitted through Planzia. Customer contact details will be shared upon acceptance.
             </p>
             <p style="color: #a0aec0; margin: 0; font-size: 12px;">
-              © ${new Date().getFullYear()} VenueKart. All rights reserved.
+              © ${new Date().getFullYear()} Planzia. All rights reserved.
             </p>
           </div>
         </div>
@@ -277,17 +277,17 @@ export async function sendVenueInquiryEmail(ownerEmail, inquiryData) {
   }
 }
 
-// Send inquiry notification to VenueKart admin (with full customer details)
-export async function sendInquiryNotificationToVenueKart(inquiryData) {
+// Send inquiry notification to Planzia admin (with full customer details)
+export async function sendInquiryNotificationToPlanzia(inquiryData) {
   const { venue, customer, event, owner } = inquiryData;
-  const venuekartEmail = process.env.VENUEKART_ADMIN_EMAIL || process.env.EMAIL_USER;
+  const PlanziaEmail = process.env.Planzia_ADMIN_EMAIL || process.env.EMAIL_USER;
 
   const mailOptions = {
     from: {
-      name: 'VenueKart System',
+      name: 'Planzia System',
       address: process.env.EMAIL_USER
     },
-    to: venuekartEmail,
+    to: PlanziaEmail,
     subject: `[ADMIN] New Venue Inquiry - ${venue.name}`,
     html: `
       <!DOCTYPE html>
@@ -302,8 +302,8 @@ export async function sendInquiryNotificationToVenueKart(inquiryData) {
           
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #e53e3e 0%, #fc8181 100%); padding: 40px 30px; text-align: center;">
-            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="VenueKart Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto; filter: brightness(0) invert(1);" />
-            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">VenueKart</h1>
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="Planzia Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto; filter: brightness(0) invert(1);" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">Planzia</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 600;">ADMIN NOTIFICATION</p>
           </div>
 
@@ -442,7 +442,7 @@ export async function sendInquiryNotificationToVenueKart(inquiryData) {
 
           <!-- Footer -->
           <div style="background: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">VenueKart</h4>
+            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Planzia</h4>
             <p style="color: #718096; margin: 0 0 15px 0; font-size: 14px;">
               Professional Venue Solutions
             </p>
@@ -450,7 +450,7 @@ export async function sendInquiryNotificationToVenueKart(inquiryData) {
               Inquiry submitted at ${new Date().toLocaleString('en-IN')}
             </p>
             <p style="color: #a0aec0; margin: 0; font-size: 12px;">
-              © ${new Date().getFullYear()} VenueKart. All rights reserved.
+              © ${new Date().getFullYear()} Planzia. All rights reserved.
             </p>
           </div>
         </div>
@@ -461,10 +461,10 @@ export async function sendInquiryNotificationToVenueKart(inquiryData) {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`VenueKart admin notification email sent successfully`);
+    console.log(`Planzia admin notification email sent successfully`);
     return true;
   } catch (error) {
-    console.error('Error sending VenueKart admin notification email:', error);
+    console.error('Error sending Planzia admin notification email:', error);
     return false;
   }
 }
@@ -475,7 +475,7 @@ export async function sendBookingConfirmationEmail(customerEmail, bookingData) {
 
   const mailOptions = {
     from: {
-      name: 'VenueKart',
+      name: 'Planzia',
       address: process.env.EMAIL_USER
     },
     to: customerEmail,
@@ -493,8 +493,8 @@ export async function sendBookingConfirmationEmail(customerEmail, bookingData) {
           
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #38a169 0%, #68d391 100%); padding: 40px 30px; text-align: center;">
-            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="VenueKart Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto; filter: brightness(0) invert(1);" />
-            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">VenueKart</h1>
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="Planzia Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto; filter: brightness(0) invert(1);" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">Planzia</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 400;">Booking Confirmation</p>
           </div>
 
@@ -573,14 +573,14 @@ export async function sendBookingConfirmationEmail(customerEmail, bookingData) {
 
             <div style="text-align: center; margin: 30px 0;">
               <p style="color: #4a5568; margin: 0; font-size: 16px; line-height: 1.6;">
-                Thank you for choosing VenueKart for your event needs. We wish you a successful event!
+                Thank you for choosing Planzia for your event needs. We wish you a successful event!
               </p>
             </div>
           </div>
 
           <!-- Footer -->
           <div style="background: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">VenueKart</h4>
+            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Planzia</h4>
             <p style="color: #718096; margin: 0 0 15px 0; font-size: 14px;">
               Professional Venue Solutions
             </p>
@@ -588,7 +588,7 @@ export async function sendBookingConfirmationEmail(customerEmail, bookingData) {
               If you have any questions, please contact us or the venue owner directly.
             </p>
             <p style="color: #a0aec0; margin: 0; font-size: 12px;">
-              © ${new Date().getFullYear()} VenueKart. All rights reserved.
+              © ${new Date().getFullYear()} Planzia. All rights reserved.
             </p>
           </div>
         </div>
@@ -607,17 +607,17 @@ export async function sendBookingConfirmationEmail(customerEmail, bookingData) {
   }
 }
 
-// Send inquiry acceptance email to VenueKart admin
+// Send inquiry acceptance email to Planzia admin
 export async function sendInquiryAcceptedToAdmin(inquiryData) {
   const { venue, customer, event, owner } = inquiryData;
-  const venuekartEmail = process.env.VENUEKART_ADMIN_EMAIL || process.env.EMAIL_USER;
+  const PlanziaEmail = process.env.Planzia_ADMIN_EMAIL || process.env.EMAIL_USER;
 
   const mailOptions = {
     from: {
-      name: 'VenueKart System',
+      name: 'Planzia System',
       address: process.env.EMAIL_USER
     },
-    to: venuekartEmail,
+    to: PlanziaEmail,
     subject: `[ADMIN] Venue Inquiry Accepted - ${venue.name}`,
     html: `
       <!DOCTYPE html>
@@ -632,8 +632,8 @@ export async function sendInquiryAcceptedToAdmin(inquiryData) {
           
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #38a169 0%, #68d391 100%); padding: 40px 30px; text-align: center;">
-            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="VenueKart Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto; filter: brightness(0) invert(1);" />
-            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">VenueKart</h1>
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="Planzia Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto; filter: brightness(0) invert(1);" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">Planzia</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 600;">INQUIRY ACCEPTED</p>
           </div>
 
@@ -738,7 +738,7 @@ export async function sendInquiryAcceptedToAdmin(inquiryData) {
 
           <!-- Footer -->
           <div style="background: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">VenueKart</h4>
+            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Planzia</h4>
             <p style="color: #718096; margin: 0 0 15px 0; font-size: 14px;">
               Professional Venue Solutions
             </p>
@@ -746,7 +746,7 @@ export async function sendInquiryAcceptedToAdmin(inquiryData) {
               Inquiry accepted at ${new Date().toLocaleString('en-IN')}
             </p>
             <p style="color: #a0aec0; margin: 0; font-size: 12px;">
-              © ${new Date().getFullYear()} VenueKart. All rights reserved.
+              © ${new Date().getFullYear()} Planzia. All rights reserved.
             </p>
           </div>
         </div>
@@ -771,7 +771,7 @@ export async function sendInquiryAcceptedToCustomer(customerEmail, inquiryData) 
 
   const mailOptions = {
     from: {
-      name: 'VenueKart',
+      name: 'Planzia',
       address: process.env.EMAIL_USER
     },
     to: customerEmail,
@@ -789,8 +789,8 @@ export async function sendInquiryAcceptedToCustomer(customerEmail, inquiryData) 
           
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #38a169 0%, #68d391 100%); padding: 40px 30px; text-align: center;">
-            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="VenueKart Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto; filter: brightness(0) invert(1);" />
-            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">VenueKart</h1>
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="Planzia Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto; filter: brightness(0) invert(1);" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">Planzia</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 400;">Excellent News!</p>
           </div>
 
@@ -867,7 +867,7 @@ export async function sendInquiryAcceptedToCustomer(customerEmail, inquiryData) 
                   To secure your booking, please complete the payment process within 48 hours. Follow these simple steps:
                 </p>
                 <ol style="color: #975a16; margin: 0; font-size: 14px; line-height: 1.6; padding-left: 20px;">
-                  <li style="margin: 0 0 8px 0;">Log in to your VenueKart dashboard</li>
+                  <li style="margin: 0 0 8px 0;">Log in to your Planzia dashboard</li>
                   <li style="margin: 0 0 8px 0;">Navigate to your booking history</li>
                   <li style="margin: 0 0 8px 0;">Click "Pay Now" for this booking</li>
                   <li style="margin: 0 0 8px 0;">Complete the secure payment via Razorpay</li>
@@ -891,14 +891,14 @@ export async function sendInquiryAcceptedToCustomer(customerEmail, inquiryData) 
 
             <div style="text-align: center; margin: 30px 0;">
               <p style="color: #4a5568; margin: 0; font-size: 16px; line-height: 1.6;">
-                Thank you for choosing VenueKart. We hope you have a wonderful event!
+                Thank you for choosing Planzia. We hope you have a wonderful event!
               </p>
             </div>
           </div>
 
           <!-- Footer -->
           <div style="background: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">VenueKart</h4>
+            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Planzia</h4>
             <p style="color: #718096; margin: 0 0 15px 0; font-size: 14px;">
               Professional Venue Solutions
             </p>
@@ -906,7 +906,7 @@ export async function sendInquiryAcceptedToCustomer(customerEmail, inquiryData) 
               We're here to help make your event successful. Best wishes!
             </p>
             <p style="color: #a0aec0; margin: 0; font-size: 12px;">
-              © ${new Date().getFullYear()} VenueKart. All rights reserved.
+              © ${new Date().getFullYear()} Planzia. All rights reserved.
             </p>
           </div>
         </div>
@@ -925,17 +925,17 @@ export async function sendInquiryAcceptedToCustomer(customerEmail, inquiryData) 
   }
 }
 
-// Send inquiry rejection email to VenueKart admin
+// Send inquiry rejection email to Planzia admin
 export async function sendInquiryRejectedToAdmin(inquiryData) {
   const { venue, customer, event, owner } = inquiryData;
-  const venuekartEmail = process.env.VENUEKART_ADMIN_EMAIL || process.env.EMAIL_USER;
+  const PlanziaEmail = process.env.Planzia_ADMIN_EMAIL || process.env.EMAIL_USER;
 
   const mailOptions = {
     from: {
-      name: 'VenueKart System',
+      name: 'Planzia System',
       address: process.env.EMAIL_USER
     },
-    to: venuekartEmail,
+    to: PlanziaEmail,
     subject: `[ADMIN] Venue Inquiry Declined - ${venue.name}`,
     html: `
       <!DOCTYPE html>
@@ -950,8 +950,8 @@ export async function sendInquiryRejectedToAdmin(inquiryData) {
           
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #e53e3e 0%, #fc8181 100%); padding: 40px 30px; text-align: center;">
-            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="VenueKart Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto; filter: brightness(0) invert(1);" />
-            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">VenueKart</h1>
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="Planzia Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto; filter: brightness(0) invert(1);" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">Planzia</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 600;">INQUIRY DECLINED</p>
           </div>
 
@@ -1056,7 +1056,7 @@ export async function sendInquiryRejectedToAdmin(inquiryData) {
 
           <!-- Footer -->
           <div style="background: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">VenueKart</h4>
+            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Planzia</h4>
             <p style="color: #718096; margin: 0 0 15px 0; font-size: 14px;">
               Professional Venue Solutions
             </p>
@@ -1064,7 +1064,7 @@ export async function sendInquiryRejectedToAdmin(inquiryData) {
               Inquiry declined at ${new Date().toLocaleString('en-IN')}
             </p>
             <p style="color: #a0aec0; margin: 0; font-size: 12px;">
-              © ${new Date().getFullYear()} VenueKart. All rights reserved.
+              © ${new Date().getFullYear()} Planzia. All rights reserved.
             </p>
           </div>
         </div>
@@ -1089,7 +1089,7 @@ export async function sendInquiryRejectedToCustomer(customerEmail, inquiryData) 
 
   const mailOptions = {
     from: {
-      name: 'VenueKart',
+      name: 'Planzia',
       address: process.env.EMAIL_USER
     },
     to: customerEmail,
@@ -1107,8 +1107,8 @@ export async function sendInquiryRejectedToCustomer(customerEmail, inquiryData) 
           
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #3C3B6E 0%, #6C63FF 100%); padding: 40px 30px; text-align: center;">
-            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="VenueKart Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto;" />
-            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">VenueKart</h1>
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="Planzia Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto;" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">Planzia</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 400;">Inquiry Update</p>
           </div>
 
@@ -1178,7 +1178,7 @@ export async function sendInquiryRejectedToCustomer(customerEmail, inquiryData) 
               <p style="color: #4a5568; margin: 0 0 20px 0; font-size: 16px; line-height: 1.6;">
                 Don't let this setback stop your perfect event. Let us help you find another excellent venue.
               </p>
-              <a href="${process.env.FRONTEND_URL || 'https://venuekart.com'}/venues" style="background: linear-gradient(135deg, #3C3B6E 0%, #6C63FF 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <a href="${process.env.FRONTEND_URL || 'https://Planzia.com'}/venues" style="background: linear-gradient(135deg, #3C3B6E 0%, #6C63FF 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 Browse Other Venues
               </a>
             </div>
@@ -1186,7 +1186,7 @@ export async function sendInquiryRejectedToCustomer(customerEmail, inquiryData) 
 
           <!-- Footer -->
           <div style="background: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">VenueKart</h4>
+            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Planzia</h4>
             <p style="color: #718096; margin: 0 0 15px 0; font-size: 14px;">
               Professional Venue Solutions
             </p>
@@ -1194,7 +1194,7 @@ export async function sendInquiryRejectedToCustomer(customerEmail, inquiryData) 
               We're committed to helping you find the perfect venue for your event.
             </p>
             <p style="color: #a0aec0; margin: 0; font-size: 12px;">
-              © ${new Date().getFullYear()} VenueKart. All rights reserved.
+              © ${new Date().getFullYear()} Planzia. All rights reserved.
             </p>
           </div>
         </div>
@@ -1213,12 +1213,398 @@ export async function sendInquiryRejectedToCustomer(customerEmail, inquiryData) 
   }
 }
 
+export async function sendPaymentNotCompletedEmail(customerEmail, bookingData) {
+  const { customer_name, venue_name, venue_location, event_date, booking_id, amount } = bookingData;
+
+  const mailOptions = {
+    from: {
+      name: 'Planzia',
+      address: process.env.EMAIL_USER
+    },
+    to: customerEmail,
+    subject: `Booking Cancelled - Payment Not Completed`,
+    html: `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Booking Cancelled</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div style="max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #e53e3e 0%, #fc8181 100%); padding: 40px 30px; text-align: center;">
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="Planzia Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto; filter: brightness(0) invert(1);" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">Planzia</h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 400;">Booking Status Update</p>
+          </div>
+
+          <!-- Content -->
+          <div style="padding: 40px 30px;">
+            <!-- Cancellation Notice -->
+            <div style="background: #fed7d7; border: 2px solid #e53e3e; border-radius: 6px; padding: 20px; margin: 0 0 30px 0; text-align: center;">
+              <h2 style="color: #742a2a; margin: 0 0 10px 0; font-size: 24px; font-weight: 600;">Booking Cancelled</h2>
+              <p style="color: #742a2a; margin: 0; font-size: 16px;">Your booking has been automatically cancelled due to unpaid payment.</p>
+            </div>
+
+            <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+              Dear ${customer_name},
+            </p>
+
+            <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+              Unfortunately, your booking for <strong>${venue_name}</strong> has been automatically cancelled as the payment was not completed within the 24-hour deadline. The venue is now available for other bookings.
+            </p>
+
+            <!-- Cancelled Booking Details -->
+            <div style="margin: 30px 0;">
+              <h3 style="color: #2d3748; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">Booking Information</h3>
+              <div style="background: #f7fafc; padding: 20px; border-radius: 6px; border-left: 4px solid #e53e3e;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600; width: 35%;">Booking ID:</td>
+                    <td style="padding: 8px 0; color: #2d3748; font-family: 'Courier New', monospace;">#${booking_id}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Venue:</td>
+                    <td style="padding: 8px 0; color: #2d3748;">${venue_name}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Location:</td>
+                    <td style="padding: 8px 0; color: #2d3748;">${venue_location}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Event Date:</td>
+                    <td style="padding: 8px 0; color: #2d3748;">${new Date(event_date).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                  </tr>
+                  <tr style="border-top: 1px solid #e2e8f0;">
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Payment Amount:</td>
+                    <td style="padding: 8px 0; color: #2d3748;">₹${amount}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <!-- What You Can Do -->
+            <div style="background: #e6fffa; border: 1px solid #38b2ac; border-radius: 6px; padding: 20px; margin: 30px 0;">
+              <h3 style="color: #234e52; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">What You Can Do Next</h3>
+              <ol style="color: #285e61; margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">
+                <li style="margin: 8px 0;"><strong>Try Again</strong> - Contact the venue owner if you still want to book</li>
+                <li style="margin: 8px 0;"><strong>Alternative Dates</strong> - Check venue availability for different dates</li>
+                <li style="margin: 8px 0;"><strong>Browse Other Venues</strong> - Explore our wide selection of excellent venues</li>
+                <li style="margin: 8px 0;"><strong>Contact Support</strong> - Our team can help you find alternatives</li>
+              </ol>
+            </div>
+
+            <!-- Browse Venues CTA -->
+            <div style="text-align: center; margin: 30px 0; padding: 20px; background: #f7fafc; border-radius: 6px;">
+              <p style="color: #4a5568; margin: 0 0 20px 0; font-size: 16px; line-height: 1.6;">
+                We're here to help you find the perfect venue for your event.
+              </p>
+              <a href="${process.env.FRONTEND_URL || 'https://planzia.com'}/venues" style="background: linear-gradient(135deg, #3C3B6E 0%, #6C63FF 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                Browse Venues Now
+              </a>
+            </div>
+
+            <p style="color: #718096; margin: 0; font-size: 14px; text-align: center;">
+              If you have any questions, please contact our support team.
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Planzia</h4>
+            <p style="color: #718096; margin: 0 0 15px 0; font-size: 14px;">
+              Professional Venue Solutions
+            </p>
+            <p style="color: #718096; margin: 0 0 10px 0; font-size: 12px;">
+              This is an automated notification. Please do not reply to this email.
+            </p>
+            <p style="color: #a0aec0; margin: 0; font-size: 12px;">
+              © ${new Date().getFullYear()} Planzia. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Payment not completed email sent successfully to ${customerEmail}`);
+    return true;
+  } catch (error) {
+    console.error('Error sending payment not completed email:', error);
+    return false;
+  }
+}
+
+export async function sendRatingReminderEmail(customerEmail, bookingData) {
+  const { customer_name, venue_name, venue_location, event_date, booking_id } = bookingData;
+
+  const mailOptions = {
+    from: {
+      name: 'Planzia',
+      address: process.env.EMAIL_USER
+    },
+    to: customerEmail,
+    subject: `Rate Your Experience at ${venue_name}`,
+    html: `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rate Your Experience</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div style="max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #805ad5 0%, #d6bcfa 100%); padding: 40px 30px; text-align: center;">
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="Planzia Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto; filter: brightness(0) invert(1);" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">Planzia</h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 400;">Share Your Feedback</p>
+          </div>
+
+          <!-- Content -->
+          <div style="padding: 40px 30px;">
+            <!-- Rating Request Notice -->
+            <div style="background: #ede9fe; border: 1px solid #c4b5fd; border-radius: 6px; padding: 20px; margin: 0 0 30px 0; text-align: center;">
+              <h2 style="color: #5b21b6; margin: 0 0 10px 0; font-size: 24px; font-weight: 600;">🌟 We'd Love Your Feedback</h2>
+              <p style="color: #6d28d9; margin: 0; font-size: 16px;">Help others discover amazing venues by sharing your experience</p>
+            </div>
+
+            <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+              Dear ${customer_name},
+            </p>
+
+            <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+              We hope you had a wonderful experience at <strong>${venue_name}</strong>! Your event has now passed, and we'd love to hear about your experience. Ratings from users like you help other event planners find the perfect venue.
+            </p>
+
+            <!-- Event Summary -->
+            <div style="margin: 30px 0;">
+              <h3 style="color: #2d3748; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">Your Event Details</h3>
+              <div style="background: #f7fafc; padding: 20px; border-radius: 6px; border-left: 4px solid #805ad5;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600; width: 35%;">Venue:</td>
+                    <td style="padding: 8px 0; color: #2d3748;">${venue_name}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Location:</td>
+                    <td style="padding: 8px 0; color: #2d3748;">${venue_location}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Event Date:</td>
+                    <td style="padding: 8px 0; color: #2d3748;">${new Date(event_date).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Booking ID:</td>
+                    <td style="padding: 8px 0; color: #2d3748; font-family: 'Courier New', monospace;">#${booking_id}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <!-- Rating CTA -->
+            <div style="background: #fef5e7; border: 1px solid #f6e05e; border-radius: 6px; padding: 25px; margin: 30px 0; text-align: center;">
+              <h3 style="color: #744210; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">⭐ Rate This Venue</h3>
+              <p style="color: #975a16; margin: 0 0 20px 0; font-size: 14px; line-height: 1.5;">
+                Share your honest feedback about the venue, service, and overall experience. Your rating helps other customers make informed decisions.
+              </p>
+              <a href="${process.env.CLIENT_URL || 'http://localhost:8080'}/user-dashboard?booking=${booking_id}" style="display: inline-block; background: linear-gradient(135deg, #805ad5 0%, #d6bcfa 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: #ffffff;">
+                Rate Your Venue Now
+              </a>
+            </div>
+
+            <!-- Why Your Rating Matters -->
+            <div style="background: #e6fffa; border: 1px solid #38b2ac; border-radius: 6px; padding: 20px; margin: 30px 0;">
+              <h3 style="color: #234e52; margin: 0 0 15px 0; font-size: 16px; font-weight: 600;">Why Your Rating Matters</h3>
+              <ul style="color: #285e61; margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">
+                <li style="margin: 8px 0;">🎯 Help other event planners find the perfect venue</li>
+                <li style="margin: 8px 0;">⭐ Your honest feedback improves our platform</li>
+                <li style="margin: 8px 0;">💬 Share what went well and what could be improved</li>
+                <li style="margin: 8px 0;">🤝 Support venue owners in growing their business</li>
+              </ul>
+            </div>
+
+            <p style="color: #4a5568; margin: 0 0 10px 0; font-size: 14px; text-align: center;">
+              Thank you for using Planzia! We appreciate your feedback. 😊
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Planzia</h4>
+            <p style="color: #718096; margin: 0 0 15px 0; font-size: 14px;">
+              Professional Venue Solutions
+            </p>
+            <p style="color: #718096; margin: 0 0 10px 0; font-size: 12px;">
+              This is an automated message. Please do not reply to this email.
+            </p>
+            <p style="color: #a0aec0; margin: 0; font-size: 12px;">
+              © ${new Date().getFullYear()} Planzia. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Rating reminder email sent successfully to ${customerEmail}`);
+    return true;
+  } catch (error) {
+    console.error('Error sending rating reminder email:', error);
+    return false;
+  }
+}
+
+export async function sendPaymentCompletedEmail(customerEmail, bookingData) {
+  const { customer_name, venue_name, venue_location, event_date, booking_id, amount } = bookingData;
+
+  const mailOptions = {
+    from: {
+      name: 'Planzia',
+      address: process.env.EMAIL_USER
+    },
+    to: customerEmail,
+    subject: `Payment Confirmed - Your Booking is Secured ✓`,
+    html: `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Confirmed</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div style="max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #38a169 0%, #68d391 100%); padding: 40px 30px; text-align: center;">
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="Planzia Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto; filter: brightness(0) invert(1);" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">Planzia</h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 400;">Payment Confirmed</p>
+          </div>
+
+          <!-- Content -->
+          <div style="padding: 40px 30px;">
+            <!-- Success Notice -->
+            <div style="background: #c6f6d5; border: 2px solid #38a169; border-radius: 6px; padding: 20px; margin: 0 0 30px 0; text-align: center;">
+              <h2 style="color: #276749; margin: 0 0 10px 0; font-size: 28px; font-weight: 600;">✓ Payment Confirmed</h2>
+              <p style="color: #2f855a; margin: 0; font-size: 16px;">Your booking is now confirmed and secured!</p>
+            </div>
+
+            <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+              Dear ${customer_name},
+            </p>
+
+            <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+              Congratulations! Your payment has been successfully processed. Your booking for <strong>${venue_name}</strong> is now confirmed and reserved for your event date.
+            </p>
+
+            <!-- Confirmed Booking Details -->
+            <div style="margin: 30px 0;">
+              <h3 style="color: #2d3748; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">Confirmed Booking Details</h3>
+              <div style="background: #f7fafc; padding: 20px; border-radius: 6px; border-left: 4px solid #38a169;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600; width: 35%;">Booking ID:</td>
+                    <td style="padding: 8px 0; color: #2d3748; font-family: 'Courier New', monospace; font-weight: 600;">#${booking_id}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Venue Name:</td>
+                    <td style="padding: 8px 0; color: #2d3748;">${venue_name}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Location:</td>
+                    <td style="padding: 8px 0; color: #2d3748;">${venue_location}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Event Date:</td>
+                    <td style="padding: 8px 0; color: #2d3748; font-weight: 600;">${new Date(event_date).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                  </tr>
+                  <tr style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Payment Amount:</td>
+                    <td style="padding: 8px 0; color: #38a169; font-weight: 600; font-size: 18px;">₹${amount}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Booking Status:</td>
+                    <td style="padding: 8px 0;"><span style="background: #c6f6d5; color: #276749; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 13px;">✓ Confirmed</span></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div style="background: #e6fffa; border: 1px solid #38b2ac; border-radius: 6px; padding: 20px; margin: 30px 0;">
+              <h3 style="color: #234e52; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">What Happens Next?</h3>
+              <ol style="color: #285e61; margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">
+                <li style="margin: 8px 0;"><strong>Confirmation Sent</strong> - The venue owner has been notified of your confirmed booking</li>
+                <li style="margin: 8px 0;"><strong>Direct Contact</strong> - The venue owner may contact you to finalize event details</li>
+                <li style="margin: 8px 0;"><strong>Prepare Your Event</strong> - You can now proceed with planning your event</li>
+                <li style="margin: 8px 0;"><strong>Post-Event Rating</strong> - You'll receive a reminder to rate your experience after the event</li>
+              </ol>
+            </div>
+
+            <!-- Important Information -->
+            <div style="background: #fff5cd; border: 1px solid #f6e05e; border-radius: 6px; padding: 20px; margin: 30px 0;">
+              <h3 style="color: #744210; margin: 0 0 15px 0; font-size: 16px; font-weight: 600;">📌 Important Information</h3>
+              <ul style="color: #744210; margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">
+                <li style="margin: 8px 0;">Keep this email as your booking confirmation receipt</li>
+                <li style="margin: 8px 0;">Review your booking details in your Planzia dashboard</li>
+                <li style="margin: 8px 0;">Contact the venue owner for any specific arrangements</li>
+                <li style="margin: 8px 0;">Report any issues immediately to our support team</li>
+              </ul>
+            </div>
+
+            <p style="color: #4a5568; margin: 0; font-size: 16px; text-align: center; line-height: 1.6;">
+              Thank you for choosing Planzia. We wish you a wonderful and successful event! 🎉
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Planzia</h4>
+            <p style="color: #718096; margin: 0 0 15px 0; font-size: 14px;">
+              Professional Venue Solutions
+            </p>
+            <p style="color: #718096; margin: 0 0 10px 0; font-size: 12px;">
+              If you have any questions about your booking, please contact us.
+            </p>
+            <p style="color: #a0aec0; margin: 0; font-size: 12px;">
+              © ${new Date().getFullYear()} Planzia. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Payment completed email sent successfully to ${customerEmail}`);
+    return true;
+  } catch (error) {
+    console.error('Error sending payment completed email:', error);
+    return false;
+  }
+}
+
 export async function sendBookingRejectionEmail(customerEmail, bookingData) {
   const { customer, venue, event, bookingId } = bookingData;
 
   const mailOptions = {
     from: {
-      name: 'VenueKart',
+      name: 'Planzia',
       address: process.env.EMAIL_USER
     },
     to: customerEmail,
@@ -1236,8 +1622,8 @@ export async function sendBookingRejectionEmail(customerEmail, bookingData) {
           
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #3C3B6E 0%, #6C63FF 100%); padding: 40px 30px; text-align: center;">
-            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="VenueKart Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto;" />
-            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">VenueKart</h1>
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="Planzia Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto;" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">Planzia</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 400;">Booking Update</p>
           </div>
 
@@ -1306,7 +1692,7 @@ export async function sendBookingRejectionEmail(customerEmail, bookingData) {
               <p style="color: #4a5568; margin: 0 0 20px 0; font-size: 16px; line-height: 1.6;">
                 We're committed to helping you find the perfect venue for your event.
               </p>
-              <a href="${process.env.FRONTEND_URL || 'https://venuekart.com'}" style="background: linear-gradient(135deg, #3C3B6E 0%, #6C63FF 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <a href="${process.env.FRONTEND_URL || 'https://Planzia.com'}" style="background: linear-gradient(135deg, #3C3B6E 0%, #6C63FF 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 Browse Other Venues
               </a>
             </div>
@@ -1314,15 +1700,15 @@ export async function sendBookingRejectionEmail(customerEmail, bookingData) {
 
           <!-- Footer -->
           <div style="background: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">VenueKart</h4>
+            <h4 style="color: #2d3748; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Planzia</h4>
             <p style="color: #718096; margin: 0 0 15px 0; font-size: 14px;">
               Professional Venue Solutions
             </p>
             <p style="color: #718096; margin: 0 0 10px 0; font-size: 12px;">
-              Thank you for choosing VenueKart. We appreciate your understanding.
+              Thank you for choosing Planzia. We appreciate your understanding.
             </p>
             <p style="color: #a0aec0; margin: 0; font-size: 12px;">
-              © ${new Date().getFullYear()} VenueKart. All rights reserved.
+              © ${new Date().getFullYear()} Planzia. All rights reserved.
             </p>
           </div>
         </div>

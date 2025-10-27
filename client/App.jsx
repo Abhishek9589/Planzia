@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./global.css";
 
 import { Toaster } from "@/components/ui/toaster";
@@ -31,7 +31,7 @@ import FAQ from "./pages/FAQ";
 import Support from "./pages/Support";
 import Blog from "./pages/Blog";
 import Careers from "./pages/Careers";
-import WhyVenueKart from "./pages/WhyVenueKart";
+import WhyPlanzia from "./pages/WhyPlanzia";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AccountSettings from "./pages/AccountSettings";
@@ -69,7 +69,7 @@ const Shell = () => {
               <Route path="/support" element={<Support />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/careers" element={<Careers />} />
-              <Route path="/why-venuekart" element={<WhyVenueKart />} />
+              <Route path="/why-Planzia" element={<WhyPlanzia />} />
               <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/account-settings" element={<AccountSettings />} />
@@ -92,21 +92,35 @@ const Shell = () => {
   );
 };
 
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <ErrorDialog />
-          <BrowserRouter>
-            <Shell />
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
-);
+const App = () => {
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
+
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <ErrorDialog />
+            <BrowserRouter>
+              <Shell />
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+};
 
 createRoot(document.getElementById("root")).render(<App />);

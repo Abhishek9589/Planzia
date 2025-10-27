@@ -8,7 +8,9 @@ import bookingsRoutes from "./routes/bookings.js";
 import uploadRoutes from "./routes/upload.js";
 import favoritesRoutes from "./routes/favorites.js";
 import paymentsRoutes from "./routes/payments.js";
+import ratingsRoutes from "./routes/ratings.js";
 import { initializeDatabase } from "./config/database.js";
+import { startBookingCleanupJob } from "./services/bookingCleanupJob.js";
 
 import path from "path";
 import { fileURLToPath } from "url";
@@ -21,6 +23,9 @@ export function createServer() {
 
   // Initialize database
   initializeDatabase();
+
+  // Start booking cleanup job
+  startBookingCleanupJob();
 
   // Trust reverse proxy (ALB/Nginx) for secure cookies and correct IPs
   app.set("trust proxy", 1);
@@ -46,7 +51,7 @@ export function createServer() {
 
   // API routes
   app.get("/api/ping", (_req, res) => {
-    res.json({ message: "Hello from Express server VenueKart" });
+    res.json({ message: "Hello from Express server Planzia" });
   });
 
   app.get("/api/demo", handleDemo);
@@ -56,6 +61,7 @@ export function createServer() {
   app.use("/api/upload", uploadRoutes);
   app.use("/api/favorites", favoritesRoutes);
   app.use("/api/payments", paymentsRoutes);
+  app.use("/api/ratings", ratingsRoutes);
 
   // Handle unknown API routes
   app.use('/api', (_req, res) => {

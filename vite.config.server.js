@@ -4,10 +4,9 @@ import path from "path";
 export default defineConfig({
   build: {
     ssr: true,
-    outDir: "dist/server",
+    outDir: path.resolve(process.cwd(), "dist/server"),
     rollupOptions: {
-      // Resolve entry robustly regardless of current working directory
-      input: path.resolve(process.cwd(), "../server/node-build.js"),
+      input: path.resolve(process.cwd(), "server/node-build.js"),
       output: {
         entryFileNames: "node-build.mjs",
       },

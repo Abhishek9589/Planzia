@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, '../.env'), override: true });
 
-mongoose.set('bufferCommands', false);
+mongoose.set('bufferCommands', true);
 
 let isConnected = false;
 

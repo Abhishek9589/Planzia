@@ -16,10 +16,12 @@ const VenueSchema = new mongoose.Schema({
   price_min: { type: Number },
   price_max: { type: Number },
   status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+  is_active: { type: Boolean, default: true },
   rating: { type: Number, default: 0 },
   total_bookings: { type: Number, default: 0 },
   images: { type: [ImageSchema], default: [] },
-  facilities: { type: [String], default: [] }
+  facilities: { type: [String], default: [] },
+  googleMapsUrl: { type: String, default: '' }
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
 
 VenueSchema.virtual('id').get(function () { return this._id.toString(); });

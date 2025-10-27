@@ -60,7 +60,7 @@ const RazorpayPayment = ({ booking, onPaymentSuccess, onPaymentFailure }) => {
         key: key_id,
         amount: order.amount,
         currency: order.currency,
-        name: 'VenueKart',
+        name: 'Planzia',
         description: `Payment for ${order.venue_name}`,
         order_id: order.id,
         prefill: {

@@ -20,41 +20,41 @@ import {
 const blogPosts = [
   {
     id: 1,
-    title: "Top 5 Event Venues in Pune You Can Book Hassle-Free with VenueKart",
-    excerpt: "Planning an event can be exciting, but finding the perfect venue is often challenging. Discover the top 5 types of venues in Pune you can book seamlessly through VenueKart.",
+    title: "The Ultimate Guide: 5 Essential Venue Types Every Pune Event Planner Should Know",
+    excerpt: "Discover the diverse, exceptional venue options available in Pune. From grand banquet halls to intimate societies and everything in between—find your perfect space with confidence.",
     content: {
-      intro: "Planning an event can be exciting, but one of the biggest challenges is finding the perfect venue. From birthdays and weddings to corporate gatherings and brand activations, the right venue sets the tone for your event. Traditionally, venue booking has been a stressful process—endless calls, hidden charges, and lack of transparency.",
-      venuekartInfo: "That's where VenueKart steps in. As India's first event venue discovery and booking platform, we make venue selection easy, fast, and reliable. With 100+ societies and 25+ malls already onboarded in Pune, VenueKart is here to transform the way you book venues.",
+      intro: "Every great celebration starts with the right space. Yet finding that perfect venue can feel overwhelming—endless phone calls, confusing pricing, and promises that never materialize. But it doesn't have to be this way. When you know your options and have the right tools, the entire process becomes exciting rather than stressful.",
+      PlanziaInfo: "That's where Planzia comes in. As India's premier event venue discovery platform, we've made venue selection intelligent, transparent, and genuinely delightful. With 100+ residential societies, 25+ premier malls, and dozens of stunning open spaces already available in Pune, we're transforming how celebrations happen.",
       venues: [
         {
-          title: "Banquet Halls for Weddings & Celebrations",
-          description: "Whether it's a wedding, engagement, or anniversary, banquet halls remain a popular choice. Pune has beautiful indoor banquet halls with modern amenities, air conditioning, and catering support.",
-          idealFor: "Weddings, receptions, family gatherings",
-          whyVenuekart: "Transparent pricing and verified listings"
+          title: "Elegant Banquet Halls for Life's Grand Moments",
+          description: "From intimate engagement ceremonies to spectacular wedding receptions, premium banquet halls offer sophisticated indoor spaces with modern amenities, full catering support, and impeccable service. Pune's finest banquet halls combine elegance with functionality.",
+          idealFor: "Weddings, anniversaries, gala celebrations, receptions",
+          whyPlanzia: "Compare premium venues with transparent pricing and authentic reviews"
         },
         {
-          title: "Residential Societies for Community Events",
-          description: "Residential Welfare Associations (RWAs) and societies are fast becoming the go-to spots for events. From Ganesh Chaturthi celebrations to society fests, these venues offer convenience, built-in audiences, and vibrant community vibes.",
-          idealFor: "Festivals, brand activations, society functions",
-          whyVenuekart: "Direct access to 100+ societies across Pune"
+          title: "Vibrant Residential Societies for Authentic Community Connections",
+          description: "Residential societies have emerged as the heart of community celebrations. From Ganesh Chaturthi festivals to neighborhood activations and colony fests, these intimate spaces offer genuine connection with built-in, diverse audiences and vibrant community energy.",
+          idealFor: "Festival celebrations, brand activations, community gatherings, neighborhood events",
+          whyPlanzia: "Direct access to 100+ verified societies across Pune with ease"
         },
         {
-          title: "Malls & Retail Spaces for Brand Activations",
-          description: "For brands looking to connect with urban audiences, malls are perfect. With high footfall and visibility, your product or service gets immediate attention. VenueKart has partnered with multiple malls to simplify activation bookings.",
-          idealFor: "Product launches, sampling, exhibitions",
-          whyVenuekart: "Verified malls with easy booking and no hidden charges"
+          title: "Premium Malls for Maximum Impact & Engagement",
+          description: "When you need visibility and foot traffic, premium malls deliver. With thousands of daily visitors, malls offer unparalleled exposure for brand activations, product launches, and exhibitions. Planzia connects you with Pune's top retail destinations.",
+          idealFor: "Brand launches, product sampling, exhibitions, corporate activations",
+          whyPlanzia: "Curated mall partnerships with guaranteed quality and transparent terms"
         },
         {
-          title: "IT Parks & Corporate Spaces for Professional Events",
-          description: "Pune is an IT hub, and corporates need reliable spaces for conferences, seminars, and activations. IT parks offer premium infrastructure and a ready professional audience.",
-          idealFor: "Corporate events, seminars, HR activities",
-          whyVenuekart: "Access to 50+ IT parks and office complexes"
+          title: "Tech-Forward IT Parks for Corporate Excellence",
+          description: "As Pune's thriving IT capital, our city boasts world-class corporate spaces. IT parks offer premium infrastructure, tech-ready facilities, and professional audiences—perfect for conferences, seminars, and executive gatherings.",
+          idealFor: "Conferences, corporate seminars, professional forums, industry events",
+          whyPlanzia: "Access to 50+ premium IT parks with verified amenities and services"
         },
         {
-          title: "Open Lawns & Outdoor Venues for Grand Celebrations",
-          description: "From birthday parties to live concerts, nothing matches the charm of an open-air venue. Pune's weather and greenery make outdoor events a delight.",
-          idealFor: "Large gatherings, concerts, family functions",
-          whyVenuekart: "Compare multiple options instantly & book with ease"
+          title: "Breathtaking Open Grounds for Unforgettable Celebrations",
+          description: "Nothing compares to celebrating under open skies. Pune's lush gardens and sprawling lawns provide picturesque backdrops for intimate gatherings to grand celebrations, all set against natural beauty and excellent weather.",
+          idealFor: "Large-scale celebrations, outdoor parties, concerts, family gatherings",
+          whyPlanzia: "Compare venues instantly and book with confidence, all in one place"
         }
       ]
     },
@@ -66,35 +66,35 @@ const blogPosts = [
   },
   {
     id: 2,
-    title: "Why RWAs & Societies are the Next Big Hotspots for Brand Activations",
-    excerpt: "Discover why Residential Welfare Associations and Housing Societies are becoming the future of hyperlocal marketing for brands looking for high-impact, cost-effective platforms.",
+    title: "Societies Are The New Frontier: Why Smart Brands Are Choosing Community Activations",
+    excerpt: "Discover the untapped power of residential societies for brand activations. Learn why leading brands are shifting focus from traditional malls to hyperlocal, community-driven platforms.",
     content: {
-      intro: "When it comes to marketing, brands are always searching for high-impact, cost-effective, and targeted platforms to connect with customers. For years, malls, exhibitions, and outdoor hoardings have dominated the scene. But there's a new, fast-growing hotspot for brand activations in India: Residential Welfare Associations (RWAs) and Housing Societies.",
+      intro: "The marketing landscape is shifting. While malls and exhibitions have long dominated brand activation strategies, a powerful new opportunity is emerging: Residential Welfare Associations (RWAs) and housing societies. For brands seeking authentic connections with engaged, diverse audiences, societies represent the future of hyperlocal marketing.",
       effectiveness: [
         {
-          title: "High Footfall & Guaranteed Engagement",
-          description: "Societies are home to hundreds (sometimes thousands) of residents living in one campus. Every event or activation here guarantees direct reach to families, professionals, and decision-makers—all within a single location."
+          title: "Concentrated Reach with Guaranteed Engagement",
+          description: "Societies house hundreds or thousands of residents on a single campus—families, professionals, decision-makers, all in one place. Your activation reaches a pre-assembled, captive audience with genuine interest and high engagement rates."
         },
         {
-          title: "Diverse & Targeted Audience",
-          description: "Unlike malls that attract a random mix, societies bring together families, working professionals, kids, and senior citizens. This allows brands to customize activations."
+          title: "Remarkably Diverse & Highly Targeted Demographics",
+          description: "Unlike malls with random foot traffic, societies bring together varied demographics: families, working professionals, children, seniors. This enables brands to craft nuanced, multi-generational campaigns that resonate deeply."
         },
         {
-          title: "Built-in Trust Factor",
-          description: "When activations happen in societies, residents perceive them as community-driven initiatives rather than just marketing stunts. This trust factor directly improves conversion rates."
+          title: "Authentic Trust & Community Buy-In",
+          description: "Society residents perceive activations as community initiatives, not marketing intrusions. This authentic trust factor translates directly into higher conversion rates and genuine brand affinity."
         },
         {
-          title: "Cost-Effective Alternative to Malls",
-          description: "Mall activations are effective but come with high rentals and strict guidelines. RWAs, on the other hand, are affordable, flexible, and highly scalable."
+          title: "Unbeatable ROI with Flexible, Scalable Approach",
+          description: "Society bookings are affordable, flexible, and easily scalable. Run activations across multiple societies simultaneously without the high costs and rigid limitations of mall activations."
         },
         {
-          title: "Festivals & Events = Perfect Timing",
-          description: "Societies are buzzing hubs during Ganesh Chaturthi, Diwali, Holi, Christmas, Independence Day, and society-specific fests."
+          title: "Festival & Seasonal Momentum is Inherent",
+          description: "Societies naturally buzz during major festivals—Ganesh Chaturthi, Diwali, Holi, Independence Day—and community celebrations. Align your brand with authentic celebrations and natural excitement."
         }
       ],
       caseStudy: {
-        title: "Case Example: Society Activation in Pune",
-        description: "A leading FMCG brand recently conducted a weekend sampling activation across 10 societies in Pune via VenueKart. Within two days, the brand reached 5,000+ families, distributed samples, and saw 20% instant conversions. This wouldn't have been possible in a single mall activation at the same cost."
+        title: "Real Impact: FMCG Brand Activation Across Pune Societies",
+        description: "A leading FMCG brand executed a weekend sampling activation across just 10 societies in Pune through Planzia. In just 48 hours, they reached 5,000+ families, distributed thousands of samples, and achieved an impressive 20% immediate conversion rate. This success level would be impossible in a single mall at comparable cost."
       }
     },
     category: "Marketing Insights",
@@ -105,36 +105,36 @@ const blogPosts = [
   },
   {
     id: 3,
-    title: "The Future of Venue Booking: How Technology is Changing the Events Industry",
-    excerpt: "Explore how technology is transforming venue booking from a time-consuming, frustrating process into a smart, fast, and transparent experience.",
+    title: "The Venue Booking Revolution: How Modern Platforms Are Reimagining Event Planning",
+    excerpt: "Technology is transforming venue booking from a frustrating, time-consuming ordeal into an elegant, intelligent experience. Discover how the events industry is evolving.",
     content: {
-      intro: "The way we plan and book venues for events is undergoing a massive transformation. What used to take days of phone calls, negotiations, and back-and-forth emails can now be done in just a few clicks. With platforms like VenueKart, the future of event venue discovery & booking is smarter, faster, and more transparent.",
+      intro: "Remember when booking a venue meant weeks of phone tag, confusing emails, and frustrating negotiations? That era is fading fast. Today's technology is revolutionizing how events come to life—what once took days now happens in minutes. Platforms like Planzia are making event venue booking smarter, faster, more transparent, and genuinely enjoyable.",
       oldWay: [
-        "Contacting multiple managers/agents",
-        "Unclear pricing and hidden costs",
-        "Long waiting times for approvals",
-        "Limited access to societies, malls, and open spaces"
+        "Endless calls to multiple venue managers",
+        "Mysterious, hidden pricing and surprise costs",
+        "Painful waiting periods for confirmations",
+        "Limited visibility into available options"
       ],
       techChanges: [
         {
-          title: "Instant Discovery & Availability",
-          description: "Digital platforms now allow brands and individuals to discover venues instantly based on location, size, budget, and amenities. No more endless calls—everything is visible upfront."
+          title: "Real-Time Discovery & Complete Transparency",
+          description: "Modern platforms reveal every available venue instantly—filtered by your exact needs: location, capacity, budget, amenities. No more tedious phone calls or guesswork. Everything you need is visible, organized, and accurate."
         },
         {
-          title: "Transparent Pricing",
-          description: "Gone are the days of \"quotation confusion.\" With platforms like VenueKart, pricing is clear, upfront, and comparable, helping brands make faster decisions without hidden surprises."
+          title: "Crystal-Clear, Honest Pricing",
+          description: "The days of \"surprise fees\" and pricing confusion are over. Contemporary platforms display complete, upfront pricing that's comparable across venues, empowering you to make confident decisions immediately."
         },
         {
-          title: "Verified Venues & Trust",
-          description: "One of the biggest challenges in the past was reliability. By onboarding verified societies, malls, IT parks, and open spaces, VenueKart ensures brands connect only with authentic, trustworthy venues."
+          title: "Verified Partnerships & Genuine Trust",
+          description: "Today's intelligent platforms carefully vet every venue—societies, malls, parks, open spaces—ensuring only authentic, reliable partners are available. You book with confidence, knowing quality is guaranteed."
         },
         {
-          title: "Scalable Activations",
-          description: "Want to run activations across 10 malls and 50 societies at the same time? Technology makes this possible. Brands can now scale campaigns across multiple venues in one go, ensuring wider reach with less effort."
+          title: "Effortless Scaling & Multi-Location Management",
+          description: "Plan activations across 10 malls and 50 societies simultaneously? Modern technology makes it simple. Scale your reach across countless venues at once, maximizing impact with minimal coordination effort."
         },
         {
-          title: "Data-Driven Insights",
-          description: "Modern booking platforms also provide analytics—footfall data, conversion tracking, and engagement reports. This helps brands measure ROI and refine their future campaigns."
+          title: "Powerful Analytics & Smart Decision-Making",
+          description: "Beyond booking, today's platforms provide rich insights—footfall analytics, conversion data, engagement reports. Measure real ROI and continuously refine your strategy based on actual performance data."
         }
       ]
     },
@@ -209,9 +209,9 @@ const BlogCard = ({ post, isExpanded, onToggle }) => {
                 {post.content.intro}
               </p>
               
-              {post.content.venuekartInfo && (
+              {post.content.PlanziaInfo && (
                 <p className="text-gray-600 leading-relaxed mb-6">
-                  {post.content.venuekartInfo}
+                  {post.content.PlanziaInfo}
                 </p>
               )}
               
@@ -232,8 +232,8 @@ const BlogCard = ({ post, isExpanded, onToggle }) => {
                           <span className="text-gray-600 ml-1">{venue.idealFor}</span>
                         </div>
                         <div>
-                          <span className="font-medium text-gray-700">Why VenueKart:</span>
-                          <span className="text-gray-600 ml-1">{venue.whyVenuekart}</span>
+                          <span className="font-medium text-gray-700">Why Planzia:</span>
+                          <span className="text-gray-600 ml-1">{venue.whyPlanzia}</span>
                         </div>
                       </div>
                     </div>
@@ -332,7 +332,7 @@ export default function Blog() {
         <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins">
-              VenueKart Blog
+              Planzia Blog
             </h1>
             <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
               Insights, tips, and trends in event venue booking and the future of event planning.
@@ -387,7 +387,7 @@ export default function Blog() {
             Ready to Transform Your Event Planning?
           </h2>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Join thousands of event organizers who have discovered the VenueKart advantage. Start planning your next event today.
+            Join thousands of event organizers who have discovered the Planzia advantage. Start planning your next event today.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button 

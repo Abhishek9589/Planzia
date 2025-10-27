@@ -8,7 +8,8 @@ const UserSchema = new mongoose.Schema({
   profile_picture: { type: String },
   mobile_number: { type: String },
   business_name: { type: String },
-  location: { type: String },
+  state: { type: String },
+  city: { type: String },
   user_type: { type: String, enum: ['customer', 'venue-owner'], default: 'customer' },
   is_verified: { type: Boolean, default: false },
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });

@@ -9,15 +9,15 @@ const router = Router();
 router.get('/filter-options', async (_req, res) => {
   try {
     const [typesAgg, locationsAgg, priceAgg, capacityAgg] = await Promise.all([
-      Venue.aggregate([{ $match: { status: 'active', type: { $exists: true, $ne: '' } } }, { $group: { _id: '$type' } }, { $sort: { _id: 1 } }]),
-      Venue.aggregate([{ $match: { status: 'active', location: { $exists: true, $ne: '' } } }, { $group: { _id: '$location' } }, { $sort: { _id: 1 } }]),
+      Venue.aggregate([{ $match: { status: 'active', is_active: true, type: { $exists: true, $ne: '' } } }, { $group: { _id: '$type' } }, { $sort: { _id: 1 } }]),
+      Venue.aggregate([{ $match: { status: 'active', is_active: true, location: { $exists: true, $ne: '' } } }, { $group: { _id: '$location' } }, { $sort: { _id: 1 } }]),
       Venue.aggregate([
-        { $match: { status: 'active' } },
+        { $match: { status: 'active', is_active: true } },
         { $project: { price: { $ifNull: ['$price_min', '$price_per_day'] }, priceMax: { $ifNull: ['$price_max', '$price_per_day'] } } },
         { $group: { _id: null, min_price: { $min: '$price' }, max_price: { $max: '$priceMax' } } }
       ]),
       Venue.aggregate([
-        { $match: { status: 'active' } },
+        { $match: { status: 'active', is_active: true } },
         { $group: { _id: null, min_capacity: { $min: '$capacity' }, max_capacity: { $max: '$capacity' } } }
       ])
     ]);
@@ -49,7 +49,7 @@ router.get('/', async (req, res) => {
     const limitInt = parseInt(limit);
     const offsetInt = page ? (parseInt(page) - 1) * limitInt : parseInt(offset || '0');
 
-    const filters = { status: 'active' };
+    const filters = { status: 'active', is_active: true };
     if (location && location.trim()) filters.location = { $regex: new RegExp(location, 'i') };
     if (type && type.trim()) filters.type = { $regex: new RegExp(type, 'i') };
     if (search && search.trim()) {
@@ -75,6 +75,7 @@ router.get('/', async (req, res) => {
       price: v.price_per_day,
       priceMin: v.price_min ?? null,
       priceMax: v.price_max ?? null,
+      googleMapsUrl: v.googleMapsUrl || ''
     }));
 
     const currentPage = page ? parseInt(page) : (Math.floor(offsetInt / limitInt) + 1);
@@ -102,7 +103,7 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const venue = await Venue.findById(id).lean();
-    if (!venue || venue.status !== 'active') return res.status(404).json({ error: 'Venue not found' });
+    if (!venue || venue.status !== 'active' || !venue.is_active) return res.status(404).json({ error: 'Venue not found' });
 
     res.json({
       ...venue,
@@ -110,7 +111,8 @@ router.get('/:id', async (req, res) => {
       priceMin: venue.price_min ?? null,
       priceMax: venue.price_max ?? null,
       images: (venue.images || []).map(i => i.url),
-      facilities: venue.facilities || []
+      facilities: venue.facilities || [],
+      googleMapsUrl: venue.googleMapsUrl || ''
     });
   } catch (error) {
     console.error('Error fetching venue:', error);
@@ -130,6 +132,7 @@ router.get('/owner/my-venues', authenticateToken, async (req, res) => {
       price: v.price_per_day,
       priceMin: v.price_min ?? null,
       priceMax: v.price_max ?? null,
+      googleMapsUrl: v.googleMapsUrl || '',
       total_revenue: 0
     }));
     res.json(formatted);
@@ -143,7 +146,7 @@ router.get('/owner/my-venues', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const ownerId = req.user.id;
-    const { venueName, description, location, footfall, price, priceMin, priceMax, images, facilities, venueType } = req.body;
+    const { venueName, description, location, footfall, price, priceMin, priceMax, images, facilities, venueType, googleMapsUrl } = req.body;
 
     let finalPriceMin, finalPriceMax;
     if (price !== undefined) {
@@ -177,7 +180,8 @@ router.post('/', authenticateToken, async (req, res) => {
       price_min: finalPriceMin,
       price_max: finalPriceMax,
       images: Array.isArray(images) ? images.filter(Boolean).map((url, i) => ({ url, is_primary: i === 0 })) : [],
-      facilities: Array.isArray(facilities) ? facilities.filter(f => f && f.trim()) : []
+      facilities: Array.isArray(facilities) ? facilities.filter(f => f && f.trim()) : [],
+      googleMapsUrl: googleMapsUrl && googleMapsUrl.trim() ? googleMapsUrl : ''
     });
 
     res.status(201).json({ message: 'Venue created successfully', venueId: doc._id.toString() });
@@ -192,7 +196,9 @@ router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const ownerId = req.user.id;
-    const { venueName, description, location, footfall, price, priceMin, priceMax, images, facilities, venueType } = req.body;
+    const { venueName, description, location, footfall, price, priceMin, priceMax, images, facilities, venueType, googleMapsUrl } = req.body;
+
+    console.log('Updating venue with googleMapsUrl:', googleMapsUrl);
 
     const venue = await Venue.findOne({ _id: id, owner_id: ownerId });
     if (!venue) return res.status(404).json({ error: 'Venue not found or access denied' });
@@ -213,6 +219,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     venue.type = venueType && venueType.trim() ? venueType : venue.type;
     venue.location = location;
     venue.capacity = footfall;
+    venue.googleMapsUrl = googleMapsUrl && googleMapsUrl.trim() ? googleMapsUrl : '';
     if (averagePrice !== null) venue.price_per_day = averagePrice;
     if (finalPriceMin !== null) venue.price_min = finalPriceMin;
     if (finalPriceMax !== null) venue.price_max = finalPriceMax;
@@ -220,6 +227,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     venue.facilities = Array.isArray(facilities) ? facilities.filter(f => f && f.trim()) : venue.facilities;
 
     await venue.save();
+    console.log('Venue updated successfully. googleMapsUrl:', venue.googleMapsUrl);
     res.json({ message: 'Venue updated successfully' });
   } catch (error) {
     console.error('Error updating venue:', error);
@@ -244,6 +252,30 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Toggle venue active status (protected)
+router.put('/:id/toggle-active', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ownerId = req.user.id;
+
+    const venue = await Venue.findOne({ _id: id, owner_id: ownerId });
+    if (!venue) return res.status(404).json({ error: 'Venue not found or access denied' });
+
+    venue.is_active = !venue.is_active;
+    await venue.save();
+
+    const statusMessage = venue.is_active ? 'Venue is now active for public listing' : 'Venue is now inactive and hidden from public listing';
+    res.json({
+      message: statusMessage,
+      is_active: venue.is_active,
+      venue_id: venue._id.toString()
+    });
+  } catch (error) {
+    console.error('Error toggling venue active status:', error);
+    res.status(500).json({ error: 'Failed to toggle venue status' });
+  }
+});
+
 // Get owner dashboard statistics (protected)
 router.get('/owner/dashboard-stats', authenticateToken, async (req, res) => {
   try {
@@ -259,7 +291,7 @@ router.get('/owner/dashboard-stats', authenticateToken, async (req, res) => {
         { $group: {
           _id: null,
           total_bookings: { $sum: 1 },
-          total_revenue: { $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, '$amount', 0] } },
+          total_revenue: { $sum: { $cond: [{ $and: [{ $eq: ['$status', 'confirmed'] }, { $eq: ['$payment_status', 'completed'] }] }, '$amount', 0] } },
           pending_bookings: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } }
         } }
       ])

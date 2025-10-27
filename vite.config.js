@@ -9,15 +9,15 @@ const apiPort = process.env.API_PORT || "5001";
 
 export default defineConfig({
   plugins: [react()],
-  root: path.resolve(process.cwd(), "."),
+  root: path.resolve(process.cwd(), "client"),
   resolve: {
     alias: {
-      "@": path.resolve(process.cwd(), "."),
+      "@": path.resolve(process.cwd(), "client"),
       "@shared": path.resolve(process.cwd(), "./shared"),
     },
   },
   build: {
-    outDir: "dist/spa",
+    outDir: path.resolve(process.cwd(), "dist/spa"),
     emptyOutDir: true,
   },
   server: {

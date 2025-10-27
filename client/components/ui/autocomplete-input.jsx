@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { useScrollLock } from '@/hooks/useScrollLock';
 
 export function AutocompleteInput({
   options = [],
@@ -19,11 +20,13 @@ export function AutocompleteInput({
   const listRef = useRef(null);
   const containerRef = useRef(null);
 
+  useScrollLock(isOpen && filteredOptions.length > 0);
+
   // Filter options based on input value
   useEffect(() => {
     if (!value || value.length === 0) {
       // Show all options when empty (for when user clicks/focuses)
-      setFilteredOptions(options.slice(0, maxSuggestions));
+      setFilteredOptions(options);
       return;
     }
 
@@ -53,12 +56,15 @@ export function AutocompleteInput({
 
   // Handle keyboard navigation
   const handleKeyDown = (e) => {
-    if (!isOpen || filteredOptions.length === 0) return;
+    // Only handle special keys when dropdown is open
+    if (!isOpen || filteredOptions.length === 0) {
+      return;
+    }
 
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex(prev =>
           prev < filteredOptions.length - 1 ? prev + 1 : prev
         );
         break;
@@ -73,6 +79,7 @@ export function AutocompleteInput({
         }
         break;
       case 'Escape':
+        e.preventDefault();
         setIsOpen(false);
         setHighlightedIndex(-1);
         inputRef.current?.blur();
@@ -86,7 +93,7 @@ export function AutocompleteInput({
     setIsOpen(true);
     // If empty, show all options
     if (!value || value.length === 0) {
-      setFilteredOptions(options.slice(0, maxSuggestions));
+      setFilteredOptions(options);
     }
   };
 

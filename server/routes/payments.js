@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import { authenticateToken } from '../middleware/auth.js';
 import Booking from '../models/Booking.js';
 import Venue from '../models/Venue.js';
+import User from '../models/User.js';
+import { sendPaymentCompletedEmail } from '../services/emailService.js';
 
 const router = Router();
 
@@ -76,7 +78,19 @@ router.post('/create-order', authenticateToken, async (req, res) => {
       return res.status(502).json({ error: gatewayMsg });
     }
 
-    await Booking.updateOne({ _id: bookingId }, { $set: { razorpay_order_id: order.id, payment_status: 'pending' } });
+    const paymentDeadline = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await Booking.updateOne(
+      { _id: bookingId },
+      {
+        $set: {
+          razorpay_order_id: order.id,
+          payment_status: 'pending',
+          payment_initiated_at: new Date(),
+          payment_deadline: paymentDeadline
+        }
+      }
+    );
 
     res.json({ success: true, order: { id: order.id, amount: order.amount, currency: order.currency, booking_id: bookingId, venue_name: vName }, key_id: process.env.RAZORPAY_KEY_ID });
   } catch (error) {
@@ -105,7 +119,38 @@ router.post('/verify-payment', authenticateToken, async (req, res) => {
     const expectedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET).update(body.toString()).digest('hex');
     if (expectedSignature !== razorpay_signature) return res.status(400).json({ error: 'Invalid payment signature' });
 
-    await Booking.updateOne({ _id: booking_id }, { $set: { payment_status: 'completed', razorpay_payment_id, payment_completed_at: new Date() } });
+    const now = new Date();
+
+    await Booking.updateOne(
+      { _id: booking_id },
+      {
+        $set: {
+          payment_status: 'completed',
+          razorpay_payment_id,
+          payment_completed_at: now,
+          status: 'confirmed'
+        }
+      }
+    );
+
+    const updatedBooking = await Booking.findById(booking_id).lean();
+    const venue = await Venue.findById(updatedBooking.venue_id, { name: 1, location: 1 }).lean();
+    const customer = await User.findById(customerId, { name: 1 }).lean();
+
+    if (updatedBooking.customer_email) {
+      try {
+        await sendPaymentCompletedEmail(updatedBooking.customer_email, {
+          customer_name: updatedBooking.customer_name || customer?.name || 'Valued Customer',
+          venue_name: venue?.name || 'Venue',
+          venue_location: venue?.location || 'Location',
+          event_date: updatedBooking.event_date,
+          booking_id: booking_id,
+          amount: updatedBooking.payment_amount || updatedBooking.amount
+        });
+      } catch (emailError) {
+        console.error('Error sending payment completed email:', emailError);
+      }
+    }
 
     res.json({ success: true, message: 'Payment verified successfully', payment_id: razorpay_payment_id });
   } catch (error) {

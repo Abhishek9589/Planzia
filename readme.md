@@ -1,9 +1,9 @@
-# 🏷️ VenueKart
+# 🏷️ Planzia
 
 > Discover, manage, and book venues with ease.
 
 ## 🧩 Description
-VenueKart is a full‑stack platform for venue discovery and booking. Customers can explore venues, inquire with owners, and confirm bookings with secure payments. Venue owners can list venues, manage inquiries, track bookings, and monitor performance with dashboards. The project simplifies venue selection, reduces coordination friction, and provides an end‑to‑end booking experience.
+Planzia is a full‑stack platform for venue discovery and booking. Customers can explore venues, inquire with owners, and confirm bookings with secure payments. Venue owners can list venues, manage inquiries, track bookings, and monitor performance with dashboards. The project simplifies venue selection, reduces coordination friction, and provides an end‑to‑end booking experience.
 
 ## 🚀 Features
 - 🔐 Authentication: Email OTP verification, password login, and Google OAuth 2.0

@@ -70,7 +70,7 @@ class VenueService {
       if (base64Images.length === 1) {
         const data = await apiClient.postJson('/api/upload/image', {
           imageData: base64Images[0],
-          folder: 'venuekart/venues'
+          folder: 'Planzia/venues'
         });
 
         if (!data || !data.url) {
@@ -84,7 +84,7 @@ class VenueService {
 
       const data = await apiClient.postJson('/api/upload/images', {
         images: base64Images,
-        folder: 'venuekart/venues'
+        folder: 'Planzia/venues'
       });
 
       if (!data || !Array.isArray(data.images)) {
@@ -220,6 +220,16 @@ class VenueService {
       return { message: 'Venue deleted successfully' };
     } catch (error) {
       console.error('Error deleting venue:', error);
+      const userFriendlyMessage = getUserFriendlyError(error.message || error, 'general');
+      throw new Error(userFriendlyMessage);
+    }
+  }
+
+  async toggleVenueActive(id) {
+    try {
+      return await apiClient.putJson(`${API_BASE}/${id}/toggle-active`, {});
+    } catch (error) {
+      console.error('Error toggling venue active status:', error);
       const userFriendlyMessage = getUserFriendlyError(error.message || error, 'general');
       throw new Error(userFriendlyMessage);
     }

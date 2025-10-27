@@ -18,22 +18,22 @@ import {
 
 const supportAreas = [
   {
-    title: "For Customers",
+    title: "For Event Planners & Customers",
     icon: Users,
     services: [
-      "Assistance with venue discovery and booking",
-      "Help with payments, refunds, and cancellations",
-      "Guidance on using the VenueKart platform"
+      "Smart guidance on discovering your ideal venue",
+      "Complete support for secure payments, refunds, and modifications",
+      "Expert tips on using Planzia to maximize your event"
     ],
     color: "bg-blue-100 text-blue-700"
   },
   {
-    title: "For Venue Partners",
+    title: "For Venue Owners & Partners",
     icon: Building,
     services: [
-      "Onboarding and listing support",
-      "Assistance with bookings and event management",
-      "Technical support for dashboard and account access"
+      "Seamless onboarding and profile optimization",
+      "Real-time assistance with bookings and event coordination",
+      "Technical support ensuring smooth operations always"
     ],
     color: "bg-green-100 text-green-700"
   }
@@ -41,20 +41,20 @@ const supportAreas = [
 
 const quickLinks = [
   {
-    title: "FAQs",
-    description: "Find answers to commonly asked questions",
+    title: "Frequently Asked Questions",
+    description: "Get instant answers to your most common questions",
     icon: HelpCircle,
     link: "/faq"
   },
   {
     title: "Terms & Conditions",
-    description: "Read our terms of service",
+    description: "Understand our commitments and your rights",
     icon: FileText,
     link: "/terms-and-conditions"
   },
   {
     title: "Privacy Policy",
-    description: "Learn about our privacy practices",
+    description: "Learn how we protect and respect your information",
     icon: Shield,
     link: "/privacy-policy"
   }
@@ -66,7 +66,7 @@ export default function Support() {
     const pdfUrl = "https://cdn.builder.io/o/assets%2F3b6b1b8f741c4734989eae043b101f0d%2F72084cc8fbf341d6b1e6e5fde601b04e?alt=media&token=ae454ca3-13b6-4a2e-9e99-61235509d7b3&apiKey=3b6b1b8f741c4734989eae043b101f0d";
     const link = document.createElement('a');
     link.href = pdfUrl;
-    link.download = 'VenueKart-Support-Guide.pdf';
+    link.download = 'Planzia-Support-Guide.pdf';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -88,10 +88,10 @@ export default function Support() {
         <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins">
-              Support – We're Here to Help
+              Your Success is Our Mission
             </h1>
             <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-              At VenueKart, your satisfaction is our priority. Whether you are a customer booking a venue or a partner hosting events, our support team is here to ensure a smooth and hassle-free experience.
+              Whether you're discovering your perfect venue or growing a thriving partnership with us, our dedicated support team is here to make your experience exceptional at every step.
             </p>
             <Button 
               onClick={handleDownloadPDF}
@@ -110,10 +110,10 @@ export default function Support() {
         <section className="mb-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              How Can We Help You?
+              Support Tailored to You
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Our support team is ready to assist you with all your VenueKart needs
+              Whether you're a customer or partner, we're here with expert guidance and genuine care
             </p>
           </div>
 
@@ -166,10 +166,10 @@ export default function Support() {
                   </div>
                   <h3 className="text-lg font-semibold text-venue-dark mb-2">Email Support</h3>
                   <a 
-                    href="mailto:support@venuekart.in" 
+                    href="mailto:support@Planzia.in" 
                     className="text-venue-indigo hover:underline font-medium"
                   >
-                    support@venuekart.in
+                    support@Planzia.in
                   </a>
                 </div>
 

@@ -1,13 +1,13 @@
 export default {
   darkMode: ["class"],
   content: [
-    "./index.html",
-    "./App.jsx",
-    "./components/**/*.{js,jsx}",
-    "./pages/**/*.{js,jsx}",
-    "./lib/**/*.{js,jsx}",
-    "./hooks/**/*.{js,jsx}",
-    "./contexts/**/*.{js,jsx}"
+    "./client/index.html",
+    "./client/App.jsx",
+    "./client/components/**/*.{js,jsx}",
+    "./client/pages/**/*.{js,jsx}",
+    "./client/lib/**/*.{js,jsx}",
+    "./client/hooks/**/*.{js,jsx}",
+    "./client/contexts/**/*.{js,jsx}"
   ],
   prefix: "",
   theme: {
@@ -20,7 +20,7 @@ export default {
     },
     extend: {
       colors: {
-        // VenueKart Brand Colors
+        // Planzia Brand Colors
         'venue-indigo': '#3C3B6E',
         'venue-purple': '#6C63FF',
         'venue-lavender': '#E6E6FA',

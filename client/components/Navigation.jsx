@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import { scrollToTop } from '@/lib/navigation';
 import { Button } from './ui/button';
@@ -10,14 +11,17 @@ import { motion } from 'framer-motion';
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, logout, isVenueOwner, isLoggedIn } = useAuth();
 
   const isActive = (path) => location.pathname === path;
 
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     setIsMenuOpen(false);
+    toast.success('User logged out');
+    navigate('/');
   };
 
 
@@ -30,7 +34,7 @@ export default function Navigation() {
 
   const userNavLinks = [
     ...navLinks,
-    // Remove favorites tab for customers - they should not see this
+    { name: 'Account', path: '/account-settings' },
   ];
 
   const currentNavLinks = isLoggedIn ? userNavLinks : navLinks;
@@ -49,12 +53,12 @@ export default function Navigation() {
           <Link to="/" className="flex items-center space-x-2">
             <img
               src="https://cdn.builder.io/api/v1/image/assets%2F181d3ec55b014ac2aead9c04dc47e7f1%2F58dccb4263c94bf8bdc07b4891c6b92d?format=webp&width=800"
-              alt="VenueKart Logo"
+              alt="Planzia Logo"
               className="w-10 h-10 object-contain"
             />
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-venue-dark font-inter">VenueKart</span>
-              <span className="text-xs text-venue-indigo font-medium -mt-1">Event Venue Discovery & Booking</span>
+              <span className="text-xl font-bold text-venue-dark font-inter">Planzia</span>
+              <span className="text-xs text-venue-indigo font-medium -mt-1">Book. Plan. Celebrate.</span>
             </div>
           </Link>
 
@@ -90,32 +94,7 @@ export default function Navigation() {
           <div className="hidden md:flex items-center space-x-4">
             {isLoggedIn ? (
               <>
-
-                <div className="flex items-center space-x-2 text-venue-dark">
-                  <User className="h-4 w-4" />
-                  <span className="text-sm font-medium">{user?.name || 'User'}</span>
-                  {isVenueOwner() && (
-                    <span className="text-xs bg-venue-lavender text-venue-indigo px-2 py-1 rounded-full">
-                      Venue Owner
-                    </span>
-                  )}
-                </div>
-                {(isVenueOwner() || user?.userType === 'admin') ? (
-                  <Button asChild variant="outline" className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white" onClick={scrollToTop}>
-                    <Link to="/admin/dashboard">
-                      <Building className="h-4 w-4 mr-2" />
-                      Dashboard
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button asChild variant="outline" className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white" onClick={scrollToTop}>
-                    <Link to="/dashboard">
-                      <User className="h-4 w-4 mr-2" />
-                      Dashboard
-                    </Link>
-                  </Button>
-                )}
-                <Button onClick={handleLogout} variant="ghost" className="text-venue-indigo active:opacity-90">
+                <Button onClick={handleLogout} variant="outline" className="text-gray-700 hover:text-venue-indigo hover:bg-gray-50 border-gray-300">
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
                 </Button>
@@ -191,39 +170,7 @@ export default function Navigation() {
               <div className="pt-4 space-y-2">
                 {isLoggedIn ? (
                   <>
-                    <div className="px-3 py-2 text-center text-venue-dark">
-                      <div className="flex items-center justify-center space-x-2">
-                        <User className="h-4 w-4" />
-                        <span className="text-sm font-medium">{user?.name || 'User'}</span>
-                      </div>
-                      {isVenueOwner() && (
-                        <span className="text-xs bg-venue-lavender text-venue-indigo px-2 py-1 rounded-full mt-1 inline-block">
-                          Venue Owner
-                        </span>
-                      )}
-                    </div>
-                    {(isVenueOwner() || user?.userType === 'admin') ? (
-                      <Button asChild variant="outline" className="w-full border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white">
-                        <Link to="/admin/dashboard" onClick={() => {
-                          setIsMenuOpen(false);
-                          scrollToTop();
-                        }}>
-                          <Building className="h-4 w-4 mr-2" />
-                          Dashboard
-                        </Link>
-                      </Button>
-                    ) : (
-                      <Button asChild variant="outline" className="w-full border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white">
-                        <Link to="/dashboard" onClick={() => {
-                          setIsMenuOpen(false);
-                          scrollToTop();
-                        }}>
-                          <User className="h-4 w-4 mr-2" />
-                          Dashboard
-                        </Link>
-                      </Button>
-                    )}
-                    <Button onClick={handleLogout} variant="ghost" className="w-full text-venue-indigo active:opacity-90">
+                    <Button onClick={handleLogout} variant="outline" className="w-full text-gray-700 hover:text-venue-indigo hover:bg-gray-50 border-gray-300">
                       <LogOut className="h-4 w-4 mr-2" />
                       Logout
                     </Button>

@@ -48,7 +48,7 @@ cloudinary.config({
  * @param {string} publicId - Custom public ID (optional)
  * @returns {Promise<Object>} - Cloudinary response with secure_url
  */
-export async function uploadImage(imageData, folder = 'venuekart', publicId = null) {
+export async function uploadImage(imageData, folder = 'Planzia', publicId = null) {
   // Return mock data if Cloudinary is not properly configured
   if (!isCloudinaryConfigured) {
     console.log('📸 Cloudinary not configured, returning mock image URL');
@@ -123,7 +123,7 @@ export async function deleteImage(publicId) {
  * @param {string} folder - Cloudinary folder name
  * @returns {Promise<Array<Object>>} - Array of Cloudinary responses
  */
-export async function uploadMultipleImages(imageDataArray, folder = 'venuekart') {
+export async function uploadMultipleImages(imageDataArray, folder = 'Planzia') {
   try {
     const results = [];
 

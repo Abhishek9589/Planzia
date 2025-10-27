@@ -19,9 +19,7 @@ export default function Footer() {
 
 
   const companyPages = [
-    { name: 'Why VenueKart', href: '/why-venuekart' },
-    { name: 'Careers', href: '/careers' },
-    { name: 'Blog', href: '/blog' },
+    { name: 'Why Planzia', href: '/why-Planzia' },
     { name: 'Developers', href: '/developers' },
   ];
 
@@ -39,28 +37,28 @@ export default function Footer() {
             <Link to="/" className="flex items-center space-x-2">
               <img
                 src="https://cdn.builder.io/api/v1/image/assets%2F181d3ec55b014ac2aead9c04dc47e7f1%2F58dccb4263c94bf8bdc07b4891c6b92d?format=webp&width=800"
-                alt="VenueKart Logo"
+                alt="Planzia Logo"
                 className="w-10 h-10 object-contain bg-white rounded-lg p-1"
               />
               <div className="flex flex-col">
-                <span className="text-xl font-bold text-white font-inter">VenueKart</span>
-                <span className="text-xs text-venue-lavender font-medium -mt-1">Event Venue Discovery & Booking</span>
+                <span className="text-xl font-bold text-white font-inter">Planzia</span>
+                <span className="text-xs text-venue-lavender font-medium -mt-1">Book. Plan. Celebrate.</span>
               </div>
             </Link>
             <p className="text-gray-300 text-sm">
-              Your trusted partner for finding the perfect venue for every occasion. Making event planning effortless with verified venues and transparent pricing.
+              Your ultimate partner for discovering exceptional venues and creating unforgettable moments. We make event planning intuitive, transparent, and genuinely delightful.
             </p>
             <div className="flex space-x-4">
-              <a href="https://www.facebook.com/share/164c2G28M2/?mibextid=wwXIfr" className="text-gray-300 hover:text-venue-purple transition-colors">
+              <a href="#" className="text-gray-300 hover:text-venue-purple transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
               <a href="#" className="text-gray-300 hover:text-venue-purple transition-colors">
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="https://www.instagram.com/venuekart?igsh=ZDA0bmRxZnAyaXJ6" className="text-gray-300 hover:text-venue-purple transition-colors">
+              <a href="#" className="text-gray-300 hover:text-venue-purple transition-colors">
                 <Instagram className="h-5 w-5" />
               </a>
-              <a href="https://www.linkedin.com/company/venuekart-in/" className="text-gray-300 hover:text-venue-purple transition-colors">
+              <a href="#" className="text-gray-300 hover:text-venue-purple transition-colors">
                 <Linkedin className="h-5 w-5" />
               </a>
             </div>
@@ -104,19 +102,19 @@ export default function Footer() {
 
           {/* Contact & Support */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact & Support</h3>
+            <h3 className="text-lg font-semibold mb-4">Reach Out to Us</h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-venue-purple" />
-                <span className="text-gray-300 text-sm">support@venuekart.in</span>
+                <span className="text-gray-300 text-sm">info@planzia.demo</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-venue-purple" />
-                <span className="text-gray-300 text-sm">8806621666</span>
+                <span className="text-gray-300 text-sm">+91-9876543210</span>
               </div>
               <div className="flex items-start space-x-2">
                 <MapPin className="h-4 w-4 text-venue-purple mt-1" />
-                <span className="text-gray-300 text-sm">Pune, Maharashtra, India</span>
+                <span className="text-gray-300 text-sm">New Delhi, India</span>
               </div>
             </div>
           </div>
@@ -144,7 +142,7 @@ export default function Footer() {
         <div className="border-t border-gray-700 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-300 text-sm">
-              © 2025 VenueKart. All rights reserved.
+              © 2025 Planzia. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link to="/terms-and-conditions" onClick={scrollToTop} className="text-gray-300 hover:text-venue-purple text-sm transition-colors">

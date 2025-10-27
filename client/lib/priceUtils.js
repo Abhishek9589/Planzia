@@ -1,5 +1,5 @@
 /**
- * VenueKart Price Calculation Utilities
+ * Planzia Price Calculation Utilities
  * 
  * This module handles all price calculations for venues including:
  * - GST (18%)
@@ -137,7 +137,7 @@ export const getPricingInfo = (basePrice, displayType = 'listing') => {
  */
 export const getPriceBreakdownComponent = (basePrice) => {
   const breakdown = calculatePriceBreakdown(basePrice);
-  
+
   return {
     breakdown,
     items: [
@@ -154,31 +154,13 @@ export const getPriceBreakdownComponent = (basePrice) => {
         type: 'tax'
       },
       {
-        label: 'Platform Fee (10%)',
-        value: breakdown.platformFee,
-        formatted: formatPrice(breakdown.platformFee),
-        type: 'fee'
-      },
-      {
-        label: 'Subtotal',
-        value: breakdown.subtotal,
-        formatted: formatPrice(breakdown.subtotal),
-        type: 'subtotal'
-      },
-      {
-        label: `Platform Fee Waived (${breakdown.discountPercentage}%)`,
-        value: -breakdown.discount,
-        formatted: `-${formatPrice(breakdown.discount)}`,
-        type: 'discount'
-      },
-      {
         label: 'Final Price',
         value: breakdown.finalPrice,
         formatted: formatPrice(breakdown.finalPrice),
         type: 'final'
       }
     ],
-    discountNote: `Platform fee waived as new launch promotion.`
+    discountNote: ''
   };
 };
 

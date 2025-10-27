@@ -3,8 +3,13 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { useScrollLock } from "@/hooks/useScrollLock"
 
-const Dialog = DialogPrimitive.Root
+const Dialog = React.forwardRef(({ open, ...props }, ref) => {
+  useScrollLock(open);
+  return <DialogPrimitive.Root ref={ref} open={open} {...props} />
+})
+Dialog.displayName = "Dialog"
 
 const DialogTrigger = DialogPrimitive.Trigger
 

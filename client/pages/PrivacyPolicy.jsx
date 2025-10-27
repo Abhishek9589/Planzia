@@ -20,7 +20,7 @@ export default function PrivacyPolicy() {
     const pdfUrl = "/privacy-policy.pdf";
     const link = document.createElement('a');
     link.href = pdfUrl;
-    link.download = 'VenueKart-Privacy-Policy.pdf';
+    link.download = 'Planzia-Privacy-Policy.pdf';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -77,7 +77,7 @@ export default function PrivacyPolicy() {
             <p className="text-gray-600 leading-relaxed">
               This Privacy Policy ("Policy") governs the collection, use, disclosure, and protection of personal 
               information by <span className="font-semibold">Virtues Seven Events Pvt. Ltd.</span> ("Company," "we," "our," or "us") in connection with the 
-              use of its digital platform, <span className="font-semibold text-venue-indigo">VenueKart</span>, including its website, mobile application, and associated services 
+              use of its digital platform, <span className="font-semibold text-venue-indigo">Planzia</span>, including its website, mobile application, and associated services 
               (collectively, the "Platform").
             </p>
             <p className="text-gray-600 leading-relaxed mt-4">
@@ -196,7 +196,7 @@ export default function PrivacyPolicy() {
               <li>Opt-out of marketing communications at any time</li>
             </ul>
             <p className="text-gray-600 mt-4">
-              Requests should be addressed in writing to <a href="mailto:support@venuekart.in" className="text-venue-indigo hover:underline">support@venuekart.in</a>.
+              Requests should be addressed in writing to <a href="mailto:support@Planzia.in" className="text-venue-indigo hover:underline">support@Planzia.in</a>.
             </p>
           </CardContent>
         </Card>
@@ -218,8 +218,8 @@ export default function PrivacyPolicy() {
                 <Mail className="h-5 w-5 text-venue-indigo" />
                 <div>
                   <span className="font-semibold text-venue-dark">Email:</span>
-                  <a href="mailto:support@venuekart.in" className="text-venue-indigo hover:underline ml-2">
-                    support@venuekart.in
+                  <a href="mailto:support@Planzia.in" className="text-venue-indigo hover:underline ml-2">
+                    support@Planzia.in
                   </a>
                 </div>
               </div>

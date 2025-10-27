@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -6,39 +7,75 @@ import { Textarea } from '@/components/ui/textarea';
 import { AutocompleteInput } from '@/components/ui/autocomplete-input';
 import { X, Upload, Plus, Trash2 } from 'lucide-react';
 import { VENUE_TYPES } from '@/constants/venueOptions';
+import { getUserFriendlyError } from '@/lib/errorMessages';
+import { useScrollLock } from '@/hooks/useScrollLock';
 import apiClient from '../lib/apiClient.js';
+import { City, State } from 'country-state-city';
 
 export default function EditVenueForm({ isOpen, onClose, onSubmit, venue }) {
+  useScrollLock(isOpen);
+
   const [formData, setFormData] = useState({
     venueName: '',
     description: '',
     venueType: '',
+    state: '',
+    city: '',
     footfall: '',
-    location: '',
-    images: [],
+    googleMapsUrl: '',
+    price: '',
     facilities: [''],
-    price: ''
+    images: []
   });
 
   const [errors, setErrors] = useState({});
   const [uploadingImages, setUploadingImages] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Get all Indian states
+  const allStates = useMemo(() => {
+    return State.getStatesOfCountry('IN')
+      .map(state => ({ code: state.isoCode, name: state.name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, []);
+
+  // Get cities for selected state
+  const cities = useMemo(() => {
+    if (formData.state) {
+      return City.getCitiesOfState('IN', formData.state)
+        .map(city => city.name)
+        .sort((a, b) => a.localeCompare(b));
+    }
+    return [];
+  }, [formData.state]);
+
   // Populate form when venue prop changes
   useEffect(() => {
     if (venue) {
+      // Parse location to extract state and city
+      let state = '', city = '';
+      if (venue.location) {
+        const parts = venue.location.split(',').map(p => p.trim());
+        if (parts.length >= 2) {
+          city = parts[0];
+          state = parts[parts.length - 1];
+        }
+      }
+
       setFormData({
         venueName: venue.name || '',
         description: venue.description || '',
         venueType: venue.type || '',
+        state: state,
+        city: city,
         footfall: venue.capacity || '',
-        location: venue.location || '',
-        images: venue.images || [venue.image || ''],
+        googleMapsUrl: venue.googleMapsUrl || '',
+        images: venue.images || (venue.image ? [venue.image] : []),
         facilities: venue.facilities || [''],
-        price: venue.price || venue.priceMin || ''
+        price: venue.price || venue.price_per_day || ''
       });
     }
-  }, [venue]);
+  }, [venue, allStates]);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -54,29 +91,60 @@ export default function EditVenueForm({ isOpen, onClose, onSubmit, venue }) {
     }
   };
 
-  const handleImageUpload = (e) => {
+  // Image compression function
+  const compressImage = (file, maxWidth = 800, quality = 0.7) => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = () => {
+        // Calculate new dimensions
+        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+
+        // Draw and compress
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(resolve, 'image/jpeg', quality);
+      };
+
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (formData.images.length + files.length > 10) {
       setErrors(prev => ({ ...prev, images: 'Maximum 10 images allowed' }));
       return;
     }
 
-    files.forEach(file => {
+    // Process files one by one for better performance
+    for (const file of files) {
       // Validate file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
         setErrors(prev => ({ ...prev, images: 'Each image must be less than 10MB' }));
-        return;
+        continue;
       }
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setFormData(prev => ({
-          ...prev,
-          images: [...prev.images, e.target.result]
-        }));
-      };
-      reader.readAsDataURL(file);
-    });
+      try {
+        // Compress image for faster upload
+        const compressedFile = await compressImage(file, 800, 0.8);
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setFormData(prev => ({
+            ...prev,
+            images: [...prev.images, e.target.result]
+          }));
+        };
+        reader.readAsDataURL(compressedFile);
+      } catch (error) {
+        console.error('Error processing image:', error);
+        setErrors(prev => ({ ...prev, images: 'Error processing image. Please try again.' }));
+      }
+    }
   };
 
   const removeImage = (index) => {
@@ -120,18 +188,21 @@ export default function EditVenueForm({ isOpen, onClose, onSubmit, venue }) {
     if (!formData.description.trim()) {
       newErrors.description = 'Description is required';
     }
-    if (!formData.footfall || formData.footfall <= 0) {
-      newErrors.footfall = 'Valid footfall capacity is required';
+    if (!formData.state) {
+      newErrors.state = 'State is required';
     }
-    if (!formData.location.trim()) {
-      newErrors.location = 'Location is required';
+    if (!formData.city) {
+      newErrors.city = 'City is required';
     }
-    // Images are now optional - no validation needed
-    if (!formData.price || formData.price <= 0) {
-      newErrors.price = 'Valid price is required';
+
+    const footfall = parseInt(formData.footfall);
+    if (!formData.footfall || isNaN(footfall) || footfall <= 0) {
+      newErrors.footfall = 'Footfall capacity must be a number greater than 0';
     }
-    if (formData.facilities.filter(f => f.trim()).length === 0) {
-      newErrors.facilities = 'At least one facility is required';
+
+    const price = parseInt(formData.price);
+    if (!formData.price || isNaN(price) || price <= 0) {
+      newErrors.price = 'Price must be a number greater than 0';
     }
 
     setErrors(newErrors);
@@ -139,6 +210,11 @@ export default function EditVenueForm({ isOpen, onClose, onSubmit, venue }) {
   };
 
   const uploadImagesToCloudinary = async (imageDataArray) => {
+    // If no images, return empty array
+    if (!imageDataArray || imageDataArray.length === 0) {
+      return [];
+    }
+
     try {
       setUploadingImages(true);
 
@@ -148,25 +224,63 @@ export default function EditVenueForm({ isOpen, onClose, onSubmit, venue }) {
 
       let newImageUrls = [];
       if (newImages.length > 0) {
-        const data = await apiClient.postJson('/api/upload/images', {
-          images: newImages,
-          folder: 'venuekart/venues'
-        });
+        // Upload images sequentially for better performance and progress tracking
+        for (let i = 0; i < newImages.length; i++) {
+          setErrors(prev => ({
+            ...prev,
+            images: `Uploading image ${i + 1} of ${newImages.length}...`
+          }));
 
-        if (!data || !data.images) {
-          console.error('Image upload failed: invalid response');
-          setErrors(prev => ({ ...prev, images: 'New image upload failed, but venue can be saved with existing images' }));
-          return existingUrls;
+          try {
+            const data = await apiClient.postJson('/api/upload/image', {
+              imageData: newImages[i],
+              folder: 'Planzia/venues'
+            });
+
+            if (!data || !data.url) {
+              console.error('Image upload failed: invalid response');
+              setErrors(prev => ({
+                ...prev,
+                images: `Warning: Failed to upload image ${i + 1}. Continuing with others...`
+              }));
+              continue;
+            }
+
+            newImageUrls.push(data.url);
+          } catch (imageError) {
+            console.error(`Error uploading image ${i + 1}:`, imageError);
+            // Continue with other images
+            setErrors(prev => ({
+              ...prev,
+              images: `Warning: Failed to upload image ${i + 1}. Continuing with others...`
+            }));
+          }
         }
 
-        newImageUrls = data.images.map(img => img.url);
+        // Clear upload progress message
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.images;
+          return newErrors;
+        });
       }
 
       return [...existingUrls, ...newImageUrls];
     } catch (error) {
       console.error('Image upload error:', error);
+
+      // Show more specific error message
+      let userMessage = 'Image upload failed, but venue can be saved without images';
+      if (error.message.includes('Must supply api_key') || error.message.includes('demo')) {
+        userMessage = 'Image upload service not configured. Venue will be saved without images.';
+      } else if (error.message.includes('401') || error.message.includes('unauthorized')) {
+        userMessage = 'Authentication failed. Please sign in again.';
+      } else if (error.message.includes('413') || error.message.includes('too large')) {
+        userMessage = 'Images are too large. Please use smaller images.';
+      }
+
+      setErrors(prev => ({ ...prev, images: userMessage }));
       // Return existing URLs and continue
-      setErrors(prev => ({ ...prev, images: 'Image upload failed, but venue can be saved with existing images' }));
       return imageDataArray.filter(img => !img.startsWith('data:image/'));
     } finally {
       setUploadingImages(false);
@@ -188,274 +302,347 @@ export default function EditVenueForm({ isOpen, onClose, onSubmit, venue }) {
         // Upload new images to Cloudinary (optional)
         let imageUrls = await uploadImagesToCloudinary(formData.images);
 
+        const stateName = formData.state;
+
         const venueData = {
-          ...formData,
-          images: imageUrls, // Use Cloudinary URLs
-          facilities: formData.facilities.filter(f => f.trim()),
+          venueName: formData.venueName,
+          description: formData.description,
+          location: `${formData.city}, ${stateName}`,
           footfall: parseInt(formData.footfall),
           price: parseInt(formData.price),
-          venueType: formData.venueType
+          images: imageUrls,
+          facilities: formData.facilities.filter(f => f.trim()),
+          googleMapsUrl: formData.googleMapsUrl || ''
         };
-        await onSubmit({ ...venue, ...venueData });
-        onClose();
+
+        // Add optional fields only if they have values
+        if (formData.venueType && formData.venueType.trim()) {
+          venueData.venueType = formData.venueType;
+        }
+
+        console.log('EditVenueForm submitting:', venueData);
+        await onSubmit(venueData);
         setErrors({});
       } catch (error) {
+        // Form stays open with data intact if submission fails
         console.error('Form submission failed:', error);
-        setErrors(prev => ({ ...prev, general: error.message || 'Failed to submit form' }));
+        setErrors(prev => ({ ...prev, general: getUserFriendlyError(error, 'general') }));
       } finally {
         setIsSubmitting(false);
       }
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl max-h-[95vh] flex flex-col">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-2xl text-venue-dark">Edit Venue</CardTitle>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-6 w-6" />
-          </Button>
-        </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto">
-          {errors.general && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-              {errors.general}
-            </div>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Venue Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Venue Name *
-              </label>
-              <Input
-                value={formData.venueName}
-                onChange={(e) => handleInputChange('venueName', e.target.value)}
-                placeholder="Enter venue name"
-                className={errors.venueName ? 'border-red-500' : ''}
-              />
-              {errors.venueName && (
-                <p className="text-red-500 text-sm mt-1">{errors.venueName}</p>
-              )}
-            </div>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+        >
+          <motion.div
+            initial={{ y: 10, opacity: 0, scale: 0.98 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 8, opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-2xl"
+          >
+            <Card className="w-full max-w-2xl max-h-[90vh] flex flex-col bg-white rounded-lg">
+              <CardHeader className="flex flex-row items-center justify-between border-b px-6 py-4">
+                <CardTitle className="text-xl font-semibold text-gray-900">Edit Venue</CardTitle>
+                <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
+                  <X className="h-5 w-5" />
+                </Button>
+              </CardHeader>
 
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description *
-              </label>
-              <Textarea
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Describe your venue..."
-                rows={4}
-                className={errors.description ? 'border-red-500' : ''}
-              />
-              {errors.description && (
-                <p className="text-red-500 text-sm mt-1">{errors.description}</p>
-              )}
-            </div>
-
-            {/* Venue Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Venue Type (Optional)
-              </label>
-              <AutocompleteInput
-                options={VENUE_TYPES}
-                value={formData.venueType}
-                onChange={(value) => handleInputChange('venueType', value)}
-                placeholder="Type to search..."
-                className={`w-full ${errors.venueType ? 'border-red-500' : ''}`}
-              />
-              {errors.venueType && (
-                <p className="text-red-500 text-sm mt-1">{errors.venueType}</p>
-              )}
-            </div>
-
-            {/* Footfall and Location */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Footfall Capacity *
-                </label>
-                <Input
-                  type="number"
-                  value={formData.footfall}
-                  onChange={(e) => handleInputChange('footfall', e.target.value)}
-                  placeholder="Maximum guests"
-                  className={errors.footfall ? 'border-red-500' : ''}
-                />
-                {errors.footfall && (
-                  <p className="text-red-500 text-sm mt-1">{errors.footfall}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Location *
-                </label>
-                <Input
-                  value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  placeholder="City, State"
-                  className={errors.location ? 'border-red-500' : ''}
-                />
-                {errors.location && (
-                  <p className="text-red-500 text-sm mt-1">{errors.location}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Price */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price per Day (₹) *
-              </label>
-              <Input
-                type="number"
-                value={formData.price}
-                onChange={(e) => handleInputChange('price', e.target.value)}
-                placeholder="Enter price"
-                className={errors.price ? 'border-red-500' : ''}
-              />
-              {errors.price && (
-                <p className="text-red-500 text-sm mt-1">{errors.price}</p>
-              )}
-            </div>
-
-            {/* Images */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Images (Optional - up to 10 allowed)
-              </label>
-              <div className="space-y-3">
-                <div className="flex items-center justify-center w-full">
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="w-8 h-8 mb-4 text-gray-500" />
-                      <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-semibold">Click to upload</span> venue images
-                      </p>
-                      <p className="text-xs text-gray-500">PNG, JPG up to 10MB each</p>
-                    </div>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-                
-                {formData.images.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {formData.images.map((image, index) => (
-                      <div key={index} className="relative">
-                        <img
-                          src={image}
-                          alt={`Venue ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg"
-                        />
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="destructive"
-                          className="absolute -top-2 -right-2 h-6 w-6"
-                          onClick={() => removeImage(index)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
+              <CardContent className="flex-1 overflow-y-auto px-6 py-6">
+                {errors.general && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                    {errors.general}
                   </div>
                 )}
-                
-                <p className="text-sm text-gray-600">
-                  {formData.images.length}/10 images uploaded
-                  {formData.images.length === 0 && ' (Images are optional)'}
-                </p>
-              </div>
-              {errors.images && (
-                <p className="text-red-500 text-sm mt-1">{errors.images}</p>
-              )}
-            </div>
 
-            {/* Facilities */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Facilities *
-              </label>
-              <div className="space-y-2">
-                {formData.facilities.map((facility, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      value={facility}
-                      onChange={(e) => handleFacilityChange(index, e.target.value)}
-                      placeholder="Enter facility (e.g., AC, Parking, Catering)"
-                      className="flex-1"
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Venue Name and Venue Type */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Venue Name *
+                      </label>
+                      <Input
+                        value={formData.venueName}
+                        onChange={(e) => handleInputChange('venueName', e.target.value)}
+                        placeholder="Enter venue name"
+                        className={`h-10 ${errors.venueName ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500 focus:ring-indigo-500`}
+                      />
+                      {errors.venueName && (
+                        <p className="text-red-500 text-sm mt-1">{errors.venueName}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Venue Type
+                      </label>
+                      <AutocompleteInput
+                        options={VENUE_TYPES}
+                        value={formData.venueType}
+                        onChange={(value) => handleInputChange('venueType', value)}
+                        placeholder="Type to search..."
+                        className={`w-full h-10 ${errors.venueType ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500`}
+                        data-field="venueType"
+                        data-value={formData.venueType}
+                      />
+                      {errors.venueType && (
+                        <p className="text-red-500 text-sm mt-1">{errors.venueType}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Description *
+                    </label>
+                    <Textarea
+                      value={formData.description}
+                      onChange={(e) => handleInputChange('description', e.target.value)}
+                      placeholder="Describe your venue..."
+                      rows={4}
+                      className={`resize-none ${errors.description ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500 focus:ring-indigo-500`}
                     />
-                    {formData.facilities.length > 1 && (
+                    {errors.description && (
+                      <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+                    )}
+                  </div>
+
+                  {/* State and City */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        State *
+                      </label>
+                      <AutocompleteInput
+                        options={allStates.map(s => s.name)}
+                        value={formData.state}
+                        onChange={(stateName) => {
+                          handleInputChange('state', stateName);
+                          handleInputChange('city', '');
+                        }}
+                        placeholder="Type to search..."
+                        className={`w-full h-10 ${errors.state ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500`}
+                      />
+                      {errors.state && (
+                        <p className="text-red-500 text-sm mt-1">{errors.state}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        City *
+                      </label>
+                      <AutocompleteInput
+                        options={cities}
+                        value={formData.city}
+                        onChange={(city) => {
+                          handleInputChange('city', city);
+                        }}
+                        placeholder={!formData.state ? 'Select state first' : 'Type to search...'}
+                        disabled={!formData.state}
+                        className={`w-full h-10 ${errors.city ? 'border-red-300' : 'border-gray-300'} ${!formData.state ? 'opacity-50' : ''} focus:border-indigo-500`}
+                      />
+                      {errors.city && (
+                        <p className="text-red-500 text-sm mt-1">{errors.city}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Google Maps URL */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      URL Maps
+                    </label>
+                    <Input
+                      type="url"
+                      value={formData.googleMapsUrl}
+                      onChange={(e) => handleInputChange('googleMapsUrl', e.target.value)}
+                      placeholder="https://maps.google.com/..."
+                      className={`h-10 ${errors.googleMapsUrl ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500 focus:ring-indigo-500`}
+                    />
+                    {errors.googleMapsUrl && (
+                      <p className="text-red-500 text-sm mt-1">{errors.googleMapsUrl}</p>
+                    )}
+                  </div>
+
+                  {/* Footfall Capacity and Price per Day */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Footfall Capacity *
+                      </label>
+                      <Input
+                        type="number"
+                        value={formData.footfall}
+                        onChange={(e) => handleInputChange('footfall', e.target.value)}
+                        placeholder="Maximum guests"
+                        className={`h-10 ${errors.footfall ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500 focus:ring-indigo-500`}
+                      />
+                      {errors.footfall && (
+                        <p className="text-red-500 text-sm mt-1">{errors.footfall}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Price per Day (₹) *
+                      </label>
+                      <Input
+                        type="number"
+                        value={formData.price}
+                        onChange={(e) => handleInputChange('price', e.target.value)}
+                        placeholder="Price per day"
+                        className={`h-10 ${errors.price ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500 focus:ring-indigo-500`}
+                      />
+                      {errors.price && (
+                        <p className="text-red-500 text-sm mt-1">{errors.price}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Facilities */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Facilities (Optional)
+                    </label>
+                    <div className="space-y-2">
+                      {formData.facilities.map((facility, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            value={facility}
+                            onChange={(e) => handleFacilityChange(index, e.target.value)}
+                            placeholder="Enter facility (e.g., AC, Parking, Catering) - Optional"
+                            className="flex-1 h-10 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                          />
+                          {formData.facilities.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              className="h-10 w-10"
+                              onClick={() => removeFacility(index)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
                       <Button
                         type="button"
                         variant="outline"
-                        size="icon"
-                        onClick={() => removeFacility(index)}
+                        onClick={addFacility}
+                        className="w-full h-10 text-sm border-gray-300 hover:bg-gray-50 text-venue-indigo hover:text-venue-indigo focus:text-venue-indigo"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Another Facility
                       </Button>
+                    </div>
+                    {errors.facilities && (
+                      <p className="text-red-500 text-sm mt-1">{errors.facilities}</p>
                     )}
                   </div>
-                ))}
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addFacility}
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Another Facility
-                </Button>
-              </div>
-              {errors.facilities && (
-                <p className="text-red-500 text-sm mt-1">{errors.facilities}</p>
-              )}
-            </div>
 
-            {/* Submit Buttons */}
-            <div className="flex gap-4 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={uploadingImages || isSubmitting}
-                className="flex-1 bg-venue-indigo hover:bg-venue-purple text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {uploadingImages ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Uploading Images...
+                  {/* Images */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Images (Optional - up to 10 allowed)
+                    </label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="image-upload"
+                      />
+                      <label htmlFor="image-upload" className="cursor-pointer">
+                        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-gray-600 font-medium">Click to upload venue images</p>
+                        <p className="text-sm text-gray-500 mt-1">PNG, JPG up to 10MB each</p>
+                      </label>
+                    </div>
+
+                    <p className="text-sm text-gray-500 mt-2">
+                      {formData.images.length}/10 images uploaded {formData.images.length === 0 && '(Images are optional)'}
+                    </p>
+
+                    {formData.images.length > 0 && (
+                      <div className="grid grid-cols-3 gap-3 mt-4">
+                        {formData.images.map((image, index) => (
+                          <div key={index} className="relative">
+                            <img
+                              src={image}
+                              alt={`Venue ${index + 1}`}
+                              className="w-full h-20 object-cover rounded-lg border"
+                            />
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="destructive"
+                              className="absolute -top-2 -right-2 h-6 w-6"
+                              onClick={() => removeImage(index)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {errors.images && (
+                      <p className={`text-sm mt-1 ${errors.images.includes('Uploading') ? 'text-blue-600' : 'text-red-500'}`}>
+                        {errors.images}
+                      </p>
+                    )}
                   </div>
-                ) : isSubmitting ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Updating Venue...
+
+                  {/* Submit Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={onClose}
+                      className="flex-1 h-10"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={uploadingImages || isSubmitting}
+                      className="flex-1 h-10 bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {uploadingImages ? (
+                        <div className="flex items-center">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Uploading Images...
+                        </div>
+                      ) : isSubmitting ? (
+                        <div className="flex items-center">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Updating Venue...
+                        </div>
+                      ) : 'Update Venue'}
+                    </Button>
                   </div>
-                ) : 'Update Venue'}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+                </form>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

@@ -19,69 +19,69 @@ import {
 
 const customerFAQs = [
   {
-    question: "What is VenueKart?",
-    answer: "VenueKart is an online platform that helps you discover, compare, and book event venues across societies, malls, IT parks, and open spaces — quickly and transparently.",
+    question: "What exactly is Planzia?",
+    answer: "Planzia is India's premier platform for discovering, comparing, and booking exceptional event venues. We connect you with carefully curated spaces across residential societies, premium malls, tech parks, and gorgeous open grounds—all transparent, all trustworthy.",
     icon: HelpCircle
   },
   {
-    question: "Do I need to pay to use VenueKart?",
-    answer: "No. Browsing venues on VenueKart is completely free. You only pay when you confirm a booking.",
+    question: "Is there a cost to browse venues on Planzia?",
+    answer: "Absolutely not. Exploring and comparing venues is completely free. You only pay when you're ready to book—and at that point, you know exactly what you're paying for with zero hidden charges.",
     icon: DollarSign
   },
   {
-    question: "How do I book a venue?",
-    answer: "Simply search for your preferred location, choose a venue, check availability, and book directly through the VenueKart platform.",
+    question: "Walk me through the booking process.",
+    answer: "It's beautifully simple: search for your location and event type, explore curated results with complete details, check real-time availability, and confirm your booking directly through our platform. You'll receive instant confirmation and all necessary details.",
     icon: Search
   },
   {
-    question: "Can I cancel or reschedule my booking?",
-    answer: "Yes, cancellations and reschedules are allowed as per our Cancellation & Refund Policy. Refunds will depend on the venue's policy and booking terms.",
+    question: "What if my plans change?",
+    answer: "Life happens! You can modify or cancel your booking according to our Cancellation & Refund Policy. We work with transparent terms that respect both your needs and the venue's, ensuring fair treatment for everyone.",
     icon: RefreshCw
   },
   {
-    question: "Is my payment secure?",
-    answer: "Absolutely. All transactions on VenueKart are processed through secure payment gateways with encryption to protect your financial information.",
+    question: "How safe is my payment information?",
+    answer: "Your security is our top priority. All payments flow through industry-leading secure gateways with encryption. Your financial data is protected with the same standards trusted by major institutions.",
     icon: Shield
   },
   {
-    question: "What happens if the venue cancels my booking?",
-    answer: "If a venue cancels, you will receive a full refund or the option to rebook at another venue of equal value.",
+    question: "What if a venue cancels on me?",
+    answer: "We've got you covered. If a venue cancels, you'll receive a full refund or the option to rebook at a comparable venue at no extra cost. Your event matters, and we stand behind it.",
     icon: CreditCard
   }
 ];
 
 const partnerFAQs = [
   {
-    question: "How can I list my venue on VenueKart?",
-    answer: "Fill out the Partner Registration Form on our website, and our team will verify your venue before it goes live.",
+    question: "How do I get my venue listed on Planzia?",
+    answer: "Simply complete our Partner Registration Form and share your venue details. Our dedicated team will verify everything to ensure quality standards, then launch your profile to thousands of eager event planners.",
     icon: Building
   },
   {
-    question: "What are the benefits of partnering with VenueKart?",
-    answer: "• Increased visibility to potential customers\n• Steady flow of bookings\n• Hassle-free management and secure payments",
+    question: "What advantages come with partnering with Planzia?",
+    answer: "• Massive visibility to qualified event planners across India\n• Consistent, quality bookings flowing to your venue\n• Simple, automated management with transparent reporting\n• Secure, guaranteed payments with no hassles",
     icon: Users
   },
   {
-    question: "Does VenueKart charge commission?",
-    answer: "Yes, VenueKart charges a small service fee/commission on confirmed bookings. Details are shared at the time of partnership.",
+    question: "What commission does Planzia charge?",
+    answer: "We charge a transparent, competitive service fee on confirmed bookings. We'll discuss the exact details with you personally during the partnership conversation—no surprises, just straightforward business.",
     icon: DollarSign
   },
   {
-    question: "How do I get payments for bookings?",
-    answer: "Payments are released directly to your registered bank account after the event date, as per our payout cycle.",
+    question: "When and how do I receive payments?",
+    answer: "Payments flow directly to your registered bank account after the event concludes, on our standard payout cycle. You can track everything in real-time through your partner dashboard.",
     icon: CreditCard
   }
 ];
 
 const generalFAQs = [
   {
-    question: "Which cities does VenueKart operate in?",
-    answer: "We are currently active in multiple societies, malls, and IT parks, and are expanding rapidly across India.",
+    question: "Where is Planzia currently operating?",
+    answer: "We're actively serving major event spaces and communities across India, with rapid expansion happening every quarter. Check our map to see venues near you, or reach out to learn about upcoming launches in your area.",
     icon: MapPin
   },
   {
-    question: "Who do I contact for support?",
-    answer: "You can reach us anytime at support@venuekart.in or visit our Support Page.",
+    question: "How can I get in touch with support?",
+    answer: "We're here for you 24/7. Email support@Planzia.in, visit our comprehensive Support Page, or call +91-8806621666 during business hours. We pride ourselves on thoughtful, prompt responses.",
     icon: MessageSquare
   }
 ];
@@ -103,10 +103,10 @@ export default function FAQ() {
         <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins">
-              Frequently Asked Questions
+              Questions? We Have Answers
             </h1>
             <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Find quick answers to common questions about VenueKart. Can't find what you're looking for? Contact our support team.
+              Everything you need to know about Planzia, from booking your first venue to growing a partnership. Still curious? Our support team is always ready to help.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Badge variant="secondary" className="text-sm px-3 py-1">
@@ -133,10 +133,10 @@ export default function FAQ() {
             <CardHeader className="bg-blue-50">
               <CardTitle className="flex items-center text-2xl text-venue-dark">
                 <Users className="h-6 w-6 mr-3 text-blue-600" />
-                For Customers
+                For Event Planners & Customers
               </CardTitle>
               <p className="text-gray-600 mt-2">
-                Everything you need to know about booking venues on VenueKart
+                Your complete guide to discovering, comparing, and booking the perfect venue
               </p>
             </CardHeader>
             <CardContent className="p-0">
@@ -175,7 +175,7 @@ export default function FAQ() {
                 For Venue Owners & Partners
               </CardTitle>
               <p className="text-gray-600 mt-2">
-                Information for venue owners looking to partner with VenueKart
+                Everything venue partners need to know about growing with Planzia
               </p>
             </CardHeader>
             <CardContent className="p-0">
@@ -214,7 +214,7 @@ export default function FAQ() {
                 General Questions
               </CardTitle>
               <p className="text-gray-600 mt-2">
-                General information about VenueKart and our services
+                General information about Planzia and our services
               </p>
             </CardHeader>
             <CardContent className="p-0">
@@ -230,11 +230,11 @@ export default function FAQ() {
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="px-8 pb-6 text-gray-600 leading-relaxed">
-                        {faq.answer.includes('support@venuekart.in') ? (
+                        {faq.answer.includes('support@Planzia.in') ? (
                           <div>
                             You can reach us anytime at{' '}
-                            <a href="mailto:support@venuekart.in" className="text-venue-indigo hover:underline">
-                              support@venuekart.in
+                            <a href="mailto:support@Planzia.in" className="text-venue-indigo hover:underline">
+                              support@Planzia.in
                             </a>{' '}
                             or visit our{' '}
                             <a href="/support" className="text-venue-indigo hover:underline">
@@ -266,7 +266,7 @@ export default function FAQ() {
               </p>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <a 
-                  href="mailto:support@venuekart.in"
+                  href="mailto:support@Planzia.in"
                   className="flex items-center space-x-2 bg-white text-venue-indigo px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <Mail className="h-5 w-5" />

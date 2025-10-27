@@ -12,6 +12,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Notification } from '@/components/ui/notification';
 import { FloatingMessage } from '@/components/ui/floating-message';
+import { RatingDisplay } from '@/components/RatingDisplay';
+import { RatingForm } from '@/components/RatingForm';
+import { FeedbackDisplay } from '@/components/FeedbackDisplay';
 import { useFavorites } from '../hooks/useFavorites';
 import { getUserFriendlyError } from '../lib/errorMessages';
 import { getPriceBreakdownComponent } from '../lib/priceUtils';
@@ -27,7 +30,8 @@ import {
   Coffee,
   Calendar as CalendarIcon,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ExternalLink
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -69,13 +73,22 @@ export default function VenueDetail() {
     phone: '',
     eventType: '',
     guestCount: '',
-    specialRequests: ''
+    specialRequests: '',
+    timeFromHour: '',
+    timeFromMinute: '',
+    timeFromPeriod: 'AM',
+    timeToHour: '',
+    timeToMinute: '',
+    timeToPeriod: 'AM'
   });
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notification, setNotification] = useState(null);
   const [showFloatingMessage, setShowFloatingMessage] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [showRatingForm, setShowRatingForm] = useState(false);
+  const [userBookings, setUserBookings] = useState([]);
+  const [ratingRefreshTrigger, setRatingRefreshTrigger] = useState(0);
 
 
   useEffect(() => {
@@ -108,10 +121,26 @@ export default function VenueDetail() {
         ...prev,
         fullName: user.full_name || user.name || '',
         email: user.email || '',
-        phone: user.phone || ''
+        phone: user.mobileNumber || ''
       }));
     }
   }, [isLoggedIn, user]);
+
+  useEffect(() => {
+    const fetchUserBookingsForVenue = async () => {
+      if (!isLoggedIn || !id) return;
+
+      try {
+        const bookings = await apiCall('/api/bookings/customer', { method: 'GET' });
+        const venueBookings = bookings.filter(b => b.venue_id === id);
+        setUserBookings(venueBookings);
+      } catch (err) {
+        console.error('Error fetching user bookings:', err);
+      }
+    };
+
+    fetchUserBookingsForVenue();
+  }, [isLoggedIn, id, ratingRefreshTrigger]);
 
   const handleFavoriteClick = async () => {
     if (!isLoggedIn) {
@@ -143,6 +172,14 @@ export default function VenueDetail() {
       return;
     }
 
+    if (!bookingForm.timeFromHour || !bookingForm.timeFromMinute || !bookingForm.timeToHour || !bookingForm.timeToMinute) {
+      setNotification({
+        type: 'error',
+        message: 'Please select both start and end times for your event'
+      });
+      return;
+    }
+
     if (!isLoggedIn) {
       setNotification({
         type: 'error',
@@ -159,6 +196,10 @@ export default function VenueDetail() {
         venue_name: venue.name,
         user_details: bookingForm,
         event_date: selectedDate.toISOString().split('T')[0],
+        event_time: {
+          from: `${bookingForm.timeFromHour}:${bookingForm.timeFromMinute.padStart(2, '0')} ${bookingForm.timeFromPeriod}`,
+          to: `${bookingForm.timeToHour}:${bookingForm.timeToMinute.padStart(2, '0')} ${bookingForm.timeToPeriod}`
+        },
         inquiry_date: new Date().toISOString(),
         venue_owner: {
           name: venue.owner_name,
@@ -184,7 +225,13 @@ export default function VenueDetail() {
         ...prev,
         eventType: '',
         guestCount: '',
-        specialRequests: ''
+        specialRequests: '',
+        timeFromHour: '',
+        timeFromMinute: '',
+        timeFromPeriod: 'AM',
+        timeToHour: '',
+        timeToMinute: '',
+        timeToPeriod: 'AM'
       }));
 
       setTimeout(() => {
@@ -209,6 +256,49 @@ export default function VenueDetail() {
 
   const prevImage = () => {
     setSelectedImage((prev) => (prev - 1 + venueImages.length) % venueImages.length);
+  };
+
+  const handleShareClick = async () => {
+    const venueUrl = window.location.href;
+    let copied = false;
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(venueUrl);
+        copied = true;
+      }
+    } catch (clipboardError) {
+      console.log('Clipboard API blocked, trying fallback method...');
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = venueUrl;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        copied = true;
+      } catch (fallbackError) {
+        console.error('Both copy methods failed:', fallbackError);
+        copied = false;
+      }
+    }
+
+    if (copied) {
+      setNotification({
+        type: 'success',
+        message: 'Venue link copied to clipboard!'
+      });
+    } else {
+      setNotification({
+        type: 'error',
+        message: 'Failed to copy link. Please try again.'
+      });
+    }
+    setTimeout(() => setNotification(null), 3000);
   };
 
   if (loading) {
@@ -250,26 +340,10 @@ export default function VenueDetail() {
         />
       )}
 
-      <div className="w-full px-4 py-8">
-        {/* Back Button */}
-        <motion.div
-          className="max-w-7xl mx-auto mb-6"
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          transition={transition}
-        >
-          <Button asChild variant="ghost" className="text-venue-indigo" onClick={scrollToTop}>
-            <Link to="/venues">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Venues
-            </Link>
-          </Button>
-        </motion.div>
-
+      <div className="w-full">
         {/* Full Width Image Gallery */}
         <motion.div
-          className="relative w-full h-96 md:h-[500px] mb-8 overflow-hidden"
+          className="relative w-full h-96 md:h-[500px] overflow-hidden"
           variants={fadeUp}
           initial="hidden"
           animate="visible"
@@ -280,7 +354,8 @@ export default function VenueDetail() {
             alt={venue.name}
             className="w-full h-full object-cover"
           />
-          
+
+
           {venueImages.length > 1 && (
             <>
               <button
@@ -321,12 +396,29 @@ export default function VenueDetail() {
             >
               <Heart className={`h-4 w-4 ${isFavorite(venue.id) ? 'text-red-500 fill-red-500' : 'text-gray-600'}`} />
             </Button>
-            <Button size="icon" variant="secondary" className="bg-white/90 hover:bg-white">
+            <Button
+              size="icon"
+              variant="secondary"
+              className="bg-white/90 hover:bg-white"
+              onClick={handleShareClick}
+            >
               <Share2 className="h-4 w-4" />
             </Button>
           </div>
 
-          <div className="absolute top-4 left-4">
+          {/* Back Button & Category Badge - Side by Side */}
+          <div className="absolute top-4 left-4 flex items-center gap-2">
+            <Button
+              asChild
+              variant="ghost"
+              className="bg-white/90 hover:bg-white text-venue-indigo hover:text-venue-purple"
+              onClick={scrollToTop}
+            >
+              <Link to="/venues" className="flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Link>
+            </Button>
             <Badge className="bg-venue-indigo text-white text-lg px-4 py-2">
               {venue.type || 'Venue'}
             </Badge>
@@ -335,7 +427,7 @@ export default function VenueDetail() {
 
         {venueImages.length > 1 && (
           <motion.div
-            className="max-w-7xl mx-auto mb-8"
+            className="max-w-7xl mx-auto px-4 py-8 mb-8"
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
@@ -368,7 +460,7 @@ export default function VenueDetail() {
         )}
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Venue Details */}
             <motion.div
@@ -385,22 +477,31 @@ export default function VenueDetail() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <h1 className="text-3xl md:text-4xl font-bold text-venue-dark mb-3">{venue.name}</h1>
-                      <div className="flex items-center text-gray-600 mb-3">
-                        <MapPin className="h-5 w-5 mr-2" />
-                        <span className="text-lg">{venue.location}</span>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center text-gray-600">
+                          <MapPin className="h-5 w-5 mr-2" />
+                          <span className="text-lg">{venue.location}</span>
+                        </div>
+                        {venue.googleMapsUrl && isLoggedIn && (
+                          <a
+                            href={venue.googleMapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-venue-indigo hover:text-venue-purple font-medium transition-colors flex items-center text-sm ml-4"
+                          >
+                            View on Google Maps
+                            <ExternalLink className="h-4 w-4 ml-1" />
+                          </a>
+                        )}
                       </div>
-                      <div className="flex items-center gap-6">
+                      <div className="flex items-center gap-6 flex-wrap">
                         <div className="flex items-center">
                           <Users className="h-5 w-5 mr-2 text-gray-500" />
                           <span className="text-gray-600">Up to {venue.capacity} guests</span>
                         </div>
-                        {venue.rating && (
-                          <div className="flex items-center">
-                            <Star className="h-5 w-5 mr-1 text-yellow-500 fill-yellow-500" />
-                            <span className="font-semibold">{venue.rating}</span>
-                            <span className="text-gray-500 ml-1">({venue.reviews} reviews)</span>
-                          </div>
-                        )}
+                        <div>
+                          <RatingDisplay venueId={id} key={ratingRefreshTrigger} />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -414,6 +515,7 @@ export default function VenueDetail() {
                   <p className="text-gray-600 leading-relaxed text-lg">{venue.description}</p>
                 </CardContent>
               </Card>
+
 
               {/* Facilities */}
               {venue.facilities && venue.facilities.length > 0 && (
@@ -436,6 +538,23 @@ export default function VenueDetail() {
                         </motion.div>
                       ))}
                     </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Rate This Venue Section */}
+              {isLoggedIn && userBookings && userBookings.length > 0 && (
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="text-2xl font-semibold mb-4">Share Your Experience</h2>
+                    <p className="text-gray-600 mb-4">Have you already hosted an event at this venue? Share your feedback with others!</p>
+                    <Button
+                      onClick={() => setShowRatingForm(true)}
+                      className="w-full bg-venue-indigo hover:bg-venue-purple text-white"
+                    >
+                      <Star className="h-4 w-4 mr-2" />
+                      Rate This Venue
+                    </Button>
                   </CardContent>
                 </Card>
               )}
@@ -476,11 +595,6 @@ export default function VenueDetail() {
                               <span>{item.formatted}</span>
                             </div>
                           ))}
-                          <div className="mt-3 pt-2 border-t border-gray-200">
-                            <p className="text-xs text-green-600 font-medium">
-                              {priceBreakdown.discountNote}
-                            </p>
-                          </div>
                         </div>
                       );
                     })()}
@@ -528,6 +642,12 @@ export default function VenueDetail() {
                       </DialogHeader>
 
                       <form onSubmit={handleInquireSubmit} className="space-y-6">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                          <p className="text-sm text-blue-800">
+                            <strong>Note:</strong> Your full name, email, and phone number are pre-filled from your account and cannot be changed here. To update these details, please visit your account settings.
+                          </p>
+                        </div>
+
                         {/* Calendar + Details */}
                         <div>
                           <div className="flex flex-col md:flex-row gap-2 items-start">
@@ -554,7 +674,10 @@ export default function VenueDetail() {
                             <div className="flex-1 w-full">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                  <Label htmlFor="fullName">Full Name*</Label>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Label htmlFor="fullName">Full Name*</Label>
+                                    <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded font-semibold">Locked</span>
+                                  </div>
                                   <Input
                                     id="fullName"
                                     name="fullName"
@@ -562,11 +685,15 @@ export default function VenueDetail() {
                                     onChange={handleBookingFormChange}
                                     placeholder="Enter your full name"
                                     required
-                                    className="mt-1"
+                                    disabled
+                                    className="mt-1 bg-gray-100 cursor-not-allowed"
                                   />
                                 </div>
                                 <div>
-                                  <Label htmlFor="email">Email*</Label>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Label htmlFor="email">Email*</Label>
+                                    <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded font-semibold">Locked</span>
+                                  </div>
                                   <Input
                                     id="email"
                                     name="email"
@@ -575,14 +702,18 @@ export default function VenueDetail() {
                                     onChange={handleBookingFormChange}
                                     placeholder="name@example.com"
                                     required
-                                    className="mt-1"
+                                    disabled
+                                    className="mt-1 bg-gray-100 cursor-not-allowed"
                                   />
                                 </div>
                               </div>
 
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                                 <div>
-                                  <Label htmlFor="phone">Phone Number*</Label>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Label htmlFor="phone">Phone Number*</Label>
+                                    <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded font-semibold">Locked</span>
+                                  </div>
                                   <Input
                                     id="phone"
                                     name="phone"
@@ -591,7 +722,8 @@ export default function VenueDetail() {
                                     onChange={handleBookingFormChange}
                                     placeholder="10-digit mobile number"
                                     required
-                                    className="mt-1"
+                                    disabled
+                                    className="mt-1 bg-gray-100 cursor-not-allowed"
                                   />
                                 </div>
                                 <div>
@@ -618,6 +750,99 @@ export default function VenueDetail() {
                                     required
                                     className="mt-1"
                                   />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                  <Label>Event Start Time*</Label>
+                                  <div className="flex gap-2 items-end mt-1">
+                                    <div className="flex-1">
+                                      <Label className="text-xs text-gray-600">Hour</Label>
+                                      <Input
+                                        name="timeFromHour"
+                                        type="number"
+                                        min="1"
+                                        max="12"
+                                        value={bookingForm.timeFromHour}
+                                        onChange={handleBookingFormChange}
+                                        placeholder="HH"
+                                        required
+                                        className="mt-1"
+                                      />
+                                    </div>
+                                    <div className="flex-1">
+                                      <Label className="text-xs text-gray-600">Minute</Label>
+                                      <Input
+                                        name="timeFromMinute"
+                                        type="number"
+                                        min="0"
+                                        max="59"
+                                        value={bookingForm.timeFromMinute}
+                                        onChange={handleBookingFormChange}
+                                        placeholder="MM"
+                                        required
+                                        className="mt-1"
+                                      />
+                                    </div>
+                                    <div className="flex-1">
+                                      <Label className="text-xs text-gray-600">Period</Label>
+                                      <select
+                                        name="timeFromPeriod"
+                                        value={bookingForm.timeFromPeriod}
+                                        onChange={handleBookingFormChange}
+                                        className="w-full h-10 mt-1 px-3 border border-gray-300 rounded-md text-sm"
+                                      >
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label>Event End Time*</Label>
+                                  <div className="flex gap-2 items-end mt-1">
+                                    <div className="flex-1">
+                                      <Label className="text-xs text-gray-600">Hour</Label>
+                                      <Input
+                                        name="timeToHour"
+                                        type="number"
+                                        min="1"
+                                        max="12"
+                                        value={bookingForm.timeToHour}
+                                        onChange={handleBookingFormChange}
+                                        placeholder="HH"
+                                        required
+                                        className="mt-1"
+                                      />
+                                    </div>
+                                    <div className="flex-1">
+                                      <Label className="text-xs text-gray-600">Minute</Label>
+                                      <Input
+                                        name="timeToMinute"
+                                        type="number"
+                                        min="0"
+                                        max="59"
+                                        value={bookingForm.timeToMinute}
+                                        onChange={handleBookingFormChange}
+                                        placeholder="MM"
+                                        required
+                                        className="mt-1"
+                                      />
+                                    </div>
+                                    <div className="flex-1">
+                                      <Label className="text-xs text-gray-600">Period</Label>
+                                      <select
+                                        name="timeToPeriod"
+                                        value={bookingForm.timeToPeriod}
+                                        onChange={handleBookingFormChange}
+                                        className="w-full h-10 mt-1 px-3 border border-gray-300 rounded-md text-sm"
+                                      >
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                      </select>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
 
@@ -648,7 +873,7 @@ export default function VenueDetail() {
                           </Button>
                           <Button
                             type="submit"
-                            disabled={isSubmitting || !selectedDate}
+                            disabled={isSubmitting || !selectedDate || !bookingForm.timeFromHour || !bookingForm.timeFromMinute || !bookingForm.timeToHour || !bookingForm.timeToMinute}
                             className="bg-venue-indigo hover:bg-venue-purple text-white w-full sm:w-auto"
                           >
                             {isSubmitting ? 'Sending Inquiry...' : 'Send Inquiry'}
@@ -685,7 +910,34 @@ export default function VenueDetail() {
             </motion.div>
           </div>
         </div>
+
+        {/* Feedback Section */}
+        <motion.div
+          className="mt-12 max-w-7xl mx-auto px-4 py-8"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          transition={transition}
+        >
+          <FeedbackDisplay venueId={id} key={ratingRefreshTrigger} />
+        </motion.div>
       </div>
+
+      {/* Rating Form Modal */}
+      {isLoggedIn && userBookings && userBookings.length > 0 && (
+        <RatingForm
+          bookingId={userBookings[0]?._id}
+          venueId={id}
+          venueName={venue?.name}
+          isOpen={showRatingForm}
+          onClose={() => setShowRatingForm(false)}
+          onRatingSubmitted={() => {
+            setRatingRefreshTrigger(prev => prev + 1);
+            setShowRatingForm(false);
+          }}
+        />
+      )}
 
       <FloatingMessage
         isVisible={showFloatingMessage}

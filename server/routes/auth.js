@@ -6,6 +6,9 @@ import { sendOTPEmail } from '../services/emailService.js';
 import User from '../models/User.js';
 import OtpVerification from '../models/OtpVerification.js';
 import RefreshToken from '../models/RefreshToken.js';
+import Booking from '../models/Booking.js';
+import Favorite from '../models/Favorite.js';
+import Venue from '../models/Venue.js';
 
 const router = Router();
 
@@ -131,7 +134,7 @@ router.get('/google/callback', async (req, res) => {
 // User Registration with OTP verification
 router.post('/register', async (req, res) => {
   try {
-    const { email, name, userType = 'customer', password = null, mobileNumber = null } = req.body;
+    const { email, name, userType = 'customer', password = null, mobileNumber = null, state = null, city = null, businessName = null } = req.body;
     if (!email || !name) return res.status(400).json({ error: 'Email and name are required' });
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) return res.status(400).json({ error: 'Please enter a valid email address' });
@@ -155,7 +158,32 @@ router.post('/register', async (req, res) => {
     }
 
     const passwordHash = password ? await bcrypt.hash(password, 12) : null;
-    await User.create({ email, name, password_hash: passwordHash, mobile_number: mobileNumber, user_type: userType, is_verified: false });
+
+    // Normalize phone number for storage
+    let normalizedPhone = null;
+    if (mobileNumber) {
+      const digits = String(mobileNumber).replace(/\D/g, '');
+      let normalized = digits;
+      if (normalized.length === 12 && normalized.startsWith('91')) normalized = normalized.slice(2);
+      if (normalized.length === 11 && normalized.startsWith('0')) normalized = normalized.slice(1);
+      normalizedPhone = normalized;
+    }
+
+    const userData = {
+      email,
+      name,
+      password_hash: passwordHash,
+      mobile_number: normalizedPhone,
+      user_type: userType,
+      is_verified: false
+    };
+
+    // Add optional fields
+    if (state) userData.state = state;
+    if (city) userData.city = city;
+    if (businessName) userData.business_name = businessName;
+
+    await User.create(userData);
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
@@ -191,7 +219,17 @@ router.post('/verify-otp', async (req, res) => {
 
     res.json({
       message: 'Email verified successfully!',
-      user: { id: user.id, email: user.email, name: user.name, userType: user.user_type, profilePicture: user.profile_picture },
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        userType: user.user_type,
+        profilePicture: user.profile_picture,
+        mobileNumber: user.mobile_number,
+        state: user.state,
+        city: user.city,
+        businessName: user.business_name
+      },
       accessToken,
       refreshToken
     });
@@ -207,16 +245,25 @@ router.post('/resend-otp', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
-    const user = await User.findOne({ email, is_verified: false }).lean();
-    if (!user) return res.status(404).json({ error: 'User not found or already verified' });
+    // Check if there's a pending OTP verification for this email
+    const existingOtp = await OtpVerification.findOne({ email }).lean();
+    if (!existingOtp) return res.status(404).json({ error: 'No pending verification found for this email' });
+
+    // Get user details - could be an unverified new user or verified user changing email
+    const user = await User.findOne({ email: { $in: [email, existingOtp.email] } }, { name: 1, _id: 1 }).lean();
+    const userName = user?.name || 'User';
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-    await OtpVerification.deleteMany({ email });
-    await OtpVerification.create({ email, otp, expires_at: expiresAt });
+    // Determine purpose based on pending data
+    const pendingData = existingOtp.pending_data;
+    const purpose = pendingData ? 'Email Update Verification' : 'Account Verification';
 
-    const emailSent = await sendOTPEmail(email, otp, user.name, 'Account Verification');
+    await OtpVerification.deleteMany({ email });
+    await OtpVerification.create({ email, otp, expires_at: expiresAt, pending_data: pendingData });
+
+    const emailSent = await sendOTPEmail(email, otp, userName, purpose);
     if (!emailSent) return res.status(500).json({ error: 'Failed to send verification email' });
 
     res.json({ message: 'Verification code sent successfully!' });
@@ -282,7 +329,17 @@ router.post('/login', async (req, res) => {
 
     res.json({
       message: 'Login successful',
-      user: { id: user._id.toString(), email: user.email, name: user.name, userType: user.user_type, profilePicture: user.profile_picture },
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        userType: user.user_type,
+        profilePicture: user.profile_picture,
+        mobileNumber: user.mobile_number,
+        state: user.state,
+        city: user.city,
+        businessName: user.business_name
+      },
       accessToken,
       refreshToken
     });
@@ -295,9 +352,9 @@ router.post('/login', async (req, res) => {
 // Get current user
 router.get('/me', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id, { email: 1, name: 1, user_type: 1, profile_picture: 1, mobile_number: 1, is_verified: 1 }).lean();
+    const user = await User.findById(req.user.id, { email: 1, name: 1, user_type: 1, profile_picture: 1, mobile_number: 1, state: 1, city: 1, business_name: 1, is_verified: 1 }).lean();
     if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json({ id: user._id.toString(), email: user.email, name: user.name, userType: user.user_type, profilePicture: user.profile_picture, mobileNumber: user.mobile_number, isVerified: user.is_verified });
+    res.json({ id: user._id.toString(), email: user.email, name: user.name, userType: user.user_type, profilePicture: user.profile_picture, mobileNumber: user.mobile_number, state: user.state, city: user.city, businessName: user.business_name, isVerified: user.is_verified });
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ error: 'Failed to get user data' });
@@ -359,17 +416,20 @@ router.post('/verify-email-update', async (req, res) => {
     if (!otpRow) return res.status(400).json({ error: 'Invalid or expired OTP' });
 
     const pendingData = JSON.parse(otpRow.pending_data || '{}');
-    const { userId, name, mobileNumber, password } = pendingData;
+    const { userId, name, mobileNumber, state, city, businessName, password } = pendingData;
 
     const update = { name, email };
     if (mobileNumber) update.mobile_number = String(mobileNumber).replace(/\D/g, '').replace(/^91/, '').replace(/^0/, '');
+    if (state) update.state = state;
+    if (city) update.city = city;
+    if (businessName) update.business_name = businessName;
     if (password) update.password_hash = await bcrypt.hash(password, 12);
 
     await User.updateOne({ _id: userId }, { $set: update });
     await OtpVerification.deleteMany({ email });
 
-    const updatedUser = await User.findById(userId, { email: 1, name: 1, user_type: 1, profile_picture: 1, mobile_number: 1, is_verified: 1 }).lean();
-    res.json({ message: 'Email verified and profile updated successfully', user: { id: updatedUser._id.toString(), email: updatedUser.email, name: updatedUser.name, userType: updatedUser.user_type, profilePicture: updatedUser.profile_picture, mobileNumber: updatedUser.mobile_number, isVerified: updatedUser.is_verified } });
+    const updatedUser = await User.findById(userId, { email: 1, name: 1, user_type: 1, profile_picture: 1, mobile_number: 1, state: 1, city: 1, business_name: 1, is_verified: 1 }).lean();
+    res.json({ message: 'Email verified and profile updated successfully', user: { id: updatedUser._id.toString(), email: updatedUser.email, name: updatedUser.name, userType: updatedUser.user_type, profilePicture: updatedUser.profile_picture, mobileNumber: updatedUser.mobile_number, state: updatedUser.state, city: updatedUser.city, businessName: updatedUser.business_name, isVerified: updatedUser.is_verified } });
   } catch (error) {
     console.error('Email verification error:', error);
     res.status(500).json({ error: 'Failed to verify email update' });
@@ -379,7 +439,7 @@ router.post('/verify-email-update', async (req, res) => {
 // Update user profile
 router.put('/update-profile', authenticateToken, async (req, res) => {
   try {
-    const { name, email, mobileNumber, password } = req.body;
+    const { name, email, mobileNumber, state, city, businessName, password } = req.body;
     const userId = req.user.id;
     if (!name || !email) return res.status(400).json({ error: 'Name and email are required' });
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -408,7 +468,7 @@ router.put('/update-profile', authenticateToken, async (req, res) => {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
       await OtpVerification.deleteMany({ email });
-      await OtpVerification.create({ email, otp, expires_at: expiresAt, pending_data: JSON.stringify({ userId, name, email, mobileNumber: normalizedPhone, password }) });
+      await OtpVerification.create({ email, otp, expires_at: expiresAt, pending_data: JSON.stringify({ userId, name, email, mobileNumber: normalizedPhone, state, city, businessName, password }) });
 
       const emailSent = await sendOTPEmail(email, otp, name, 'Email Update Verification');
       if (!emailSent) return res.status(500).json({ error: 'Failed to send verification email' });
@@ -418,6 +478,9 @@ router.put('/update-profile', authenticateToken, async (req, res) => {
 
     const update = { name };
     if (normalizedPhone) update.mobile_number = normalizedPhone;
+    if (state) update.state = state;
+    if (city) update.city = city;
+    if (businessName) update.business_name = businessName;
     if (password) update.password_hash = await bcrypt.hash(password, 12);
     await User.updateOne({ _id: userId }, { $set: update });
 
@@ -425,6 +488,117 @@ router.put('/update-profile', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+// Change password - requires current password verification
+router.put('/change-password', authenticateToken, async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.user.id;
+
+    // Validate required fields
+    if (!currentPassword) {
+      return res.status(400).json({ error: 'Current password is required' });
+    }
+
+    if (!newPassword) {
+      return res.status(400).json({ error: 'New password is required' });
+    }
+
+    if (!confirmPassword) {
+      return res.status(400).json({ error: 'Please confirm your new password' });
+    }
+
+    // Validate new password length
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+    }
+
+    // Check if passwords match
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ error: 'New passwords do not match' });
+    }
+
+    // Check if new password is same as current password
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ error: 'New password must be different from current password' });
+    }
+
+    const user = await User.findById(userId).lean();
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // If user registered via Google, they don't have a password
+    if (!user.password_hash) {
+      return res.status(400).json({ error: 'Your account is registered via Google. Cannot change password. Please contact support.' });
+    }
+
+    // Verify current password
+    const isValidPassword = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    // Hash new password and update
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    await User.updateOne({ _id: userId }, { $set: { password_hash: hashedPassword } });
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ error: 'Failed to change password' });
+  }
+});
+
+// Delete account - requires password verification
+router.post('/delete-account', authenticateToken, async (req, res) => {
+  try {
+    const { password } = req.body;
+    const userId = req.user.id;
+
+    if (!password) {
+      return res.status(400).json({ error: 'Password is required to delete account' });
+    }
+
+    const user = await User.findById(userId).lean();
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // If user registered via Google, they don't have a password
+    if (!user.password_hash) {
+      return res.status(400).json({ error: 'Cannot verify password for Google-authenticated accounts. Please contact support.' });
+    }
+
+    // Verify password
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid password. Account deletion cancelled.' });
+    }
+
+    // Delete all related data
+    await Booking.deleteMany({ customer_id: userId });
+    await Booking.deleteMany({ 'venue_owner_id': userId });
+    await Favorite.deleteMany({ user_id: userId });
+    const venues = await Venue.find({ owner_id: userId }, { _id: 1 }).lean();
+    const venueIds = venues.map(v => v._id);
+    if (venueIds.length > 0) {
+      await Booking.deleteMany({ venue_id: { $in: venueIds } });
+      await Favorite.deleteMany({ venue_id: { $in: venueIds } });
+      await Venue.deleteMany({ owner_id: userId });
+    }
+    await RefreshToken.deleteMany({ user_id: userId });
+    await OtpVerification.deleteMany({ email: user.email });
+
+    // Delete the user
+    await User.findByIdAndDelete(userId);
+
+    res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({ error: 'Failed to delete account' });
   }
 });
 

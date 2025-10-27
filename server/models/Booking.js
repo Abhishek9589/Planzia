@@ -12,14 +12,25 @@ const BookingSchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   payment_amount: { type: Number },
   status: { type: String, enum: ['pending', 'confirmed', 'cancelled'], default: 'pending' },
-  payment_status: { type: String, enum: ['not_required', 'pending', 'completed', 'failed'], default: 'not_required' },
+  cancellation_reason: { type: String },
+  payment_status: { type: String, enum: ['not_required', 'pending', 'completed', 'failed'], default: 'pending' },
   razorpay_order_id: { type: String },
   razorpay_payment_id: { type: String },
+  payment_initiated_at: { type: Date },
+  payment_deadline: { type: Date },
   payment_completed_at: { type: Date },
   payment_error_description: { type: String },
   special_requirements: { type: String },
-  booking_date: { type: Date, default: Date.now }
+  booking_date: { type: Date, default: Date.now },
+  last_payment_reminder_sent_at: { type: Date },
+  payment_reminder_count: { type: Number, default: 0 },
+  rating_reminder_sent: { type: Boolean, default: false },
+  rating_reminder_sent_at: { type: Date }
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
+
+BookingSchema.index({ payment_deadline: 1, status: 1 });
+BookingSchema.index({ event_date: 1, rating_reminder_sent: 1 });
+BookingSchema.index({ status: 1, payment_status: 1, last_payment_reminder_sent_at: 1 });
 
 BookingSchema.virtual('id').get(function () { return this._id.toString(); });
 BookingSchema.set('toJSON', { virtuals: true });

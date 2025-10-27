@@ -20,46 +20,46 @@ import {
 
 const openings = [
   {
-    title: "Business Development Interns",
-    type: "Unpaid → PPO/FTE post funding",
+    title: "Business Growth & Partnerships",
+    type: "Internship → Full-time pathway",
     icon: Briefcase,
     responsibilities: [
-      "Drive venue onboarding (Societies, Malls, IT Parks, etc.)",
-      "Build client relationships with brands & agencies",
-      "Must be good in communication & negotiation"
+      "Lead venue onboarding across societies, malls, and corporate spaces",
+      "Build authentic relationships with brands, agencies, and venue partners",
+      "Outstanding communication and persuasion skills essential"
     ],
     color: "bg-blue-100 text-blue-700"
   },
   {
-    title: "Marketing Interns",
+    title: "Creative Marketing & Brand",
     type: "Internship",
     icon: BarChart3,
     responsibilities: [
-      "Create campaigns, social media strategies & content",
-      "Support in digital ads & event promotions",
-      "Creative mindset with interest in branding"
+      "Craft compelling campaigns and social media narratives",
+      "Drive digital strategy and brand visibility",
+      "Blend creativity with strategic thinking"
     ],
     color: "bg-green-100 text-green-700"
   },
   {
-    title: "Tech Interns (Web/App Development)",
+    title: "Full-Stack Engineering",
     type: "Internship",
     icon: Code,
     responsibilities: [
-      "Support in building VenueKart website & booking platform",
-      "Work with modern tools & frameworks",
-      "Problem-solving & coding skills are a must"
+      "Build and enhance Planzia's core platform and booking engine",
+      "Work with cutting-edge technologies and frameworks",
+      "Turn complex challenges into elegant solutions"
     ],
     color: "bg-purple-100 text-purple-700"
   },
   {
-    title: "Operations Interns",
+    title: "Operations & Execution",
     type: "Internship",
     icon: Settings,
     responsibilities: [
-      "Manage day-to-day execution of venue activations",
-      "Coordinate with societies, malls & partners",
-      "Strong organizational & execution skills required"
+      "Orchestrate flawless venue activations and events",
+      "Partner with stakeholders to deliver exceptional experiences",
+      "Drive excellence through meticulous execution"
     ],
     color: "bg-orange-100 text-orange-700"
   }
@@ -68,23 +68,23 @@ const openings = [
 const benefits = [
   {
     icon: Rocket,
-    title: "Startup Energy",
-    description: "Work directly with the founders & core team."
+    title: "Startup Spirit",
+    description: "Work directly alongside founders and core innovators. Your voice matters from day one."
   },
   {
     icon: TrendingUp,
-    title: "Growth Opportunities",
-    description: "Learn, grow, and take leadership early in your career."
+    title: "Rapid Growth",
+    description: "Accelerate your career with real responsibility and mentorship in a fast-moving environment."
   },
   {
     icon: Target,
-    title: "Impactful Work",
-    description: "Every idea counts. Your work will directly shape how thousands book venues."
+    title: "Genuine Impact",
+    description: "Your contributions directly shape how millions discover and celebrate events. Purpose-driven work."
   },
   {
     icon: Heart,
-    title: "Culture First",
-    description: "Flexible, fun, and collaborative environment."
+    title: "Thriving Culture",
+    description: "Flexible, creative, and authentically collaborative. We believe in people first."
   }
 ];
 
@@ -105,10 +105,10 @@ export default function Careers() {
         <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins">
-              Join Us in Building the Future of Event Venues
+              Build the Future with Us
             </h1>
             <p className="text-xl text-white/90 mb-8 max-w-4xl mx-auto leading-relaxed">
-              Work with us. Grow with us. Build VenueKart with us.
+              Join a passionate team transforming how events happen. Grow, create, and make an impact with Planzia.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Badge variant="secondary" className="text-lg px-4 py-2">
@@ -130,10 +130,10 @@ export default function Careers() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <p className="text-lg text-gray-600 leading-relaxed mb-8">
-              At VenueKart, we're on a mission to make <span className="font-semibold text-venue-indigo">event venue discovery & booking</span> as seamless as ordering food or booking a cab. From societies and malls to corporate spaces and open venues – we are changing how people host and brands activate.
+              Our mission is audacious: transform <span className="font-semibold text-venue-indigo">event venue discovery and booking</span> into something as intuitive and delightful as ordering food or hailing a ride. From vibrant societies and premium malls to cutting-edge corporate spaces and scenic outdoor grounds—we're reimagining how celebrations and activations happen across India.
             </p>
             <p className="text-lg text-gray-600 leading-relaxed">
-              We are a <span className="font-semibold text-venue-indigo">fast-growing startup</span>, and we believe in people who are passionate, ambitious, and ready to take ownership. If you're someone who loves challenges, creativity, and startup culture – <span className="font-semibold text-venue-indigo">VenueKart is the place for you</span>.
+              We're a <span className="font-semibold text-venue-indigo">rapidly scaling startup</span> built by people who are passionate, ambitious, and hungry to make a real difference. If you thrive on challenges, embrace creativity, and want to be part of something meaningful—<span className="font-semibold text-venue-indigo">Planzia is your place</span>.
             </p>
           </div>
         </div>
@@ -144,10 +144,10 @@ export default function Careers() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              Why Work With Us?
+              Why Join the Planzia Team
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Join a team that values growth, innovation, and meaningful impact
+              Be part of a team that values growth, celebrates innovation, and measures success by impact
             </p>
           </div>
 
@@ -182,7 +182,7 @@ export default function Careers() {
               Current Openings
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Explore opportunities to grow your career with VenueKart
+              Explore opportunities to grow your career with Planzia
             </p>
           </div>
 
@@ -242,20 +242,20 @@ export default function Careers() {
             <CardHeader className="text-center pb-6">
               <CardTitle className="text-3xl font-bold mb-4">How to Apply?</CardTitle>
               <p className="text-white/90 text-lg">
-                Send us your resume + short note on why you'd like to join VenueKart
+                Send us your resume + short note on why you'd like to join Planzia
               </p>
             </CardHeader>
             <CardContent className="text-center">
               <div className="space-y-4">
                 <div className="flex items-center justify-center space-x-2 text-lg">
                   <Mail className="h-5 w-5" />
-                  <span className="font-semibold">careers@venuekart.in</span>
+                  <span className="font-semibold">careers@Planzia.in</span>
                 </div>
                 <div className="text-white/90">
-                  www.venuekart.in
+                  www.Planzia.in
                 </div>
                 <Button 
-                  onClick={() => window.location.href = 'mailto:careers@venuekart.in?subject=Job Application - [Role Name]&body=Hi VenueKart Team,%0D%0A%0D%0AI am interested in joining VenueKart. Please find my resume attached.%0D%0A%0D%0AWhy I want to join VenueKart:%0D%0A[Your reason here]%0D%0A%0D%0ABest regards,%0D%0A[Your name]'}
+                  onClick={() => window.location.href = 'mailto:careers@Planzia.in?subject=Job Application - [Role Name]&body=Hi Planzia Team,%0D%0A%0D%0AI am interested in joining Planzia. Please find my resume attached.%0D%0A%0D%0AWhy I want to join Planzia:%0D%0A[Your reason here]%0D%0A%0D%0ABest regards,%0D%0A[Your name]'}
                   className="bg-white text-venue-indigo hover:bg-gray-100 mt-6"
                   size="lg"
                 >

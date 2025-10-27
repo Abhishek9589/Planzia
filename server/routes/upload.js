@@ -7,7 +7,7 @@ const router = Router();
 // Upload single image
 router.post('/image', authenticateToken, async (req, res) => {
   try {
-    const { imageData, folder = 'venuekart' } = req.body;
+    const { imageData, folder = 'Planzia' } = req.body;
 
     if (!imageData) {
       return res.status(400).json({ error: 'Image data is required' });
@@ -37,7 +37,7 @@ router.post('/image', authenticateToken, async (req, res) => {
 // Upload multiple images
 router.post('/images', authenticateToken, async (req, res) => {
   try {
-    const { images, folder = 'venuekart' } = req.body;
+    const { images, folder = 'Planzia' } = req.body;
 
     if (!images || !Array.isArray(images) || images.length === 0) {
       return res.status(400).json({ error: 'Images array is required' });

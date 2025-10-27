@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,25 +6,50 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { AutocompleteInput } from '@/components/ui/autocomplete-input';
 import { X, Upload, Plus, Trash2 } from 'lucide-react';
-import { PUNE_AREAS, VENUE_TYPES } from '@/constants/venueOptions';
+import { VENUE_TYPES } from '@/constants/venueOptions';
 import { getUserFriendlyError } from '@/lib/errorMessages';
+import { useScrollLock } from '@/hooks/useScrollLock';
 import apiClient from '../lib/apiClient.js';
+import { City, State } from 'country-state-city';
 
 export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
+  useScrollLock(isOpen);
+
   const [formData, setFormData] = useState({
     venueName: '',
     description: '',
     venueType: '',
-    area: '',
+    state: '',
+    city: '',
     footfall: '',
     price: '',
+    googleMapsUrl: '',
     facilities: [''],
     images: []
   });
 
+  const [stateInputValue, setStateInputValue] = useState('');
+  const [cityInputValue, setCityInputValue] = useState('');
   const [errors, setErrors] = useState({});
   const [uploadingImages, setUploadingImages] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Get all Indian states
+  const allStates = useMemo(() => {
+    return State.getStatesOfCountry('IN')
+      .map(state => ({ code: state.isoCode, name: state.name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, []);
+
+  // Get cities for selected state
+  const cities = useMemo(() => {
+    if (formData.state) {
+      return City.getCitiesOfState('IN', formData.state)
+        .map(city => city.name)
+        .sort((a, b) => a.localeCompare(b));
+    }
+    return [];
+  }, [formData.state]);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -131,32 +156,28 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
   const validateForm = () => {
     const newErrors = {};
 
-    // Required fields validation
     if (!formData.venueName.trim()) {
       newErrors.venueName = 'Venue name is required';
     }
     if (!formData.description.trim()) {
       newErrors.description = 'Description is required';
     }
-    if (!formData.area) {
-      newErrors.area = 'Area is required';
+    if (!formData.state) {
+      newErrors.state = 'State is required';
+    }
+    if (!formData.city) {
+      newErrors.city = 'City is required';
     }
 
-    // Footfall validation
     const footfall = parseInt(formData.footfall);
     if (!formData.footfall || isNaN(footfall) || footfall <= 0) {
       newErrors.footfall = 'Footfall capacity must be a number greater than 0';
     }
 
-    // Price validation
     const price = parseInt(formData.price);
-
     if (!formData.price || isNaN(price) || price <= 0) {
       newErrors.price = 'Price must be a number greater than 0';
     }
-
-    // Note: Images and facilities are now optional (no validation required)
-    // Venue type is also optional (not required by server)
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -182,7 +203,7 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
         try {
           const data = await apiClient.postJson('/api/upload/image', {
             imageData: imageDataArray[i],
-            folder: 'venuekart/venues'
+            folder: 'Planzia/venues'
           });
 
           if (!data || !data.url) {
@@ -249,14 +270,17 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
         // Upload images to Cloudinary (optional)
         let imageUrls = await uploadImagesToCloudinary(formData.images);
 
+        const stateName = formData.state;
+
         const venueData = {
           venueName: formData.venueName,
           description: formData.description,
-          location: `${formData.area}, Pune`,
+          location: `${formData.city}, ${stateName}`,
           footfall: parseInt(formData.footfall),
           price: parseInt(formData.price),
-          images: imageUrls, // Use Cloudinary URLs instead of base64
-          facilities: formData.facilities.filter(f => f.trim())
+          images: imageUrls,
+          facilities: formData.facilities.filter(f => f.trim()),
+          googleMapsUrl: formData.googleMapsUrl || ''
         };
 
         // Add optional fields only if they have values
@@ -270,12 +294,16 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
           venueName: '',
           description: '',
           venueType: '',
-          area: '',
+          state: '',
+          city: '',
           footfall: '',
           price: '',
+          googleMapsUrl: '',
           facilities: [''],
           images: []
         });
+        setStateInputValue('');
+        setCityInputValue('');
         setErrors({});
       } catch (error) {
         // Form stays open with data intact if submission fails
@@ -320,44 +348,26 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
           )}
           
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Venue Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Venue Name *
-              </label>
-              <Input
-                value={formData.venueName}
-                onChange={(e) => handleInputChange('venueName', e.target.value)}
-                placeholder="Enter venue name"
-                className={`h-10 ${errors.venueName ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500 focus:ring-indigo-500`}
-              />
-              {errors.venueName && (
-                <p className="text-red-500 text-sm mt-1">{errors.venueName}</p>
-              )}
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description *
-              </label>
-              <Textarea
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Describe your venue..."
-                rows={4}
-                className={`resize-none ${errors.description ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500 focus:ring-indigo-500`}
-              />
-              {errors.description && (
-                <p className="text-red-500 text-sm mt-1">{errors.description}</p>
-              )}
-            </div>
-
-            {/* Venue Type and Area */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Venue Name and Venue Type */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Venue Type (Optional)
+                  Venue Name
+                </label>
+                <Input
+                  value={formData.venueName}
+                  onChange={(e) => handleInputChange('venueName', e.target.value)}
+                  placeholder="Enter venue name"
+                  className={`h-10 ${errors.venueName ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500 focus:ring-indigo-500`}
+                />
+                {errors.venueName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.venueName}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Venue Type
                 </label>
                 <AutocompleteInput
                   options={VENUE_TYPES}
@@ -372,31 +382,102 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
                   <p className="text-red-500 text-sm mt-1">{errors.venueType}</p>
                 )}
               </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description
+              </label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="Describe your venue..."
+                rows={4}
+                className={`resize-none ${errors.description ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500 focus:ring-indigo-500`}
+              />
+              {errors.description && (
+                <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+              )}
+            </div>
+
+            {/* State and City */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  State
+                </label>
+                <AutocompleteInput
+                  options={allStates.map(s => s.name)}
+                  value={stateInputValue}
+                  onChange={(typedValue) => {
+                    setStateInputValue(typedValue);
+                    const selectedState = allStates.find(s => s.name.toLowerCase() === typedValue.toLowerCase());
+                    if (selectedState) {
+                      setFormData(prev => ({
+                        ...prev,
+                        state: selectedState.code,
+                        city: ''
+                      }));
+                      setCityInputValue('');
+                    }
+                  }}
+                  placeholder="Type to search..."
+                  className={`w-full h-10 ${errors.state ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500`}
+                />
+                {errors.state && (
+                  <p className="text-red-500 text-sm mt-1">{errors.state}</p>
+                )}
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Area (Pune) *
+                  City
                 </label>
                 <AutocompleteInput
-                  options={PUNE_AREAS}
-                  value={formData.area}
-                  onChange={(value) => handleInputChange('area', value)}
-                  placeholder="Type to search..."
-                  className={`w-full h-10 ${errors.area ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500`}
-                  data-field="area"
-                  data-value={formData.area}
+                  options={cities}
+                  value={cityInputValue}
+                  onChange={(typedCity) => {
+                    setCityInputValue(typedCity);
+                    if (cities.includes(typedCity)) {
+                      setFormData(prev => ({
+                        ...prev,
+                        city: typedCity
+                      }));
+                    }
+                  }}
+                  placeholder={!formData.state ? 'Select state first' : 'Type to search...'}
+                  disabled={!formData.state}
+                  className={`w-full h-10 ${errors.city ? 'border-red-300' : 'border-gray-300'} ${!formData.state ? 'opacity-50' : ''} focus:border-indigo-500`}
                 />
-                {errors.area && (
-                  <p className="text-red-500 text-sm mt-1">{errors.area}</p>
+                {errors.city && (
+                  <p className="text-red-500 text-sm mt-1">{errors.city}</p>
                 )}
               </div>
             </div>
 
-            {/* Footfall Capacity and Price */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Google Maps URL */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                URL Maps
+              </label>
+              <Input
+                type="url"
+                value={formData.googleMapsUrl}
+                onChange={(e) => handleInputChange('googleMapsUrl', e.target.value)}
+                placeholder="https://maps.google.com/..."
+                className={`h-10 ${errors.googleMapsUrl ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500 focus:ring-indigo-500`}
+              />
+              {errors.googleMapsUrl && (
+                <p className="text-red-500 text-sm mt-1">{errors.googleMapsUrl}</p>
+              )}
+            </div>
+
+            {/* Footfall Capacity and Price per Day */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Footfall Capacity *
+                  Footfall Capacity
                 </label>
                 <Input
                   type="number"
@@ -412,7 +493,7 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price per Day (₹) *
+                  Price per Day (₹)
                 </label>
                 <Input
                   type="number"

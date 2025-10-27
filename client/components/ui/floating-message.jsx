@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, X } from 'lucide-react';
 import { Button } from './button';
+import { useScrollLock } from '@/hooks/useScrollLock';
 
 export function FloatingMessage({ isVisible, onClose, title, message, type = 'success' }) {
   const [shouldShow, setShouldShow] = useState(isVisible);
+
+  useScrollLock(shouldShow);
 
   useEffect(() => {
     setShouldShow(isVisible);

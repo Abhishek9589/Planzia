@@ -19,52 +19,52 @@ import {
 
 const benefits = [
   {
-    title: "One-Stop Platform",
-    description: "Discover, compare, and book venues instantly without endless calls or visits.",
+    title: "All-in-One Intelligence",
+    description: "Discover, compare, and book exceptional venues instantly. No endless phone calls, no confusing spreadsheets—just elegant simplicity.",
     icon: Search,
     color: "bg-blue-100 text-blue-700"
   },
   {
-    title: "Verified Venues",
-    description: "All listed venues are verified to ensure quality, safety, and trust.",
+    title: "Authentically Verified",
+    description: "Every venue is carefully vetted for quality, safety, and genuine excellence. You're always booking with confidence.",
     icon: Shield,
     color: "bg-green-100 text-green-700"
   },
   {
-    title: "Time & Cost Efficiency",
-    description: "Save hours of searching and negotiating with our smart booking process.",
+    title: "Remarkably Efficient",
+    description: "Reclaim your time. Our intelligent platform eliminates hours of searching, negotiating, and coordination.",
     icon: Clock,
     color: "bg-purple-100 text-purple-700"
   },
   {
-    title: "Custom Solutions",
-    description: "From small gatherings to large brand activations, we cater to every event size and requirement.",
+    title: "Infinitely Flexible",
+    description: "Intimate family gatherings to massive brand activations—we adapt seamlessly to every event type and scale.",
     icon: Settings,
     color: "bg-orange-100 text-orange-700"
   },
   {
-    title: "Transparent Pricing",
-    description: "No hidden charges. Clear, upfront pricing and secure payments.",
+    title: "Completely Transparent",
+    description: "See exactly what you're paying, with zero surprises. Honest pricing, secure payments, complete peace of mind.",
     icon: DollarSign,
     color: "bg-yellow-100 text-yellow-700"
   },
   {
-    title: "Partner Benefits",
-    description: "Venue owners and societies get a steady stream of bookings, increased visibility, and hassle-free management.",
+    title: "Mutual Growth",
+    description: "Venue partners enjoy steady bookings, enhanced visibility, and effortless management. Everyone wins.",
     icon: TrendingUp,
     color: "bg-indigo-100 text-indigo-700"
   }
 ];
 
 const eventTypes = [
-  "Society Events",
-  "Mall Activations", 
-  "IT Park Activities",
-  "Private Celebrations",
-  "Corporate Events",
-  "Brand Promotions",
-  "Wedding Functions",
-  "Community Gatherings"
+  "Intimate Society Gatherings",
+  "Bold Brand Activations",
+  "Premium Corporate Conferences",
+  "Dream Personal Celebrations",
+  "Professional Seminars & Forums",
+  "Visionary Brand Launches",
+  "Elegant Wedding Ceremonies",
+  "Vibrant Community Events"
 ];
 
 export default function WhyPlanzia() {
@@ -84,10 +84,10 @@ export default function WhyPlanzia() {
         <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins">
-              Why Planzia
+              The Better Way to Book
             </h1>
             <p className="text-xl text-white/90 mb-8 max-w-4xl mx-auto leading-relaxed">
-              At Planzia, we believe that finding the perfect venue for your event should be simple, transparent, and stress-free.
+              At Planzia, we've reimagined venue booking entirely. It should be intuitive, transparent, delightful—never stressful or complicated.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Badge variant="secondary" className="text-lg px-4 py-2">
@@ -112,7 +112,7 @@ export default function WhyPlanzia() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <p className="text-lg text-gray-600 leading-relaxed mb-8">
-              Whether it's a <span className="font-semibold text-venue-indigo">society event</span>, <span className="font-semibold text-venue-indigo">mall activation</span>, <span className="font-semibold text-venue-indigo">IT park activity</span>, or a <span className="font-semibold text-venue-indigo">private celebration</span>, Planzia makes the process seamless for both <span className="font-semibold text-venue-indigo">event organizers</span> and <span className="font-semibold text-venue-indigo">venue partners</span>.
+              Whether you're orchestrating a <span className="font-semibold text-venue-indigo">community celebration</span>, launching a <span className="font-semibold text-venue-indigo">bold brand activation</span>, hosting a <span className="font-semibold text-venue-indigo">corporate gathering</span>, or planning a <span className="font-semibold text-venue-indigo">dream personal event</span>—Planzia transforms the experience for everyone. Organizers get clarity and confidence. Venues get growth and visibility. Magic happens at the intersection.
             </p>
           </div>
         </div>
@@ -123,10 +123,10 @@ export default function WhyPlanzia() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              Why Choose Planzia?
+              Six Reasons Smart Event Planners Choose Planzia
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Discover the advantages that make Planzia the preferred choice for event planning
+              Discover what sets us apart from the rest and why thousands trust us with their most important moments
             </p>
           </div>
 

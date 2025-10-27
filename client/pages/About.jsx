@@ -44,7 +44,7 @@ export default function About() {
               animate="visible"
               transition={transition}
             >
-              About VenueKart
+              Reimagining Venue Discovery
             </motion.h1>
             <motion.p
               className="text-xl text-white/90 mb-8 max-w-4xl mx-auto leading-relaxed"
@@ -53,7 +53,7 @@ export default function About() {
               animate="visible"
               transition={{ ...transition, delay: 0.1 }}
             >
-              At VenueKart, we believe that finding the perfect space should be as seamless as planning your event. We are India's first full-stack platform dedicated to event venue discovery and booking.
+              At Planzia, we've revolutionized how events come to life. We're India's premier platform connecting visionary event planners with exceptional venues—transparent, seamless, and built for modern celebrations.
             </motion.p>
 
             {/* Statistics from PDF */}
@@ -93,10 +93,10 @@ export default function About() {
             transition={transition}
           >
             <h2 className="text-3xl font-bold text-venue-dark mb-6">
-              Who We Are
+              Our Story
             </h2>
             <p className="text-gray-600 text-lg leading-relaxed">
-              Founded under <span className="font-semibold text-venue-indigo">Virtues Seven Events Pvt. Ltd.</span>, VenueKart brings together societies, malls, IT parks, and open spaces into one easy-to-use digital marketplace. Whether you're hosting a wedding, a corporate activation, a community gathering, or a brand promotion, VenueKart ensures that you discover, book, and manage venues with just a few clicks.
+              Built under <span className="font-semibold text-venue-indigo">Virtues Seven Events Pvt. Ltd.</span>, Planzia unites the most vibrant event spaces—from residential societies and premium malls to tech parks and sprawling open grounds—into one intelligent, user-friendly platform. Whether you're orchestrating a dream wedding, launching a brand experience, organizing community events, or creating corporate moments, Planzia empowers you to discover, book, and execute with confidence.
             </p>
           </motion.div>
         </div>
@@ -117,10 +117,10 @@ export default function About() {
             >
               <h3 className="text-3xl font-bold text-venue-dark mb-6">Our Mission</h3>
               <p className="text-gray-600 leading-relaxed text-lg">
-                To transform venue booking into a hassle-free, transparent, and tech-driven experience, empowering both users and venue partners with tools for better planning, execution, and growth.
+                To revolutionize venue booking by creating an effortless, transparent, and intelligent platform. We empower event creators and venue partners alike with smart tools, genuine trust, and exceptional experiences at every step of the journey.
               </p>
             </motion.div>
-            
+
             {/* Our Vision */}
             <motion.div
               className="text-center lg:text-left"
@@ -132,7 +132,7 @@ export default function About() {
             >
               <h3 className="text-3xl font-bold text-venue-dark mb-6">Our Vision</h3>
               <p className="text-gray-600 leading-relaxed text-lg">
-                To become India's largest and most trusted venue booking ecosystem, enabling millions of events every year while driving value for venue owners and customers alike.
+                To become the most loved and trusted platform in India, where millions of remarkable events are born each year. We envision a vibrant ecosystem where every celebration is effortless, every booking is transparent, and every moment becomes unforgettable.
               </p>
             </motion.div>
           </div>
@@ -151,30 +151,30 @@ export default function About() {
             transition={transition}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              What We Offer
+              What Makes Us Different
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              We provide a comprehensive platform that makes venue booking simple and transparent
+              A comprehensive platform engineered for simplicity, trust, and exceptional results
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {[{
               icon: Search,
-              title: 'Discover Easily',
-              desc: 'Explore a curated list of verified venues that meet your specific requirements.'
+              title: 'Intelligent Discovery',
+              desc: 'Browse hand-curated venues filtered precisely to match your vision and requirements.'
             },{
               icon: CheckCircle,
-              title: 'Seamless Booking',
-              desc: 'Hassle-free process with instant confirmations and transparent pricing.'
+              title: 'Effortless Booking',
+              desc: 'A streamlined experience from search to confirmation with complete transparency every step.'
             },{
               icon: Handshake,
-              title: 'Trusted Partners',
-              desc: 'Work with reliable spaces and event support you can count on.'
+              title: 'Trusted Network',
+              desc: 'Partner with verified, reliable venues backed by our commitment to quality and excellence.'
             },{
               icon: TrendingUp,
-              title: 'Growing Network',
-              desc: '500+ societies, 25+ malls, 50+ IT parks & open spaces and growing every day.'
+              title: 'Thriving Ecosystem',
+              desc: '500+ societies, 25+ premier malls, 50+ IT parks, and countless open spaces—all expanding daily.'
             }].map((item, idx) => {
               const Icon = item.icon;
               return (
@@ -218,10 +218,10 @@ export default function About() {
             transition={transition}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              VenueKart by the Numbers
+              Our Impact by the Numbers
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Our growing network spans across India, connecting event planners with perfect venues
+              A rapidly expanding network dedicated to transforming how India celebrates and connects
             </p>
           </motion.div>
 
@@ -269,7 +269,7 @@ export default function About() {
             viewport={{ once: true, amount: 0.2 }}
             transition={transition}
           >
-            We Don't Just Book Venues
+            We Create Moments, Not Just Bookings
           </motion.h2>
           <motion.p
             className="text-xl text-gray-600 leading-relaxed"
@@ -279,7 +279,7 @@ export default function About() {
             viewport={{ once: true, amount: 0.2 }}
             transition={{ ...transition, delay: 0.05 }}
           >
-            At VenueKart, we help you <span className="font-semibold text-venue-indigo">bring your celebrations to life</span>.
+            At Planzia, every venue selection is a step toward <span className="font-semibold text-venue-indigo">crafting memories that last forever</span>.
           </motion.p>
         </div>
       </section>

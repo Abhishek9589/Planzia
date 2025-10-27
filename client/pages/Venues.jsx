@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { AutocompleteInput } from '@/components/ui/autocomplete-input';
+import { RatingDisplay } from '../components/RatingDisplay';
 import { useFavorites } from '../hooks/useFavorites';
 import { useAuth } from '../contexts/AuthContext';
 import venueService from '../services/venueService';
@@ -40,6 +41,8 @@ export default function Venues() {
   const [filterOptionsLoading, setFilterOptionsLoading] = useState(true);
   const [venueTypes, setVenueTypes] = useState([]);
   const [locations, setLocations] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [venuesPerPage] = useState(20);
   const [pagination, setPagination] = useState({
@@ -50,7 +53,7 @@ export default function Venues() {
     hasPrevPage: false
   });
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
 
   const handleFavoriteClick = async (venueId) => {
     if (!isLoggedIn) {
@@ -62,7 +65,8 @@ export default function Venues() {
 
   // Filter states
   const [selectedType, setSelectedType] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const [priceRange, setPriceRange] = useState([0, 500000]);
   const [capacityRange, setCapacityRange] = useState([0, 5000]);
   const [maxPrice, setMaxPrice] = useState(500000);
@@ -70,13 +74,38 @@ export default function Venues() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
+  const parseLocationToStateCity = (location) => {
+    if (!location) return { city: '', state: '' };
+    const parts = location.split(',').map(p => p.trim());
+    if (parts.length === 2) {
+      return { city: parts[0], state: parts[1] };
+    }
+    return { city: location, state: '' };
+  };
+
+  const buildStatesCitiesMap = (locationArray) => {
+    const statesMap = {};
+    locationArray.forEach(location => {
+      const { city, state } = parseLocationToStateCity(location);
+      if (state && city) {
+        if (!statesMap[state]) {
+          statesMap[state] = [];
+        }
+        if (!statesMap[state].includes(city)) {
+          statesMap[state].push(city);
+        }
+      }
+    });
+    return statesMap;
+  };
+
   useEffect(() => {
     loadFilterOptions();
   }, []);
 
   useEffect(() => {
     loadVenues();
-  }, [currentPage, selectedType, selectedLocation, searchQuery]);
+  }, [currentPage, selectedType, selectedState, selectedCity, searchQuery]);
 
   useEffect(() => {
     const location = searchParams.get('location');
@@ -84,8 +113,11 @@ export default function Venues() {
     const type = searchParams.get('type');
 
     if (location) {
-      setSelectedLocation(location);
+      const { city, state } = parseLocationToStateCity(location);
+      if (state) setSelectedState(state);
+      if (city) setSelectedCity(city);
     }
+
     if (venue) {
       setSearchQuery(venue);
     }
@@ -108,6 +140,11 @@ export default function Venues() {
       setVenueTypes(options.venueTypes || []);
       setLocations(options.locations || []);
 
+      const statesCitiesMap = buildStatesCitiesMap(options.locations || []);
+      const statesList = Object.keys(statesCitiesMap).sort();
+      setStates(statesList);
+      setCities([]);
+
       if (options.priceRange) {
         const roundedMaxPrice = Math.ceil(options.priceRange.max / 10000) * 10000;
         setMaxPrice(roundedMaxPrice);
@@ -120,11 +157,14 @@ export default function Venues() {
         setCapacityRange([0, roundedMaxCapacity]);
       }
 
-      console.log('Loaded filter options:', options);
+      console.log('Loaded filter options with states:', statesList);
     } catch (error) {
       console.error('Error loading filter options:', error);
       setVenueTypes(VENUE_TYPES);
       setLocations(PUNE_AREAS);
+      const statesCitiesMap = buildStatesCitiesMap(PUNE_AREAS);
+      setStates(Object.keys(statesCitiesMap).sort());
+      setCities([]);
     } finally {
       setFilterOptionsLoading(false);
     }
@@ -134,10 +174,17 @@ export default function Venues() {
     try {
       setLoading(true);
 
+      let location = undefined;
+      if (selectedCity && selectedState) {
+        location = `${selectedCity}, ${selectedState}`;
+      } else if (selectedState) {
+        location = selectedState;
+      }
+
       const filters = {
         page: currentPage,
         limit: venuesPerPage,
-        location: selectedLocation || undefined,
+        location: location,
         type: selectedType || undefined,
         search: searchQuery || undefined
       };
@@ -228,6 +275,19 @@ export default function Venues() {
       venue.capacity >= capacityRange[0] && venue.capacity <= capacityRange[1]
     );
 
+    // Sort venues to show user's location venues first (only if user hasn't explicitly selected a state)
+    if (user && user.city && !selectedState && filtered.length > 0) {
+      const userCityVenues = filtered.filter(venue =>
+        venue.location?.toLowerCase().includes(user.city.toLowerCase())
+      );
+      const otherVenues = filtered.filter(venue =>
+        !venue.location?.toLowerCase().includes(user.city.toLowerCase())
+      );
+
+      // Return user's location venues first, then other venues
+      filtered = [...userCityVenues, ...otherVenues];
+    }
+
     return filtered;
   };
 
@@ -237,7 +297,7 @@ export default function Venues() {
     if (currentPage !== 1) {
       setCurrentPage(1);
     }
-  }, [selectedType, selectedLocation, searchQuery]);
+  }, [selectedType, selectedState, selectedCity, searchQuery]);
 
 
   const handlePageChange = (page) => {
@@ -247,7 +307,8 @@ export default function Venues() {
 
   const clearFilters = () => {
     setSelectedType("");
-    setSelectedLocation("");
+    setSelectedState("");
+    setSelectedCity("");
     setSearchQuery("");
     setShowFavoritesOnly(false);
     setCurrentPage(1);
@@ -333,18 +394,41 @@ export default function Venues() {
                 />
               </div>
 
-              {/* Location */}
+              {/* State */}
               <div className="space-y-2 mb-6">
-                <label className="text-sm font-medium text-gray-700">Location</label>
+                <label className="text-sm font-medium text-gray-700">State</label>
                 <AutocompleteInput
-                  options={filterOptionsLoading ? ['Loading...'] : locations}
-                  value={selectedLocation}
-                  onChange={setSelectedLocation}
-                  placeholder={filterOptionsLoading ? "Loading..." : "Select location..."}
-                  disabled={filterOptionsLoading}
+                  options={filterOptionsLoading ? ['Loading...'] : states}
+                  value={selectedState}
+                  onChange={(value) => {
+                    setSelectedState(value);
+                    setSelectedCity("");
+                    if (value && locations.length > 0) {
+                      const statesCitiesMap = buildStatesCitiesMap(locations);
+                      const citiesForState = statesCitiesMap[value] || [];
+                      setCities(citiesForState.sort());
+                    }
+                  }}
+                  placeholder={filterOptionsLoading ? "Loading..." : "Select state..."}
+                  disabled={filterOptionsLoading || states.length === 0}
                   className="w-full"
                 />
               </div>
+
+              {/* City */}
+              {selectedState && (
+                <div className="space-y-2 mb-6">
+                  <label className="text-sm font-medium text-gray-700">City</label>
+                  <AutocompleteInput
+                    options={cities}
+                    value={selectedCity}
+                    onChange={setSelectedCity}
+                    placeholder="Select city..."
+                    disabled={cities.length === 0}
+                    className="w-full"
+                  />
+                </div>
+              )}
 
               {/* Price Range */}
               <div className="space-y-2 mb-6">
@@ -432,7 +516,7 @@ export default function Venues() {
                 >
                   <p className="text-gray-600">
                     Showing {filteredVenues.length} of {pagination.totalCount} venues
-                    {showFavoritesOnly || selectedType || selectedLocation || searchQuery || (priceRange[0] > 0) || (capacityRange[0] > 0) ? ' (filtered)' : ''}
+                    {showFavoritesOnly || selectedType || selectedState || selectedCity || searchQuery || (priceRange[0] > 0) || (capacityRange[0] > 0) ? ' (filtered)' : ''}
                   </p>
                   {pagination.totalPages > 1 && (
                     <div className="text-sm text-gray-600">
@@ -499,6 +583,10 @@ export default function Venues() {
                           <div className="flex items-center text-gray-600 mb-4">
                             <Users className="h-4 w-4 mr-1 flex-shrink-0" />
                             <span className="text-sm">Up to {venue.capacity} guests</span>
+                          </div>
+
+                          <div className="mb-4">
+                            <RatingDisplay venueId={venue.id} />
                           </div>
 
                           <div className="mt-auto space-y-3">

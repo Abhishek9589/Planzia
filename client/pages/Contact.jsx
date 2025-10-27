@@ -25,30 +25,30 @@ import { motion } from 'framer-motion';
 
 const contactInfo = [
   {
-    title: "Customer Support",
-    description: "For general queries and support",
-    value: "support@venuekart.in",
+    title: "Support Team",
+    description: "We're here to help with any questions or concerns",
+    value: "info@planzia.demo",
     icon: Mail,
-    link: "mailto:support@venuekart.in"
+    link: "mailto:info@planzia.demo"
   },
   {
-    title: "Partnerships",
-    description: "For venue partnerships",
-    value: "partners@venuekart.in",
+    title: "Partner with Us",
+    description: "Interested in joining our growing venue network?",
+    value: "partnerships@planzia.demo",
     icon: Handshake,
-    link: "mailto:partners@venuekart.in"
+    link: "mailto:partnerships@planzia.demo"
   },
   {
-    title: "Call Us",
-    description: "Mon-Fri from 8am to 8pm",
-    value: "+91-8806621666",
+    title: "Speak with Our Team",
+    description: "Monday–Friday, 9:00 AM to 6:00 PM IST",
+    value: "+91-9876543210",
     icon: Phone,
-    link: "tel:+918806621666"
+    link: "tel:+919876543210"
   },
   {
-    title: "Visit Us",
-    description: "VenueKart (Virtues Seven Events Pvt. Ltd.)",
-    value: "Pune, Maharashtra, India",
+    title: "Visit Our Office",
+    description: "Planzia Demo Office",
+    value: "New Delhi, India",
     icon: MapPin,
     link: null
   }
@@ -57,25 +57,25 @@ const contactInfo = [
 const socialLinks = [
   {
     name: "Facebook",
-    handle: "VenueKart.in",
+    handle: "facebook.com/planzia.demo",
     icon: Facebook,
     color: "text-blue-600"
   },
   {
     name: "Instagram",
-    handle: "@venuekart.in",
+    handle: "@planzia_demo",
     icon: Instagram,
     color: "text-pink-600"
   },
   {
     name: "LinkedIn",
-    handle: "VenueKart.in",
+    handle: "linkedin.com/company/planzia-demo",
     icon: Linkedin,
     color: "text-blue-700"
   },
   {
     name: "WhatsApp",
-    handle: "Chat with us instantly",
+    handle: "+91-9876543210",
     icon: MessageCircle,
     color: "text-green-600"
   }
@@ -83,16 +83,16 @@ const socialLinks = [
 
 const faqs = [
   {
-    question: "How can I book a venue?",
-    answer: "Simply browse venues on our platform, select your preferred one, and confirm your booking online."
+    question: "How do I get started with Planzia?",
+    answer: "Create your account in seconds, browse our curated venues, and book with confidence. Our intuitive platform makes finding your perfect space effortless and enjoyable."
   },
   {
-    question: "What if I want to cancel my booking?",
-    answer: "Please refer to our Cancellation & Refund Policy outlined in our Terms & Conditions."
+    question: "Can I modify or cancel my booking?",
+    answer: "Absolutely. Check our Cancellation & Refund Policy in Terms & Conditions for full details on how we make changes easy and fair for everyone."
   },
   {
-    question: "Can I list my venue on VenueKart?",
-    answer: "Yes! Drop us an email at partners@venuekart.in and our team will help onboard your venue."
+    question: "Do you accept venue partners?",
+    answer: "Yes! We're always excited to onboard exceptional venues. Reach out to partnerships@planzia.demo and let's explore partnership opportunities together."
   }
 ];
 
@@ -152,7 +152,7 @@ export default function Contact() {
               animate="visible"
               transition={transition}
             >
-              We'd Love to Hear from You!
+              Let's Connect & Create Magic
             </motion.h1>
             <motion.p
               className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed"
@@ -161,7 +161,7 @@ export default function Contact() {
               animate="visible"
               transition={{ ...transition, delay: 0.1 }}
             >
-              At VenueKart, we're committed to making your event planning and venue booking experience seamless. Whether you have a question, need support, or want to partner with us, our team is always ready to connect with you.
+              Your vision matters to us. Whether you're seeking support, exploring partnerships, or have brilliant ideas to share—our team is here and genuinely excited to help you succeed.
             </motion.p>
           </div>
         </div>
@@ -179,10 +179,10 @@ export default function Contact() {
             transition={transition}
           >
             <h2 className="text-2xl font-bold text-venue-dark mb-6">
-              Get in Touch
+              Reach Out Today
             </h2>
             <p className="text-gray-600 mb-8">
-              Reach out to us through any of these channels. We're always ready to assist you.
+              Choose any channel that works best for you. We're committed to responding promptly and thoughtfully.
             </p>
 
             <div className="space-y-6 mb-12">
@@ -230,7 +230,7 @@ export default function Contact() {
               viewport={{ once: true, amount: 0.2 }}
               transition={transition}
             >
-              <h3 className="text-xl font-bold text-venue-dark mb-4">Find Us Online</h3>
+              <h3 className="text-xl font-bold text-venue-dark mb-4">Follow Our Journey</h3>
               <div className="space-y-3">
                 {socialLinks.map((social, index) => {
                   const Icon = social.icon;
@@ -256,9 +256,9 @@ export default function Contact() {
           >
             <Card className="shadow-lg border-0 bg-white">
               <CardHeader className="pb-6">
-                <CardTitle className="text-3xl text-venue-dark font-bold">Send us a Message</CardTitle>
+                <CardTitle className="text-3xl text-venue-dark font-bold">Share Your Thoughts</CardTitle>
                 <p className="text-gray-600 text-lg">
-                  Fill out the form below and we'll get back to you as soon as possible.
+                  Drop us a line and we'll respond with the care and attention you deserve.
                 </p>
               </CardHeader>
               <CardContent className="px-8 pb-8">
@@ -373,10 +373,10 @@ export default function Contact() {
         >
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              Frequently Asked Questions
+              Quick Answers to Your Questions
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Find quick answers to common questions about VenueKart
+              Get instant clarity on common inquiries—because your time is valuable
             </p>
           </div>
 
