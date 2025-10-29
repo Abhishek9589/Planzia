@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserFriendlyError } from '../lib/errorMessages';
 import { Button } from '@/components/ui/button';
@@ -270,12 +270,19 @@ export default function AccountSettings() {
       );
 
       const statusLabel = newStatus === 'confirmed' ? 'accepted' : 'declined';
-      toast.success(`Booking ${statusLabel} successfully`);
+      toast({
+        title: 'Booking Updated',
+        description: `Booking ${statusLabel} successfully`
+      });
 
       await fetchBookings();
     } catch (error) {
       console.error('Error updating booking status:', error);
-      toast.error(getUserFriendlyError(error.message || error, 'general'));
+      toast({
+        title: 'Error',
+        description: getUserFriendlyError(error.message || error, 'general'),
+        variant: 'destructive'
+      });
     } finally {
       setProcessingBookingId(null);
     }
@@ -294,10 +301,17 @@ export default function AccountSettings() {
         )
       );
 
-      toast.success(response.message);
+      toast({
+        title: 'Success',
+        description: response.message
+      });
     } catch (error) {
       console.error('Error toggling venue:', error);
-      toast.error(getUserFriendlyError(error.message || error, 'general'));
+      toast({
+        title: 'Error',
+        description: getUserFriendlyError(error.message || error, 'general'),
+        variant: 'destructive'
+      });
     } finally {
       setTogglingVenueId(null);
     }
@@ -331,11 +345,18 @@ export default function AccountSettings() {
               booking_id: bookingId
             });
 
-            toast.success('Payment successful! Your booking is confirmed.');
+            toast({
+              title: 'Payment Successful',
+              description: 'Payment successful! Your booking is confirmed.'
+            });
             await fetchCustomerBookings();
           } catch (error) {
             console.error('Payment verification failed:', error);
-            toast.error(getUserFriendlyError(error.message || error, 'general'));
+            toast({
+              title: 'Payment Failed',
+              description: getUserFriendlyError(error.message || error, 'general'),
+              variant: 'destructive'
+            });
           } finally {
             setProcessingPaymentBookingId(null);
           }
@@ -351,7 +372,10 @@ export default function AccountSettings() {
         modal: {
           ondismiss: () => {
             setProcessingPaymentBookingId(null);
-            toast.info('Payment cancelled');
+            toast({
+              title: 'Payment Cancelled',
+              description: 'You can retry payment anytime from your dashboard.'
+            });
           }
         }
       };
@@ -364,7 +388,11 @@ export default function AccountSettings() {
       const rzp = new Razorpay(options);
       rzp.on('payment.failed', (response) => {
         console.error('Payment failed:', response.error);
-        toast.error(response.error.description || 'Payment failed');
+        toast({
+          title: 'Payment Failed',
+          description: response.error.description || 'Payment failed',
+          variant: 'destructive'
+        });
         setProcessingPaymentBookingId(null);
       });
 
@@ -372,7 +400,11 @@ export default function AccountSettings() {
     } catch (error) {
       console.error('Error initiating payment:', error);
       const userFriendlyMessage = getUserFriendlyError(error.message || error, 'payment');
-      toast.error(userFriendlyMessage);
+      toast({
+        title: 'Error',
+        description: userFriendlyMessage,
+        variant: 'destructive'
+      });
       setProcessingPaymentBookingId(null);
     }
   };
@@ -467,7 +499,10 @@ export default function AccountSettings() {
         setEmailVerificationOtp('');
         setEmailVerificationOpen(true);
         setOtpResendCooldown(60);
-        toast.success('Verification code sent to your new email address');
+        toast({
+        title: 'Verification Code Sent',
+        description: 'Verification code sent to your new email address'
+      });
         return;
       }
 
@@ -500,7 +535,10 @@ export default function AccountSettings() {
         otp: emailVerificationOtp
       });
 
-      toast.success('✅ Email verified and profile updated successfully!');
+      toast({
+        title: 'Email Verified',
+        description: '✅ Email verified and profile updated successfully!'
+      });
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
 
@@ -536,7 +574,11 @@ export default function AccountSettings() {
       }
 
       setErrors({ emailVerification: userFriendlyMessage });
-      toast.error(userFriendlyMessage);
+      toast({
+        title: 'Verification Failed',
+        description: userFriendlyMessage,
+        variant: 'destructive'
+      });
     } finally {
       setEmailVerificationLoading(false);
     }
@@ -554,14 +596,21 @@ export default function AccountSettings() {
         email: newEmail
       });
 
-      toast.success('✅ Verification code sent to your email');
+      toast({
+        title: 'Code Sent',
+        description: '✅ Verification code sent to your email'
+      });
       setOtpResendCooldown(60);
       setEmailVerificationOtp('');
     } catch (error) {
       console.error('Error resending OTP:', error);
       const errorMsg = error?.response?.data?.error || error.message || '';
       const userFriendlyMessage = '⚠️ Unable to send the code. Please check your email is correct and try again.';
-      toast.error(userFriendlyMessage);
+      toast({
+        title: 'Error Sending Code',
+        description: userFriendlyMessage,
+        variant: 'destructive'
+      });
     } finally {
       setOtpResendLoading(false);
     }
@@ -590,7 +639,10 @@ export default function AccountSettings() {
       });
 
       setErrors({ password: '' });
-      toast.success('✅ Your password has been changed successfully!');
+      toast({
+        title: 'Password Changed',
+        description: '✅ Your password has been changed successfully!'
+      });
     } catch (error) {
       console.error('Error changing password:', error);
       const errorMsg = error?.response?.data?.error || error.message || '';
@@ -611,7 +663,11 @@ export default function AccountSettings() {
       }
 
       setErrors({ password: userFriendlyMessage });
-      toast.error(userFriendlyMessage);
+      toast({
+        title: 'Password Change Failed',
+        description: userFriendlyMessage,
+        variant: 'destructive'
+      });
     } finally {
       setLoading(false);
     }
@@ -652,12 +708,19 @@ export default function AccountSettings() {
       await apiClient.postJson('/api/auth/delete-account', { password });
 
       await logout();
-      toast.success('Account deleted successfully');
+      toast({
+        title: 'Account Deleted',
+        description: 'Account deleted successfully'
+      });
       navigate('/');
     } catch (error) {
       console.error('Error deleting account:', error);
       const userFriendlyMessage = getUserFriendlyError(error.message || error, 'general');
-      toast.error(userFriendlyMessage);
+      toast({
+        title: 'Deletion Failed',
+        description: userFriendlyMessage,
+        variant: 'destructive'
+      });
     } finally {
       setDeleteAccountLoading(false);
       setDeleteAccountDialogOpen(false);
@@ -1778,7 +1841,7 @@ export default function AccountSettings() {
                                     <div className="bg-white rounded-lg p-3 mb-3">
                                       <p className="text-xs text-gray-500 mb-1">Amount</p>
                                       <p className="text-2xl font-bold text-venue-indigo">
-                                        ₹{Number(notification.amount || 0).toLocaleString('en-IN')}
+                                        ���{Number(notification.amount || 0).toLocaleString('en-IN')}
                                       </p>
                                     </div>
 

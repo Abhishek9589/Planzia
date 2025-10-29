@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/use-toast';
 
 import { scrollToTop } from '@/lib/navigation';
 import { Button } from './ui/button';
@@ -29,7 +29,10 @@ export default function Navigation() {
   const handleLogout = async () => {
     await logout();
     setIsMenuOpen(false);
-    toast.success('User logged out');
+    toast({
+      title: 'Logged Out',
+      description: 'You have been successfully logged out.'
+    });
     navigate('/');
   };
 

@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserFriendlyError } from '../lib/errorMessages';
 import { AlertCircle, CheckCircle, ArrowLeft, RotateCw } from 'lucide-react';
@@ -101,6 +102,10 @@ export default function VerifyOTP() {
     try {
       await verifyOTP(email, otpCode);
       setSuccess('Verification successful!');
+      toast({
+        title: 'Welcome to Planzia!',
+        description: 'Your account has been successfully verified and created.'
+      });
       setTimeout(() => navigate('/'), 1500);
     } catch (err) {
       setError(getUserFriendlyError(err, 'otp'));
@@ -122,6 +127,10 @@ export default function VerifyOTP() {
       setResendCooldown(60); // 60 second cooldown
       otpRefs.current[0]?.focus();
       setSuccess('New verification code sent to your email');
+      toast({
+        title: 'Code Sent',
+        description: 'New verification code sent to your email'
+      });
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       setError(getUserFriendlyError(err, 'otp'));

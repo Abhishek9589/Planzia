@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { AlertCircle, Eye, EyeOff, Clock } from 'lucide-react';
 import { getUserFriendlyError } from '../lib/errorMessages';
@@ -65,6 +66,10 @@ export default function SignIn() {
 
     try {
       await loginWithPassword(formData.email, formData.password);
+      toast({
+        title: 'Welcome Back!',
+        description: 'You have been successfully signed in.'
+      });
       navigate('/');
     } catch (error) {
       console.error('Login error:', error);
@@ -79,6 +84,10 @@ export default function SignIn() {
       setIsLoading(true);
       setError('');
       await loginWithGoogle();
+      toast({
+        title: 'Welcome Back!',
+        description: 'You have been successfully signed in with Google.'
+      });
       navigate('/');
     } catch (error) {
       console.error('Google sign in error:', error);

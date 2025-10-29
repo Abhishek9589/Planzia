@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { AutocompleteInput } from '@/components/ui/autocomplete-input';
+import { toast } from '@/components/ui/use-toast';
 import { User, Building, Mail, Eye, EyeOff, Lock, Phone, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserFriendlyError } from '../lib/errorMessages';
@@ -298,6 +299,10 @@ export default function SignUp() {
                         setLoading(true);
                         setError('');
                         await loginWithGoogle(userType);
+                        toast({
+                          title: 'Welcome to Planzia!',
+                          description: 'Your account has been successfully created with Google.'
+                        });
                         navigate('/');
                       } catch (error) {
                         console.error('Google auth error in SignUp:', error);

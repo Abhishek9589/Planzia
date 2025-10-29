@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { AlertCircle, CheckCircle, ArrowLeft, RotateCw } from 'lucide-react';
 import { getUserFriendlyError } from '../lib/errorMessages';
@@ -51,6 +52,10 @@ export default function ForgotPassword() {
       await forgotPassword(email);
       setSuccess(true);
       setCurrentStep(2);
+      toast({
+        title: 'Code Sent',
+        description: 'A verification code has been sent to your email'
+      });
     } catch (error) {
       console.error('Forgot password error:', error);
       const errorMsg = error?.response?.data?.error || error.message || '';
@@ -142,6 +147,10 @@ export default function ForgotPassword() {
       setSuccess(false);
       setError('');
       setResendCooldown(0); // Reset cooldown when code is verified
+      toast({
+        title: 'Code Verified',
+        description: 'Your verification code is valid. Please enter your new password.'
+      });
     } catch (error) {
       console.error('OTP verification error:', error);
       const errorMsg = error?.response?.data?.error || error.message || '';
@@ -176,6 +185,10 @@ export default function ForgotPassword() {
       setOtpDigits(['', '', '', '', '', '']);
       setResendCooldown(60); // 60 second cooldown
       otpRefs.current[0]?.focus();
+      toast({
+        title: 'Code Resent',
+        description: 'A new verification code has been sent to your email'
+      });
     } catch (error) {
       console.error('Resend OTP error:', error);
       const errorMsg = error?.response?.data?.error || error.message || '';
@@ -227,6 +240,10 @@ export default function ForgotPassword() {
       setSuccess(true);
       setCurrentStep(4);
       setError('');
+      toast({
+        title: 'Password Reset Successful',
+        description: 'Your password has been successfully reset. Please sign in with your new password.'
+      });
     } catch (error) {
       console.error('Reset password error:', error);
       const errorMsg = error?.response?.data?.error || error.message || '';
