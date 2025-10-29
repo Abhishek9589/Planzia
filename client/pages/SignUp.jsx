@@ -200,7 +200,7 @@ export default function SignUp() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
       <div className="w-full max-w-6xl">
         {/* Header */}
         <motion.div
@@ -346,7 +346,7 @@ export default function SignUp() {
                             value={formData.fullName}
                             onChange={handleChange}
                             placeholder="Enter your full name"
-                            className="pl-10 h-12 border-gray-300 focus:border-venue-indigo focus:ring-venue-indigo"
+                            className="pl-10 h-12"
                           />
                         </div>
                       </div>
@@ -365,7 +365,7 @@ export default function SignUp() {
                             value={formData.email}
                             onChange={handleChange}
                             placeholder="Enter your email"
-                            className="pl-10 h-12 border-gray-300 focus:border-venue-indigo focus:ring-venue-indigo"
+                            className="pl-10 h-12"
                           />
                         </div>
                       </div>
@@ -387,7 +387,7 @@ export default function SignUp() {
                             value={formData.phoneNumber}
                             onChange={handleChange}
                             placeholder="Enter your 10-digit phone number"
-                            className="pl-10 h-12 border-gray-300 focus:border-venue-indigo focus:ring-venue-indigo"
+                            className="pl-10 h-12"
                           />
                         </div>
                       </div>

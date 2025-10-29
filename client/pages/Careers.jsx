@@ -90,7 +90,7 @@ const benefits = [
 
 export default function Careers() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white pt-16">
       {/* Hero Section */}
       <section className="relative h-[70vh] overflow-hidden">
         <div

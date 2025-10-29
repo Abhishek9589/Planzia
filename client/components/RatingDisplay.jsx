@@ -42,11 +42,21 @@ export function RatingDisplay({ venueId }) {
 
   return (
     <div className="flex items-center gap-2">
-      <div className="flex items-center gap-1">
-        <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-        <span className="font-semibold text-sm">{displayRating.toFixed(1)}</span>
-        <span className="text-sm text-gray-500">({displayCount})</span>
-      </div>
+      {displayRating > 0 ? (
+        <>
+          <div className="flex items-center text-venue-indigo">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={`h-4 w-4 ${i < Math.floor(displayRating) ? 'fill-venue-indigo' : 'fill-gray-300'}`}
+              />
+            ))}
+          </div>
+          <span className="text-sm text-gray-600">({displayRating.toFixed(1)})</span>
+        </>
+      ) : (
+        <span className="text-sm text-gray-500">No ratings yet</span>
+      )}
     </div>
   );
 }

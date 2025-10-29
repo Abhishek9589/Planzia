@@ -89,7 +89,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
       <div className="w-full max-w-md">
         {showExpiredNotice && (
           <motion.div
@@ -157,7 +157,7 @@ export default function SignIn() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="h-11 border-gray-300 focus:border-venue-purple focus:ring-venue-purple"
+                    className="h-11"
                   />
                 </div>
 
@@ -174,7 +174,7 @@ export default function SignIn() {
                       value={formData.password}
                       onChange={handleChange}
                       required
-                      className="h-11 pr-10 border-gray-300 focus:border-venue-purple focus:ring-venue-purple"
+                      className="h-11 pr-10"
                     />
                     <button
                       type="button"
@@ -206,13 +206,10 @@ export default function SignIn() {
                 </Button>
               </form>
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-gray-300" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-gray-500">Or continue with</span>
-                </div>
+              <div className="flex items-center gap-4">
+                <div className="flex-1 border-t border-gray-300" />
+                <span className="text-xs uppercase text-gray-500 whitespace-nowrap">Or continue with</span>
+                <div className="flex-1 border-t border-gray-300" />
               </div>
 
               <Button

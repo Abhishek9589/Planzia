@@ -9,8 +9,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { AuthProvider } from "./contexts/AuthContext";
+import { DialogProvider } from "./contexts/DialogContext";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
+import ScrollToTopBottom from "./components/ScrollToTopBottom";
 import ErrorBoundary from "./components/ui/error-boundary";
 import TokenExpiredNotice from "./components/TokenExpiredNotice";
 import ErrorDialog from "./components/ErrorDialog";
@@ -43,7 +45,9 @@ const queryClient = new QueryClient();
 const Shell = () => {
   const location = useLocation();
   const authPaths = new Set(["/signin", "/signup", "/verify-otp", "/forgot-password"]);
-  const hideFooter = authPaths.has(location.pathname);
+  const isVenueDetailPage = location.pathname.match(/^\/venue\/[^/]+$/);
+  const isAccountPage = location.pathname === "/account-settings" || location.pathname.startsWith("/admin");
+  const hideFooter = authPaths.has(location.pathname) || !!isVenueDetailPage || isAccountPage;
 
   return (
     <>
@@ -88,6 +92,7 @@ const Shell = () => {
       </main>
       {!hideFooter && <Footer />}
       <TokenExpiredNotice />
+      <ScrollToTopBottom />
     </>
   );
 };
@@ -109,14 +114,16 @@ const App = () => {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <ErrorDialog />
-            <BrowserRouter>
-              <Shell />
-            </BrowserRouter>
-          </TooltipProvider>
+          <DialogProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <ErrorDialog />
+              <BrowserRouter>
+                <Shell />
+              </BrowserRouter>
+            </TooltipProvider>
+          </DialogProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ErrorBoundary>

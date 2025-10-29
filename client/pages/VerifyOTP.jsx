@@ -2,9 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserFriendlyError } from '../lib/errorMessages';
+import { AlertCircle, CheckCircle, ArrowLeft, RotateCw } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] };
 const fadeUp = {
@@ -13,77 +17,81 @@ const fadeUp = {
 };
 
 export default function VerifyOTP() {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const { verifyOTP, resendOTP } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const inputRefs = useRef([]);
-  
+  const otpRefs = useRef({});
+
   const email = location.state?.email || 'your@email.com';
-  const phone = location.state?.phone || 'your mobile';
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
 
-    return () => clearInterval(timer);
-  }, []);
+  const handleOtpDigitChange = (index, value) => {
+    // Only allow numeric input
+    const numericValue = value.replace(/[^0-9]/g, '');
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+    if (numericValue.length > 1) {
+      // If pasted multiple digits, fill remaining fields
+      const newDigits = [...otpDigits];
+      for (let i = index; i < 6 && i - index < numericValue.length; i++) {
+        newDigits[i] = numericValue[i - index];
+      }
+      setOtpDigits(newDigits);
 
-  const handleOtpChange = (index, value) => {
-    if (!/^\d*$/.test(value)) return;
+      // Focus on next empty field or last field
+      const nextIndex = Math.min(index + numericValue.length, 5);
+      if (otpRefs.current[nextIndex]) {
+        setTimeout(() => otpRefs.current[nextIndex]?.focus(), 0);
+      }
+    } else {
+      const newDigits = [...otpDigits];
+      newDigits[index] = numericValue;
+      setOtpDigits(newDigits);
 
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-    setError('');
-
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
+      // Auto-focus next field if digit was entered
+      if (numericValue && index < 5) {
+        setTimeout(() => otpRefs.current[index + 1]?.focus(), 0);
+      }
     }
   };
 
-  const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-    if (e.key === 'v' && e.ctrlKey) {
-      e.preventDefault();
-      navigator.clipboard.readText().then(text => {
-        const digits = text.replace(/\D/g, '').slice(0, 6).split('');
-        const newOtp = [...otp];
-        digits.forEach((digit, i) => {
-          if (i < 6) newOtp[i] = digit;
-        });
-        setOtp(newOtp);
-        setError('');
-      });
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === 'Backspace') {
+      const newDigits = [...otpDigits];
+      if (otpDigits[index]) {
+        // Clear current field
+        newDigits[index] = '';
+        setOtpDigits(newDigits);
+      } else if (index > 0) {
+        // Move to previous field and clear it
+        newDigits[index - 1] = '';
+        setOtpDigits(newDigits);
+        setTimeout(() => otpRefs.current[index - 1]?.focus(), 0);
+      }
+    } else if (e.key === 'ArrowLeft' && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    } else if (e.key === 'ArrowRight' && index < 5) {
+      otpRefs.current[index + 1]?.focus();
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const otpCode = otp.join('');
-    
+    const otpCode = otpDigits.join('');
+
     if (otpCode.length !== 6) {
-      setError('Please enter the complete 6-digit code');
+      setError('Please enter the complete 6-digit verification code.');
       return;
     }
 
@@ -102,15 +110,18 @@ export default function VerifyOTP() {
   };
 
   const handleResend = async () => {
+    if (resendCooldown > 0) return;
+
     setResendLoading(true);
     setError('');
     setSuccess('');
 
     try {
       await resendOTP(email);
-      setTimeLeft(60);
-      setOtp(['', '', '', '', '', '']);
-      setSuccess('New verification code sent!');
+      setOtpDigits(['', '', '', '', '', '']);
+      setResendCooldown(60); // 60 second cooldown
+      otpRefs.current[0]?.focus();
+      setSuccess('New verification code sent to your email');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       setError(getUserFriendlyError(err, 'otp'));
@@ -120,124 +131,106 @@ export default function VerifyOTP() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-venue-lavender/20 to-venue-purple/10 flex items-center justify-center px-4 overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
       <motion.div
-        className="max-w-md w-full"
+        className="w-full max-w-md"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
         transition={transition}
       >
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20">
-          <div className="text-center mb-8">
-            <motion.h1
-              className="text-2xl font-semibold text-venue-dark mb-3"
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              transition={transition}
-            >
-              Verify OTP
-            </motion.h1>
-            <motion.p
-              className="text-gray-600 text-sm leading-relaxed"
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              transition={{ ...transition, delay: 0.05 }}
-            >
-              Enter the 6-digit code sent to your email
-            </motion.p>
-            <motion.div
-              className="mt-2 flex justify-center"
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              transition={{ ...transition, delay: 0.1 }}
-            >
-              <span className="inline-flex items-center rounded-full bg-venue-purple/10 text-venue-purple border border-venue-purple/20 px-3 py-1 text-xs font-medium">
-                {email}
-              </span>
-            </motion.div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <motion.div
-              className="flex justify-center gap-3 mb-6"
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              transition={transition}
-            >
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={el => inputRefs.current[index] = el}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleOtpChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-12 h-14 text-center text-xl font-semibold rounded-xl border-2 border-gray-200 focus:border-transparent focus:ring-2 focus:ring-venue-purple/20 focus:outline-none transition-all duration-200 bg-white/70"
-                />
-              ))}
-            </motion.div>
+        <Card className="shadow-2xl border-0">
+          <CardHeader className="space-y-2 text-center pb-6">
+            <CardTitle className="text-2xl font-bold text-venue-dark">
+              Verify Code
+            </CardTitle>
+            <CardDescription className="text-gray-600">
+              Enter the 6-digit verification code sent to your email
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {error && (
+              <Alert variant="destructive" className="border-red-200 bg-red-50">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-red-800">
+                  {error}
+                </AlertDescription>
+              </Alert>
+            )}
 
             {success && (
-              <motion.div
-                className="text-center text-green-600 text-sm bg-green-50 py-2 px-4 rounded-lg border border-green-200"
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-                transition={transition}
-              >
-                {success}
-              </motion.div>
+              <Alert className="border-green-200 bg-green-50">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800">
+                  {success}
+                </AlertDescription>
+              </Alert>
             )}
 
-            {error && (
-              <motion.div
-                className="text-center text-red-600 text-sm bg-red-50 py-2 px-4 rounded-lg border border-red-200"
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-                transition={transition}
-              >
-                {error}
-              </motion.div>
-            )}
-
-            <Button
-              type="submit"
-              disabled={loading || otp.join('').length !== 6}
-              className="w-full h-12 bg-venue-purple hover:bg-venue-indigo text-white font-medium rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  Verifying...
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex gap-2 justify-center">
+                  {otpDigits.map((digit, index) => (
+                    <input
+                      key={index}
+                      ref={(el) => {
+                        if (el) otpRefs.current[index] = el;
+                      }}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpDigitChange(index, e.target.value)}
+                      onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                      placeholder="0"
+                      className="w-12 h-12 text-center text-lg font-semibold border-2 border-gray-300 rounded-lg focus:border-venue-indigo focus:outline-none focus:ring-2 focus:ring-venue-indigo focus:ring-offset-0 transition-colors"
+                    />
+                  ))}
                 </div>
-              ) : (
-                'Verify'
-              )}
-            </Button>
+                <p className="text-xs text-gray-500 text-center">
+                  Enter the 6-digit code sent to {email}
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading || otpDigits.join('').length !== 6}
+                className="w-full h-11 bg-venue-indigo hover:bg-venue-purple text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Verifying...' : 'Verify Code'}
+              </Button>
+
+              <div className="space-y-3 border-t border-gray-200 pt-4">
+                <div className="text-center">
+                  <p className="text-sm text-gray-600 mb-2">Didn't receive the code?</p>
+                  <Button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resendCooldown > 0 || resendLoading || loading}
+                    variant="ghost"
+                    className="text-venue-indigo hover:text-venue-purple hover:bg-transparent disabled:text-gray-400 disabled:cursor-not-allowed"
+                  >
+                    <RotateCw className={`h-4 w-4 mr-2 ${resendLoading ? 'animate-spin' : ''}`} />
+                    {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : resendLoading ? 'Sending...' : 'Resend Code'}
+                  </Button>
+                </div>
+              </div>
+            </form>
 
             <div className="text-center">
-              <p className="text-gray-600 text-sm mb-2">
-                Didn't receive the code?
-              </p>
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={resendLoading || timeLeft > 0}
-                className="text-venue-purple hover:text-venue-indigo font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed underline"
+              <Button
+                variant="ghost"
+                asChild
+                className="text-venue-purple hover:text-venue-indigo"
               >
-                {resendLoading ? 'Sending...' : timeLeft > 0 ? `Resend Code (${formatTime(timeLeft)})` : 'Resend Code'}
-              </button>
+                <Link to="/signin" className="inline-flex items-center">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Sign In
+                </Link>
+              </Button>
             </div>
-          </form>
-        </div>
+          </CardContent>
+        </Card>
       </motion.div>
     </div>
   );

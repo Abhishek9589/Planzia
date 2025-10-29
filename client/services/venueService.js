@@ -136,13 +136,13 @@ class VenueService {
       const data = await apiClient.getJson(url);
 
       // Handle both old and new API response formats
-      if (data.venues && data.pagination) {
+      if (data && data.venues && data.pagination) {
         // New paginated response format
         return {
           venues: data.venues,
           pagination: data.pagination
         };
-      } else if (Array.isArray(data)) {
+      } else if (data && Array.isArray(data)) {
         // Old response format (array of venues) - convert to new format for backward compatibility
         return {
           venues: data,
@@ -155,9 +155,22 @@ class VenueService {
             hasPrevPage: false
           }
         };
+      } else if (data && typeof data === 'object') {
+        // If data exists but doesn't match expected format, return empty venues with default pagination
+        return {
+          venues: [],
+          pagination: {
+            currentPage: 1,
+            totalPages: 0,
+            totalCount: 0,
+            limit: 0,
+            hasNextPage: false,
+            hasPrevPage: false
+          }
+        };
       } else {
-        // Unexpected format
-        throw new Error('Unexpected API response format');
+        // Unexpected format or null response
+        throw new Error('Invalid API response: ' + (data === null ? 'null' : 'unexpected format'));
       }
     } catch (error) {
       console.error('Error fetching venues:', error);
@@ -238,7 +251,18 @@ class VenueService {
   async getFilterOptions() {
     try {
       // Use apiClient so production honors VITE_BACKEND_URL and dev uses same-origin proxy
-      return await apiClient.getJson(`${API_BASE}/filter-options`);
+      const data = await apiClient.getJson(`${API_BASE}/filter-options`);
+
+      if (!data || typeof data !== 'object') {
+        throw new Error('Invalid filter options response');
+      }
+
+      return {
+        venueTypes: data.venueTypes || [],
+        locations: data.locations || [],
+        priceRange: data.priceRange || { min: 0, max: 500000 },
+        capacityRange: data.capacityRange || { min: 0, max: 5000 }
+      };
     } catch (error) {
       console.error('Error fetching filter options:', error);
       const userFriendlyMessage = getUserFriendlyError(error.message || error, 'general');

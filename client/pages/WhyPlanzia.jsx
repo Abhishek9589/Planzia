@@ -1,251 +1,490 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { scrollToTop } from '@/lib/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
-  Search,
+  Zap,
   Shield,
   Clock,
-  Settings,
-  DollarSign,
+  CheckCircle,
+  ArrowRight,
   Users,
   TrendingUp,
-  CheckCircle,
-  Star,
+  Award,
+  Lightbulb,
+  Heart,
   Target,
-  ArrowRight,
-  Zap
+  Sparkles
 } from 'lucide-react';
 
-const benefits = [
-  {
-    title: "All-in-One Intelligence",
-    description: "Discover, compare, and book exceptional venues instantly. No endless phone calls, no confusing spreadsheets—just elegant simplicity.",
-    icon: Search,
-    color: "bg-blue-100 text-blue-700"
-  },
-  {
-    title: "Authentically Verified",
-    description: "Every venue is carefully vetted for quality, safety, and genuine excellence. You're always booking with confidence.",
-    icon: Shield,
-    color: "bg-green-100 text-green-700"
-  },
-  {
-    title: "Remarkably Efficient",
-    description: "Reclaim your time. Our intelligent platform eliminates hours of searching, negotiating, and coordination.",
-    icon: Clock,
-    color: "bg-purple-100 text-purple-700"
-  },
-  {
-    title: "Infinitely Flexible",
-    description: "Intimate family gatherings to massive brand activations—we adapt seamlessly to every event type and scale.",
-    icon: Settings,
-    color: "bg-orange-100 text-orange-700"
-  },
-  {
-    title: "Completely Transparent",
-    description: "See exactly what you're paying, with zero surprises. Honest pricing, secure payments, complete peace of mind.",
-    icon: DollarSign,
-    color: "bg-yellow-100 text-yellow-700"
-  },
-  {
-    title: "Mutual Growth",
-    description: "Venue partners enjoy steady bookings, enhanced visibility, and effortless management. Everyone wins.",
-    icon: TrendingUp,
-    color: "bg-indigo-100 text-indigo-700"
-  }
-];
+const transition = { duration: 0.5, ease: [0.22, 1, 0.36, 1] };
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0 }
+};
 
-const eventTypes = [
-  "Intimate Society Gatherings",
-  "Bold Brand Activations",
-  "Premium Corporate Conferences",
-  "Dream Personal Celebrations",
-  "Professional Seminars & Forums",
-  "Visionary Brand Launches",
-  "Elegant Wedding Ceremonies",
-  "Vibrant Community Events"
-];
+const stagger = {
+  visible: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
 
 export default function WhyPlanzia() {
+  const [stats, setStats] = useState({ venues: 0, users: 0, rating: 0, cities: 0 });
+
+  useEffect(() => {
+    const targets = { venues: 10000, users: 50000, rating: 4.9, cities: 100 };
+    const durations = { venues: 2000, users: 2000, rating: 1500, cities: 1800 };
+
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+
+      setStats({
+        venues: Math.min(Math.floor((elapsed / durations.venues) * targets.venues), targets.venues),
+        users: Math.min(Math.floor((elapsed / durations.users) * targets.users), targets.users),
+        rating: Math.min((elapsed / durations.rating * targets.rating).toFixed(1), targets.rating),
+        cities: Math.min(Math.floor((elapsed / durations.cities) * targets.cities), targets.cities)
+      });
+
+      if (elapsed >= Math.max(...Object.values(durations))) {
+        setStats(targets);
+        clearInterval(interval);
+      }
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-white via-white to-venue-lavender/10 pt-16">
       {/* Hero Section */}
-      <section className="relative h-[70vh] overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1511578314322-379afb476865?w=1200&h=800&fit=crop')"
-          }}
-        >
-          <div className="absolute inset-0 bg-black/60"></div>
-        </div>
+      <motion.section
+        className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={transition}
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Text and Button */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              transition={transition}
+            >
+              <h1 className="text-5xl md:text-6xl font-bold text-venue-dark mb-6 leading-tight">
+                Why Planiza? Because Great Events Deserve Smarter Planning.
+              </h1>
+              <p className="text-xl text-gray-700 mb-8 leading-relaxed max-w-xl">
+                From discovery to booking, Planiza makes event planning effortless, transparent, and reliable.
+              </p>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+              >
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gradient-to-r from-venue-indigo to-venue-indigo/80 hover:shadow-lg hover:shadow-venue-indigo/30 text-white hover:text-white transition-all duration-200"
+                  onClick={scrollToTop}
+                >
+                  <Link to="/venues">Explore Venues</Link>
+                </Button>
+              </motion.div>
+            </motion.div>
 
-        <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins">
-              The Better Way to Book
-            </h1>
-            <p className="text-xl text-white/90 mb-8 max-w-4xl mx-auto leading-relaxed">
-              At Planzia, we've reimagined venue booking entirely. It should be intuitive, transparent, delightful—never stressful or complicated.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Badge variant="secondary" className="text-lg px-4 py-2">
-                <Zap className="h-4 w-4 mr-2" />
-                Simple & Fast
-              </Badge>
-              <Badge variant="secondary" className="text-lg px-4 py-2">
-                <Shield className="h-4 w-4 mr-2" />
-                Trusted & Verified
-              </Badge>
-              <Badge variant="secondary" className="text-lg px-4 py-2">
-                <Target className="h-4 w-4 mr-2" />
-                Perfect Match
-              </Badge>
-            </div>
+            {/* Right: Image */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              transition={{ ...transition, delay: 0.2 }}
+              className="hidden lg:block"
+            >
+              <div className="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=600&h=500&fit=crop&q=80"
+                  alt="Modern event planning workspace with team collaboration"
+                  className="rounded-3xl shadow-2xl object-cover w-full h-[500px]"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-venue-indigo/5 to-transparent pointer-events-none"></div>
+              </div>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* Mission Statement */}
-      <section className="py-16">
+      {/* What Makes Planiza Different Section */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <p className="text-lg text-gray-600 leading-relaxed mb-8">
-              Whether you're orchestrating a <span className="font-semibold text-venue-indigo">community celebration</span>, launching a <span className="font-semibold text-venue-indigo">bold brand activation</span>, hosting a <span className="font-semibold text-venue-indigo">corporate gathering</span>, or planning a <span className="font-semibold text-venue-indigo">dream personal event</span>—Planzia transforms the experience for everyone. Organizers get clarity and confidence. Venues get growth and visibility. Magic happens at the intersection.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Choose Planzia */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              Six Reasons Smart Event Planners Choose Planzia
+          <motion.div
+            className="text-center mb-16"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-venue-dark mb-4">
+              What Makes Planiza Different
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Discover what sets us apart from the rest and why thousands trust us with their most important moments
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              We've built a platform that puts you first at every step of your venue journey
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {benefits.map((benefit, index) => {
-              const Icon = benefit.icon;
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            {[
+              {
+                icon: Zap,
+                title: "Smart Venue Discovery",
+                description: "Browse verified venues tailored to your needs with intelligent filters and real-time availability"
+              },
+              {
+                icon: Clock,
+                title: "Seamless Booking Experience",
+                description: "Plan, reserve, and manage everything in one place with instant confirmations"
+              },
+              {
+                icon: Target,
+                title: "Transparent Pricing",
+                description: "No hidden fees, no surprises. See exactly what you're paying upfront"
+              },
+              {
+                icon: Heart,
+                title: "Customer Support That Cares",
+                description: "Always here to help when you need us — 24/7 dedicated support"
+              }
+            ].map((item, index) => {
+              const Icon = item.icon;
               return (
-                <Card key={index} className="p-6 hover:shadow-lg transition-shadow duration-300 group">
-                  <CardContent className="p-0">
-                    <div className="text-center">
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${benefit.color} group-hover:scale-110 transition-transform duration-300`}>
-                        <Icon className="h-8 w-8" />
+                <motion.div
+                  key={index}
+                  variants={fadeUp}
+                  transition={{ ...transition, delay: index * 0.1 }}
+                >
+                  <Card className="h-full hover:shadow-xl transition-all duration-300 border-venue-lavender/50 group hover:-translate-y-1">
+                    <CardHeader>
+                      <div className="w-14 h-14 bg-gradient-to-br from-venue-indigo to-venue-indigo/80 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <Icon className="h-7 w-7 text-white" />
                       </div>
-                      <h3 className="text-xl font-semibold text-venue-dark mb-3">{benefit.title}</h3>
-                      <p className="text-gray-600 leading-relaxed">{benefit.description}</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                      <CardTitle className="text-venue-dark text-center text-lg">{item.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 text-center text-sm leading-relaxed">{item.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Event Types We Support */}
-      <section className="py-16">
+      {/* The Planiza Advantage Section */}
+      <section className="py-20 bg-venue-lavender/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              Perfect for Every Event Type
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Whatever your event needs, Planzia has the right venue for you
-            </p>
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Image */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              transition={transition}
+              className="hidden lg:block"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=500&fit=crop&q=80"
+                alt="Elegant wedding reception venue with sophisticated decor and guests"
+                className="rounded-3xl shadow-2xl object-cover w-full h-[500px]"
+                loading="lazy"
+              />
+            </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {eventTypes.map((eventType, index) => (
-              <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-venue-indigo hover:shadow-md transition-all duration-300 group">
-                <div className="w-8 h-8 bg-venue-lavender rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-venue-indigo transition-colors">
-                  <CheckCircle className="h-4 w-4 text-venue-indigo group-hover:text-white" />
-                </div>
-                <span className="text-sm font-medium text-gray-700 group-hover:text-venue-indigo">
-                  {eventType}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Our Vision */}
-      <section className="py-16 bg-venue-indigo text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Our Vision
-            </h2>
-            <p className="text-xl leading-relaxed mb-8">
-              To become India's most trusted platform for <span className="font-semibold">event venue discovery & booking</span>, empowering both customers and partners with convenience, transparency, and growth.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">For Customers</h3>
-                <p className="text-white/80">Convenient, transparent booking experience</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">For Partners</h3>
-                <p className="text-white/80">Growth opportunities and hassle-free management</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Star className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">Together</h3>
-                <p className="text-white/80">Building India's largest venue ecosystem</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action */}
-      <section className="py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Card className="bg-venue-lavender border-venue-indigo">
-            <CardContent className="py-12">
-              <h2 className="text-3xl font-bold text-venue-dark mb-6">
-                Ready to Experience the Planzia Difference?
+            {/* Right: Content */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              transition={transition}
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-venue-dark mb-8 leading-tight">
+                The Planiza Advantage
               </h2>
-              <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-                Join thousands of satisfied customers who have found their perfect venues through Planzia. Start your seamless event planning journey today.
+
+              <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+                We combine cutting-edge technology with thoughtful design to create a venue experience that respects your time and builds trust through transparency.
               </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Button 
-                  onClick={() => window.location.href = '/venues'}
-                  className="bg-venue-indigo hover:bg-venue-purple text-white"
+
+              <p className="text-lg text-gray-700 mb-8 leading-relaxed">
+                Whether you're planning an intimate gathering or a grand celebration, our platform empowers you with complete control and confidence every step of the way.
+              </p>
+
+              <motion.div
+                className="space-y-4 mb-8"
+                variants={stagger}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+              >
+                {[
+                  "Verified venues with authentic reviews and real photos",
+                  "Real-time availability and instant booking confirmations",
+                  "Transparent pricing with no hidden charges or surprises",
+                  "Secure payments with buyer protection and guarantees",
+                  "24/7 support team ready to assist you anytime"
+                ].map((highlight, index) => (
+                  <motion.div
+                    key={index}
+                    className="flex gap-3 items-start"
+                    variants={fadeUp}
+                    transition={{ ...transition, delay: index * 0.1 }}
+                  >
+                    <div className="flex-shrink-0 mt-1">
+                      <CheckCircle className="h-5 w-5 text-venue-indigo" />
+                    </div>
+                    <p className="text-gray-700">{highlight}</p>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                viewport={{ once: true, amount: 0.2 }}
+              >
+                <Button
+                  asChild
                   size="lg"
+                  className="bg-gradient-to-r from-venue-indigo to-venue-indigo/80 hover:shadow-lg hover:shadow-venue-indigo/30 text-white hover:text-white transition-all duration-200"
+                  onClick={scrollToTop}
                 >
-                  Browse Venues
+                  <Link to="/venues">
+                    Start Your Search
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* How Planiza Works Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="text-center mb-16"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-venue-dark mb-4">
+              How Planiza Works
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Three simple steps to find and secure your perfect venue
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            {[
+              {
+                number: "01",
+                title: "Discover Venues",
+                description: "Explore our curated listings with verified details, real photos, and honest reviews from previous customers"
+              },
+              {
+                number: "02",
+                title: "Book Instantly",
+                description: "Fast and secure booking process with transparent availability and instant confirmation in your inbox"
+              },
+              {
+                number: "03",
+                title: "Manage Effortlessly",
+                description: "Keep track of all your bookings, payments, and venue communications in one organized dashboard"
+              }
+            ].map((step, index) => (
+              <motion.div
+                key={index}
+                variants={fadeUp}
+                transition={{ ...transition, delay: index * 0.1 }}
+              >
+                <Card className="h-full hover:shadow-xl transition-all duration-300 border-venue-lavender/50 group hover:-translate-y-1">
+                  <CardHeader>
+                    <div className="text-5xl font-bold text-venue-indigo/20 mb-4">{step.number}</div>
+                    <CardTitle className="text-venue-dark text-2xl">{step.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 leading-relaxed">{step.description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Core Values Section */}
+      <section className="py-20 bg-venue-lavender/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="text-center mb-16"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-venue-dark mb-4">
+              Our Values Shape Everything We Do
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              These principles guide every decision, feature, and interaction we create
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6"
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            {[
+              { icon: Lightbulb, title: "Innovation", description: "Constantly improving how people discover and book venues" },
+              { icon: Shield, title: "Integrity", description: "Every action rooted in honesty, fairness, and trust" },
+              { icon: Heart, title: "Customer-First", description: "Designed for your convenience and confidence" },
+              { icon: Award, title: "Quality", description: "High standards for every venue and interaction" },
+              { icon: TrendingUp, title: "Growth", description: "Evolving daily to serve you better" }
+            ].map((value, index) => {
+              const Icon = value.icon;
+              return (
+                <motion.div
+                  key={index}
+                  variants={fadeUp}
+                  transition={{ ...transition, delay: index * 0.1 }}
+                >
+                  <Card className="h-full text-center hover:shadow-lg transition-all duration-300 border-venue-lavender/50 group hover:-translate-y-1">
+                    <CardHeader>
+                      <div className="w-12 h-12 bg-venue-lavender rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-venue-indigo/10 transition-colors">
+                        <Icon className="h-6 w-6 text-venue-indigo" />
+                      </div>
+                      <CardTitle className="text-venue-dark text-lg">{value.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 text-sm leading-relaxed">{value.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Statistics Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center"
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            {[
+              { label: "Venues Listed", value: stats.venues, suffix: "+" },
+              { label: "Happy Users", value: stats.users, suffix: "+" },
+              { label: "Average Rating", value: stats.rating, suffix: "★" },
+              { label: "Cities Covered", value: stats.cities, suffix: "+" }
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                variants={fadeUp}
+                transition={{ ...transition, delay: index * 0.1 }}
+              >
+                <Card className="h-full border-venue-lavender/50 hover:shadow-lg transition-all duration-300">
+                  <CardContent className="p-8">
+                    <div className="text-4xl md:text-5xl font-bold text-venue-indigo mb-3">
+                      {stat.value}{stat.suffix}
+                    </div>
+                    <p className="text-gray-600 font-medium">{stat.label}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center" style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&h=600&fit=crop&q=80')",
+          backgroundPosition: 'center'
+        }}>
+          <div className="absolute inset-0 bg-gradient-to-r from-venue-indigo/85 to-venue-indigo/75"></div>
+        </div>
+
+        <div className="max-w-4xl mx-auto relative z-10 text-center">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+              Experience Event Planning the Smart Way
+            </h2>
+            <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
+              Join thousands who trust Planiza to make every event simple, elegant, and stress-free.
+            </p>
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              <Button
+                asChild
+                size="lg"
+                className="bg-white hover:bg-gray-50 text-venue-indigo hover:text-venue-indigo shadow-xl transition-all duration-200"
+                onClick={scrollToTop}
+              >
+                <Link to="/venues">
+                  Get Started
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-                <Button 
-                  onClick={() => window.location.href = '/contact'}
-                  variant="outline"
-                  className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white"
-                  size="lg"
-                >
-                  Contact Us
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                </Link>
+              </Button>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
     </div>

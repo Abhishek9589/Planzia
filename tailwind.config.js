@@ -21,10 +21,10 @@ export default {
     extend: {
       colors: {
         // Planzia Brand Colors
-        'venue-indigo': '#3C3B6E',
-        'venue-purple': '#6C63FF',
-        'venue-lavender': '#E6E6FA',
-        'venue-dark': '#1F1F2E',
+        'venue-indigo': '#7E8D65',
+        'venue-purple': '#BFC6AD',
+        'venue-lavender': '#DDE2C6',
+        'venue-dark': '#2A2A2A',
 
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

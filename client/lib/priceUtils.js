@@ -131,12 +131,13 @@ export const getPricingInfo = (basePrice, displayType = 'listing') => {
 
 /**
  * Component for displaying price breakdown on venue details page
- * 
+ *
  * @param {number} basePrice - The base price
  * @returns {object} Price breakdown component data
  */
 export const getPriceBreakdownComponent = (basePrice) => {
   const breakdown = calculatePriceBreakdown(basePrice);
+  const finalPriceWithFee = breakdown.basePrice + breakdown.gst + breakdown.platformFee;
 
   return {
     breakdown,
@@ -154,9 +155,15 @@ export const getPriceBreakdownComponent = (basePrice) => {
         type: 'tax'
       },
       {
+        label: 'Platform Fee (10%)',
+        value: breakdown.platformFee,
+        formatted: formatPrice(breakdown.platformFee),
+        type: 'fee'
+      },
+      {
         label: 'Final Price',
-        value: breakdown.finalPrice,
-        formatted: formatPrice(breakdown.finalPrice),
+        value: finalPriceWithFee,
+        formatted: formatPrice(finalPriceWithFee),
         type: 'final'
       }
     ],

@@ -1,5 +1,3 @@
-
-
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Home, ArrowLeft } from 'lucide-react';
@@ -7,7 +5,7 @@ import { scrollToTop } from '@/lib/navigation';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 pt-16">
       <div className="max-w-md w-full text-center">
         <div className="mb-8">
           <h1 className="text-9xl font-bold text-venue-indigo mb-4">404</h1>

@@ -368,7 +368,7 @@ router.post('/forgot-password', async (req, res) => {
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
     const user = await User.findOne({ email, is_verified: true }).lean();
-    if (!user) return res.status(404).json({ error: "Email doesn't exist in our records" });
+    if (!user) return res.status(404).json({ error: "Email not found in our records" });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
@@ -382,6 +382,29 @@ router.post('/forgot-password', async (req, res) => {
   } catch (error) {
     console.error('Forgot password error:', error);
     res.status(500).json({ error: 'Failed to process password reset request' });
+  }
+});
+
+// Verify OTP for password reset (without changing password yet)
+router.post('/verify-otp-for-password-reset', async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) return res.status(400).json({ error: 'Email and OTP are required' });
+
+    const otpRow = await OtpVerification.findOne({ email, otp, expires_at: { $gt: new Date() } }).sort({ created_at: -1 }).lean();
+    if (!otpRow) {
+      // Check if OTP exists but is expired
+      const expiredOtp = await OtpVerification.findOne({ email, otp }).sort({ created_at: -1 }).lean();
+      if (expiredOtp) {
+        return res.status(400).json({ error: 'Your verification code has expired. Please request a new one.' });
+      }
+      return res.status(400).json({ error: 'The verification code is incorrect. Please check and try again.' });
+    }
+
+    res.json({ message: 'OTP verified successfully' });
+  } catch (error) {
+    console.error('OTP verification error:', error);
+    res.status(500).json({ error: 'Failed to verify OTP' });
   }
 });
 

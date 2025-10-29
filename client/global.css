@@ -11,33 +11,33 @@
    * A different format will require also updating the theme in tailwind.config.ts.
   */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 210 17% 15%;
+    --background: 44 12% 97%;  /* Ecru White #F7F8F4 */
+    --foreground: 0 0% 16%;  /* Graphite #2A2A2A */
 
-    --card: 0 0% 100%;
-    --card-foreground: 210 17% 15%;
+    --card: 44 12% 97%;  /* Ecru White #F7F8F4 */
+    --card-foreground: 0 0% 16%;  /* Graphite #2A2A2A */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 210 17% 15%;
+    --popover: 44 12% 97%;  /* Ecru White #F7F8F4 */
+    --popover-foreground: 0 0% 16%;  /* Graphite #2A2A2A */
 
-    --primary: 244 62% 32%;  /* venue-indigo #3C3B6E */
-    --primary-foreground: 0 0% 100%;
+    --primary: 34 16% 46%;  /* Modern Olive #7E8D65 */
+    --primary-foreground: 44 12% 97%;  /* Ecru White */
 
-    --secondary: 246 100% 95%;  /* light venue-lavender */
-    --secondary-foreground: 244 62% 32%;
+    --secondary: 44 8% 74%;  /* Soft Sage Gray #BFC6AD */
+    --secondary-foreground: 34 16% 46%;  /* Modern Olive */
 
-    --muted: 246 100% 95%;
-    --muted-foreground: 210 17% 45%;
+    --muted: 44 8% 88%;  /* Muted Mist #E2E4D9 */
+    --muted-foreground: 0 0% 41%;  /* Darker Graphite */
 
-    --accent: 246 100% 69%;  /* venue-purple #6C63FF */
-    --accent-foreground: 0 0% 100%;
+    --accent: 34 16% 46%;  /* Modern Olive #7E8D65 */
+    --accent-foreground: 44 12% 97%;  /* Ecru White */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 246 100% 90%;
-    --input: 246 100% 90%;
-    --ring: 246 100% 69%;
+    --border: 44 8% 88%;  /* Muted Mist */
+    --input: 44 12% 97%;  /* Ecru White */
+    --ring: 34 16% 46%;  /* Modern Olive */
 
     --radius: 0.5rem;
 
@@ -52,33 +52,33 @@
   }
 
   .dark {
-    --background: 230 21% 11%;  /* venue-dark #1F1F2E */
-    --foreground: 0 0% 100%;
+    --background: 34 16% 20%;  /* Dark variant of Modern Olive */
+    --foreground: 44 12% 97%;  /* Ecru White */
 
-    --card: 230 21% 15%;
-    --card-foreground: 0 0% 100%;
+    --card: 34 16% 25%;
+    --card-foreground: 44 12% 97%;
 
-    --popover: 230 21% 15%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 34 16% 25%;
+    --popover-foreground: 44 12% 97%;
 
-    --primary: 246 100% 69%;  /* venue-purple #6C63FF */
-    --primary-foreground: 0 0% 100%;
+    --primary: 34 16% 46%;  /* Modern Olive #7E8D65 */
+    --primary-foreground: 44 12% 97%;  /* Ecru White */
 
-    --secondary: 230 21% 20%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 44 8% 40%;  /* Darker Sage Gray */
+    --secondary-foreground: 44 12% 97%;
 
-    --muted: 230 21% 20%;
-    --muted-foreground: 230 7% 65%;
+    --muted: 34 16% 30%;
+    --muted-foreground: 44 12% 80%;
 
-    --accent: 244 62% 32%;  /* venue-indigo #3C3B6E */
-    --accent-foreground: 0 0% 100%;
+    --accent: 44 8% 74%;  /* Soft Sage Gray #BFC6AD */
+    --accent-foreground: 0 0% 12%;
 
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 230 21% 25%;
-    --input: 230 21% 25%;
-    --ring: 246 100% 69%;
+    --border: 34 16% 30%;
+    --input: 34 16% 30%;
+    --ring: 34 16% 46%;  /* Modern Olive */
 
     --sidebar-background: 230 21% 11%;
     --sidebar-foreground: 0 0% 100%;

@@ -145,8 +145,7 @@ export function AutocompleteInput({
         onBlur={handleBlur}
         placeholder={placeholder}
         className={cn(
-          "w-full transition-all duration-200",
-          isOpen && "ring-2 ring-venue-indigo/20",
+          "w-full",
           className
         )}
         disabled={disabled}

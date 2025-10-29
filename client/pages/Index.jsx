@@ -24,7 +24,10 @@ import {
   Calendar,
   Award,
   Heart,
-  Globe
+  Globe,
+  Star,
+  Zap,
+  ThumbsUp
 } from 'lucide-react';
 
 import apiClient from '../lib/apiClient.js';
@@ -40,37 +43,37 @@ const apiCall = async (url, options = {}) => {
 const howItWorks = [
   {
     step: 1,
-    title: "Explore & Discover",
-    description: "Browse curated venues with smart filters tailored to your vision",
+    title: "Browse Venues",
+    description: "Explore curated venues tailored to your vision and needs",
     icon: Search
   },
   {
     step: 2,
-    title: "Compare & Decide",
-    description: "Compare amenities, pricing, and guest experiences side by side",
+    title: "Book Instantly",
+    description: "Secure your booking with transparent pricing and instant confirmation",
     icon: CheckCircle
   },
   {
     step: 3,
-    title: "Book & Celebrate",
-    description: "Confirm your booking with confidence and create unforgettable moments",
+    title: "Celebrate Without Stress",
+    description: "Enjoy your event with our dedicated support throughout",
     icon: Calendar
   }
 ];
 
 const features = [
   {
-    title: "Hand-Picked Venues",
-    description: "Every venue is expertly verified to guarantee quality, authenticity, and excellence",
+    title: "Verified Venues Only",
+    description: "Every venue is expertly verified to guarantee quality and authenticity",
     icon: Shield
   },
   {
-    title: "Complete Transparency",
+    title: "Transparent Pricing",
     description: "Crystal-clear pricing with zero hidden charges—what you see is what you pay",
     icon: DollarSign
   },
   {
-    title: "Always Available",
+    title: "24/7 Customer Support",
     description: "Dedicated support available around the clock to guide your journey",
     icon: Clock
   },
@@ -78,6 +81,30 @@ const features = [
     title: "Premium Selection",
     description: "Meticulously curated venues that exceed expectations",
     icon: Award
+  }
+];
+
+const testimonials = [
+  {
+    name: "Sarah Johnson",
+    role: "Event Planner",
+    text: "Planzia made finding the perfect venue incredibly simple. Highly recommended!",
+    rating: 5,
+    image: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=100&h=100&fit=crop"
+  },
+  {
+    name: "Raj Patel",
+    role: "Wedding Coordinator",
+    text: "The transparency and support from Planzia's team was outstanding.",
+    rating: 5,
+    image: "https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?w=100&h=100&fit=crop"
+  },
+  {
+    name: "Priya Sharma",
+    role: "Corporate Event Manager",
+    text: "Best venue booking platform I've used. Professional and reliable.",
+    rating: 5,
+    image: "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?w=100&h=100&fit=crop"
   }
 ];
 
@@ -114,7 +141,7 @@ export default function Index() {
   const loadPopularVenues = async () => {
     try {
       setLoading(true);
-      const data = await apiCall('/api/venues?limit=3');
+      const data = await apiCall('/api/venues?limit=6');
 
       const venues = data.venues || data;
 
@@ -128,12 +155,28 @@ export default function Index() {
           location: venue.location,
           capacity: `Up to ${venue.capacity} guests`,
           price: pricingInfo.formattedPrice,
-          image: venue.images && venue.images.length > 0 ? venue.images[0] : "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=400&h=300&fit=crop",
-          facilities: venue.facilities || []
+          image: venue.images && venue.images.length > 0 ? venue.images[0] : "https://images.unsplash.com/photo-1524824267900-2fa9cbf7a506?w=400&h=300&fit=crop&q=80",
+          facilities: venue.facilities || [],
+          rating: 0
         };
       });
 
-      setPopularVenues(formattedVenues);
+      const venuesWithRatings = await Promise.all(
+        formattedVenues.map(async (venue) => {
+          try {
+            const ratingData = await apiCall(`/api/ratings/venue/${venue.id}`);
+            return {
+              ...venue,
+              rating: ratingData.averageRating || 0
+            };
+          } catch (error) {
+            console.error(`Error fetching rating for venue ${venue.id}:`, error);
+            return venue;
+          }
+        })
+      );
+
+      setPopularVenues(venuesWithRatings);
     } catch (error) {
       console.error('Error loading popular venues:', error);
       const fallbackVenues = [
@@ -143,8 +186,9 @@ export default function Index() {
           location: "Kharadi",
           capacity: "Up to 300 guests",
           price: "₹45,000",
-          image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=400&h=300&fit=crop",
-          facilities: ["Air Conditioning", "Parking", "Catering"]
+          image: "https://images.unsplash.com/photo-1670529776286-f426fb7ba42c?w=400&h=300&fit=crop&q=80",
+          facilities: ["Air Conditioning", "Parking", "Catering"],
+          rating: 4.8
         },
         {
           id: 2,
@@ -152,8 +196,9 @@ export default function Index() {
           location: "Wagholi",
           capacity: "Up to 500 guests",
           price: "₹65,000",
-          image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop",
-          facilities: ["Garden Area", "Swimming Pool", "Catering"]
+          image: "https://plus.unsplash.com/premium_photo-1664530452329-42682d3a73a7?w=400&h=300&fit=crop&q=80",
+          facilities: ["Garden Area", "Swimming Pool", "Catering"],
+          rating: 4.9
         },
         {
           id: 3,
@@ -161,8 +206,39 @@ export default function Index() {
           location: "Hinjewadi",
           capacity: "Up to 200 guests",
           price: "₹35,000",
-          image: "https://images.unsplash.com/photo-1540518614846-7eded47ee3b7?w=400&h=300&fit=crop",
-          facilities: ["AV Equipment", "WiFi", "Air Conditioning"]
+          image: "https://images.unsplash.com/photo-1524824267900-2fa9cbf7a506?w=400&h=300&fit=crop&q=80",
+          facilities: ["AV Equipment", "WiFi", "Air Conditioning"],
+          rating: 4.7
+        },
+        {
+          id: 4,
+          name: "Riverside Event Space",
+          location: "Baner",
+          capacity: "Up to 400 guests",
+          price: "₹55,000",
+          image: "https://images.unsplash.com/photo-1670529776286-f426fb7ba42c?w=400&h=300&fit=crop&q=80",
+          facilities: ["River View", "Modern Décor", "Full Catering"],
+          rating: 4.8
+        },
+        {
+          id: 5,
+          name: "Diamond Palace",
+          location: "Koregaon Park",
+          capacity: "Up to 600 guests",
+          price: "₹75,000",
+          image: "https://plus.unsplash.com/premium_photo-1664530452329-42682d3a73a7?w=400&h=300&fit=crop&q=80",
+          facilities: ["Luxury D��cor", "In-house Catering", "Parking"],
+          rating: 4.9
+        },
+        {
+          id: 6,
+          name: "Heritage Garden Venue",
+          location: "Wakad",
+          capacity: "Up to 350 guests",
+          price: "₹50,000",
+          image: "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=400&h=300&fit=crop&q=80",
+          facilities: ["Garden Setting", "Ambient Lighting", "Catering"],
+          rating: 4.7
         }
       ];
       setPopularVenues(fallbackVenues);
@@ -194,94 +270,74 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-white via-white to-venue-lavender/10">
+      {/* Hero Section */}
       <motion.section
-        className="relative h-[70vh] overflow-hidden"
+        className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={transition}
       >
-        <motion.div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat home-hero-image"
-          initial={{ scale: 1.02 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="absolute inset-0 bg-black/40"></div>
-        </motion.div>
-
-        <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto text-center">
-            <motion.h1
-              className="text-4xl md:text-6xl font-bold text-white mb-4 font-poppins"
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Text and Buttons */}
+            <motion.div
               variants={fadeUp}
               initial="hidden"
               animate="visible"
               transition={transition}
             >
-              Your Event Deserves the Perfect Space
-            </motion.h1>
-            <motion.p
-              className="text-xl text-white/90 mb-8 max-w-3xl mx-auto"
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              transition={{ ...transition, delay: 0.1 }}
-            >
-              Discover exceptional venues with confidence. Transparent pricing, verified partners, bookings made simple.
-            </motion.p>
+              <h1 className="text-5xl md:text-6xl font-bold text-venue-dark mb-6 leading-tight">
+                Plan Smarter, Celebrate Better.
+              </h1>
+              <p className="text-xl text-gray-700 mb-8 leading-relaxed max-w-xl">
+                Discover and book stunning venues for your next event — effortlessly.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gradient-to-r from-venue-indigo to-venue-indigo/80 hover:shadow-lg hover:shadow-venue-indigo/30 text-white hover:text-white transition-all duration-200"
+                  onClick={scrollToTop}
+                >
+                  <Link to="/venues">Find Venues</Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo/10 hover:text-venue-indigo transition-colors"
+                  onClick={scrollToTop}
+                >
+                  <Link to="/signup">List Your Venue</Link>
+                </Button>
+              </div>
+            </motion.div>
 
+            {/* Right: Image */}
             <motion.div
-              className="max-w-4xl mx-auto"
               variants={fadeUp}
               initial="hidden"
               animate="visible"
               transition={{ ...transition, delay: 0.2 }}
+              className="hidden lg:block"
             >
-              <form
-                onSubmit={(e) => { e.preventDefault(); handleSearch(); }}
-                className="bg-white rounded-2xl shadow-2xl p-6 border border-gray-100"
-              >
-                <div className="flex flex-col lg:flex-row gap-4 items-center">
-                  <div className="flex flex-col sm:flex-row gap-4 flex-1 w-full">
-                    <div className="relative flex-1">
-                      <MapPin className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-venue-indigo z-10" />
-                      <AutocompleteInput
-                        options={filterOptionsLoading ? ['Loading...'] : locations}
-                        value={searchLocation}
-                        onChange={setSearchLocation}
-                        placeholder={filterOptionsLoading ? 'Loading...' : 'Search city or area'}
-                        disabled={filterOptionsLoading}
-                        className="pl-12 h-12 border-2 border-gray-200 focus:border-transparent bg-white rounded-xl text-gray-700 placeholder:text-gray-400 font-medium transition-all duration-200 hover:border-venue-purple focus:ring-2 focus:ring-venue-indigo/20"
-                      />
-                    </div>
-                    <div className="relative flex-1">
-                      <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-venue-indigo z-10" />
-                      <AutocompleteInput
-                        options={filterOptionsLoading ? ['Loading...'] : venueTypes}
-                        value={searchVenue}
-                        onChange={setSearchVenue}
-                        placeholder={filterOptionsLoading ? 'Loading...' : 'Select venue type'}
-                        disabled={filterOptionsLoading}
-                        className="pl-12 h-12 border-2 border-gray-200 focus:border-transparent bg-white rounded-xl text-gray-700 placeholder:text-gray-400 font-medium transition-all duration-200 hover:border-venue-purple focus:ring-2 focus:ring-venue-indigo/20"
-                      />
-                    </div>
-                  </div>
-                  <Button
-                    type="submit"
-                    className="h-12 px-8 bg-venue-indigo hover:bg-venue-purple text-white font-semibold whitespace-nowrap rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 min-w-[120px]"
-                  >
-                    <Search className="h-5 w-5 mr-2" />
-                    Search
-                  </Button>
-                </div>
-              </form>
+              <div className="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1524824267900-2fa9cbf7a506?w=600&h=500&fit=crop&q=80"
+                  alt="Elegant event venue with decorated tables"
+                  className="rounded-3xl shadow-2xl object-cover w-full h-[500px]"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-venue-indigo/5 to-transparent pointer-events-none"></div>
+              </div>
             </motion.div>
           </div>
         </div>
       </motion.section>
 
-      <section className="py-20 bg-gray-50">
+      {/* How It Works Section */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="text-center mb-16"
@@ -291,37 +347,35 @@ export default function Index() {
             viewport={{ once: true, amount: 0.2 }}
             transition={transition}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              Why Planzia Leads the Way
+            <h2 className="text-4xl md:text-5xl font-bold text-venue-dark mb-4">
+              How It Works
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Experience venue booking reimagined for the modern era—seamless, transparent, and utterly reliable
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Three simple steps to find and book your perfect venue
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {howItWorks.map((step, index) => {
+              const Icon = step.icon;
               return (
                 <motion.div
-                  key={index}
+                  key={step.step}
                   variants={fadeUp}
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, amount: 0.2 }}
-                  transition={{ ...transition, delay: index * 0.05 }}
+                  transition={{ ...transition, delay: index * 0.1 }}
                 >
-                  <Card className="text-center hover:shadow-lg transition-shadow duration-300 h-full">
+                  <Card className="h-full hover:shadow-xl transition-all duration-300 border-venue-lavender/50 group hover:-translate-y-1">
                     <CardHeader>
-                      <div className="w-16 h-16 bg-venue-lavender rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Icon className="h-8 w-8 text-venue-indigo" />
+                      <div className="w-16 h-16 bg-gradient-to-br from-venue-indigo to-venue-indigo/80 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <Icon className="h-8 w-8 text-white" />
                       </div>
-                      <CardTitle className="text-venue-dark">{feature.title}</CardTitle>
+                      <CardTitle className="text-venue-dark text-center">{step.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <CardDescription className="text-gray-600">
-                        {feature.description}
-                      </CardDescription>
+                      <p className="text-gray-600 text-center text-sm">{step.description}</p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -331,7 +385,8 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-20">
+      {/* Featured Venues Section */}
+      <section className="py-20 bg-venue-lavender/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="text-center mb-16"
@@ -341,19 +396,19 @@ export default function Index() {
             viewport={{ once: true, amount: 0.2 }}
             transition={transition}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              Trending Venues That Inspire
+            <h2 className="text-4xl md:text-5xl font-bold text-venue-dark mb-4">
+              Featured Venues
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Explore our most sought-after venues, each carefully selected to make your celebration unforgettable
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Carefully selected venues that match your every need
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {loading ? (
-              Array(3).fill(0).map((_, index) => (
+              Array(6).fill(0).map((_, index) => (
                 <Card key={index} className="overflow-hidden animate-pulse">
-                  <div className="h-48 bg-gray-200"></div>
+                  <div className="h-64 bg-gray-200"></div>
                   <CardContent className="p-6 space-y-4">
                     <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                     <div className="h-3 bg-gray-200 rounded w-1/2"></div>
@@ -376,18 +431,18 @@ export default function Index() {
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{ ...transition, delay: idx * 0.05 }}
                 >
-                  <Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300 group transition-transform hover:-translate-y-0.5">
-                    <div className="relative h-48 overflow-hidden">
+                  <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 group hover:-translate-y-1">
+                    <div className="relative h-64 overflow-hidden">
                       <img
                         src={venue.image}
                         alt={venue.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
                       <div className="absolute top-4 right-4">
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-8 w-8 bg-white/90 hover:bg-white"
+                          className="h-10 w-10 bg-white/90 hover:bg-white shadow-lg"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -395,7 +450,7 @@ export default function Index() {
                           }}
                         >
                           <Heart
-                            className={`h-4 w-4 transition-colors ${
+                            className={`h-5 w-5 transition-colors ${
                               isFavorite(venue.id)
                                 ? 'text-red-500 fill-red-500'
                                 : 'text-gray-600 hover:text-red-500'
@@ -404,29 +459,48 @@ export default function Index() {
                         </Button>
                       </div>
                     </div>
-                    <CardContent className="p-6 flex flex-col h-full">
+                    <CardContent className="p-6">
                       <h3 className="text-xl font-semibold text-venue-dark mb-2">{venue.name}</h3>
-                      <div className="flex items-center text-gray-600 mb-2">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        <span className="text-sm">{venue.location}</span>
+                      <div className="flex items-center mb-3">
+                        {venue.rating > 0 ? (
+                          <>
+                            <div className="flex items-center text-venue-indigo">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-4 w-4 ${i < Math.floor(venue.rating) ? 'fill-venue-indigo' : 'fill-gray-300'}`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm text-gray-600 ml-2">({venue.rating.toFixed(1)})</span>
+                          </>
+                        ) : (
+                          <span className="text-sm text-gray-500">No ratings yet</span>
+                        )}
                       </div>
-                      <div className="flex items-center text-gray-600 mb-3">
-                        <Users className="h-4 w-4 mr-1" />
-                        <span className="text-sm">{venue.capacity}</span>
+                      <div className="space-y-2 text-sm text-gray-600 mb-4">
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-2 text-venue-indigo" />
+                          {venue.location}
+                        </div>
+                        <div className="flex items-center">
+                          <Users className="h-4 w-4 mr-2 text-venue-indigo" />
+                          {venue.capacity}
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-1 mb-4">
-                        {venue.facilities && venue.facilities.slice(0, 4).map((facility, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {venue.facilities && venue.facilities.slice(0, 3).map((facility, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs bg-venue-lavender/80 text-venue-indigo">
                             {facility}
                           </Badge>
                         ))}
                       </div>
-                      <CardFooter className="flex items-center justify-between mt-4 p-0">
-                        <span className="text-2xl font-bold text-venue-indigo">{venue.price || '₹0'}</span>
-                        <Button asChild className="bg-venue-indigo hover:bg-venue-purple" onClick={scrollToTop}>
+                      <div className="flex items-center justify-between mt-6">
+                        <div className="text-2xl font-bold text-venue-indigo">{venue.price}</div>
+                        <Button asChild className="bg-venue-indigo hover:bg-venue-indigo/90 text-white">
                           <Link to={`/venue/${venue.id}`}>View Details</Link>
                         </Button>
-                      </CardFooter>
+                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -435,7 +509,7 @@ export default function Index() {
           </div>
 
           <div className="text-center mt-12">
-            <Button asChild size="lg" className="bg-venue-indigo hover:bg-venue-purple" onClick={scrollToTop}>
+            <Button asChild size="lg" className="bg-venue-indigo hover:bg-venue-indigo/90 text-white" onClick={scrollToTop}>
               <Link to="/venues">
                 View All Venues
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -445,57 +519,98 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-20 bg-gray-50">
+      {/* Why Choose Planiza Section */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Image */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              transition={transition}
+              className="hidden lg:block"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=600&h=500&fit=crop&q=80"
+                alt="People celebrating at a wedding event with wine glasses"
+                className="rounded-3xl shadow-2xl object-cover w-full h-[500px]"
+                loading="lazy"
+              />
+            </motion.div>
+
+            {/* Right: Content */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              transition={transition}
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-venue-dark mb-8 leading-tight">
+                Why Choose Planiza
+              </h2>
+
+              <div className="space-y-6">
+                {features.map((feature, index) => {
+                  const Icon = feature.icon;
+                  return (
+                    <motion.div
+                      key={index}
+                      className="flex gap-4"
+                      variants={fadeUp}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, amount: 0.2 }}
+                      transition={{ ...transition, delay: index * 0.1 }}
+                    >
+                      <div className="flex-shrink-0">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-venue-lavender">
+                          <Icon className="h-6 w-6 text-venue-indigo" />
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-venue-dark">{feature.title}</h3>
+                        <p className="mt-2 text-gray-600">{feature.description}</p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-venue-indigo to-venue-indigo/80 opacity-90"></div>
+        <div className="max-w-4xl mx-auto relative z-10 text-center">
           <motion.div
-            className="text-center mb-16"
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
             transition={transition}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              From Vision to Reality in Three Steps
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+              Ready to Host Your Next Event?
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              A streamlined journey to booking your ideal venue with ease and confidence
+            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+              Browse our stunning collection of venues and book with confidence today.
             </p>
+            <Button 
+              asChild 
+              size="lg"
+              className="bg-white hover:bg-gray-50 text-venue-indigo hover:text-venue-indigo shadow-xl transition-all duration-200"
+              onClick={scrollToTop}
+            >
+              <Link to="/venues">Start Booking</Link>
+            </Button>
           </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {howItWorks.map((step, index) => {
-              const Icon = step.icon;
-              return (
-                <motion.div
-                  key={step.step}
-                  className="text-center relative"
-                  variants={fadeUp}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, amount: 0.2 }}
-                  transition={{ ...transition, delay: index * 0.05 }}
-                >
-                  <div className="relative w-20 h-20 bg-venue-indigo rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Icon className="h-10 w-10 text-white" />
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-venue-purple rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white">
-                      {step.step}
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-semibold text-venue-dark mb-3">{step.title}</h3>
-                  <p className="text-gray-600">{step.description}</p>
-                  {index < howItWorks.length - 1 && (
-                    <div className="hidden md:block absolute top-10 left-full w-full">
-                      <ArrowRight className="h-6 w-6 text-venue-purple mx-auto" />
-                    </div>
-                  )}
-                </motion.div>
-              );
-            })}
-          </div>
         </div>
       </section>
-
     </div>
   );
 }

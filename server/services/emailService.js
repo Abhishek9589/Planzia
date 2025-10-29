@@ -30,6 +30,26 @@ export async function sendOTPEmail(email, otp, name = 'User', purpose = 'Verific
 
   const isPasswordReset = purpose === 'Password Reset';
   const isEmailUpdate = purpose === 'Email Update';
+
+  const pageTitle = isPasswordReset ? 'Reset Your Password' : isEmailUpdate ? 'Verify Your New Email' : 'Welcome to Planzia';
+  const headlineText = isPasswordReset ? 'Secure Your Account' : isEmailUpdate ? 'Confirm Your New Email' : 'Verify Your Email';
+
+  const getWarmGreeting = () => {
+    if (isPasswordReset) return `Hi ${name},`;
+    if (isEmailUpdate) return `Hi ${name},`;
+    return `Welcome to Planzia, ${name}!`;
+  };
+
+  const getWarmMessage = () => {
+    if (isPasswordReset) {
+      return `We received a request to reset your password. We've generated a secure verification code to help you regain access to your account. Enter the code below to proceed with your password reset.`;
+    }
+    if (isEmailUpdate) {
+      return `You're updating your email address with us. To complete this change, we need to verify your new email. Use the verification code below to confirm.`;
+    }
+    return `We're thrilled to have you join our community! To complete your account setup and unlock all the amazing features Planzia has to offer, please verify your email address using the code below.`;
+  };
+
   const mailOptions = {
     from: {
       name: 'Planzia',
@@ -38,71 +58,106 @@ export async function sendOTPEmail(email, otp, name = 'User', purpose = 'Verific
     to: email,
     subject: isPasswordReset ? 'Planzia - Password Reset Verification' :
              isEmailUpdate ? 'Planzia - Email Address Verification' :
-             'Planzia - Account Verification',
+             'Welcome to Planzia - Verify Your Email',
     html: `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Planzia Verification</title>
+        <title>${pageTitle}</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+          * { margin: 0; padding: 0; }
+          body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        </style>
       </head>
-      <body style="margin: 0; padding: 0; background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-        <div style="max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          
-          <!-- Header -->
-          <div style="background: linear-gradient(135deg, #3C3B6E 0%, #6C63FF 100%); padding: 40px 30px; text-align: center;">
-            <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=800" alt="Planzia Logo" style="height: 60px; width: auto; margin: 0 0 15px 0; display: block; margin-left: auto; margin-right: auto;" />
-            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px;">Planzia</h1>
-            <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 400;">Professional Venue Solutions</p>
-          </div>
+      <body style="margin: 0; padding: 0; background: linear-gradient(135deg, #f9faf7 0%, #f5f6f2 100%); font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh;">
 
-          <!-- Content -->
-          <div style="padding: 40px 30px;">
-            <h2 style="color: #2d3748; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">
-              ${isPasswordReset ? 'Password Reset Request' : isEmailUpdate ? 'Email Verification Required' : 'Account Verification Required'}
-            </h2>
-            
-            <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
-              Dear ${name},
-            </p>
-            
-            <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
-              ${isPasswordReset
-                ? 'We received a request to reset your password. Please use the verification code below to proceed with resetting your password.'
-                : isEmailUpdate
-                ? 'To complete the update of your email address, please verify using the code below.'
-                : 'Thank you for registering with Planzia. To activate your account, please verify your email address using the code below.'
-              }
-            </p>
+        <!-- Outer Container -->
+        <table role="presentation" width="100%" style="border-collapse: collapse; background: linear-gradient(135deg, #f9faf7 0%, #f5f6f2 100%);">
+          <tr>
+            <td style="padding: 40px 20px;">
+              <table role="presentation" width="100%" style="max-width: 560px; margin: 0 auto; background: #ffffff; border-collapse: collapse; border-radius: 16px; overflow: hidden; box-shadow: 0 16px 48px rgba(42, 42, 42, 0.12);">
 
-            <!-- Verification Code -->
-            <div style="text-align: center; margin: 40px 0;">
-              <div style="background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 8px; padding: 30px; display: inline-block;">
-                <p style="color: #4a5568; margin: 0 0 15px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Verification Code</p>
-                <div style="font-family: 'Courier New', monospace; font-size: 36px; font-weight: 700; color: #3C3B6E; letter-spacing: 8px; margin: 0;">
-                  ${otp}
-                </div>
-              </div>
-            </div>
+                <!-- Header with Logo -->
+                <tr>
+                  <td style="padding: 45px 40px 35px; background: linear-gradient(180deg, #ffffff 0%, #f9faf7 100%); border-bottom: 1px solid #ede9e1; text-align: center;">
+                    <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=400" alt="Planzia" style="height: 40px; width: auto; display: block; margin: 0 auto 16px; object-fit: contain;" />
+                    <h1 style="color: #2A2A2A; margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2;">${headlineText}</h1>
+                  </td>
+                </tr>
 
-            <div style="background: #f7fafc; border-left: 4px solid #6C63FF; padding: 20px; margin: 30px 0; border-radius: 0 4px 4px 0;">
-              <p style="color: #4a5568; margin: 0; font-size: 14px; line-height: 1.5;">
-                <strong>Important:</strong> This verification code will expire in 10 minutes for your security. If you did not request this ${isPasswordReset ? 'password reset' : isEmailUpdate ? 'email update' : 'verification'}, please ignore this email.
-              </p>
-            </div>
-          </div>
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 40px;">
 
-          <!-- Footer -->
-          <div style="background: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <p style="color: #718096; margin: 0 0 10px 0; font-size: 14px;">
-              This is an automated message from Planzia. Please do not reply to this email.
-            </p>
-            <p style="color: #a0aec0; margin: 0; font-size: 12px;">
-              © ${new Date().getFullYear()} Planzia. All rights reserved.
-            </p>
-          </div>
-        </div>
+                    <!-- Warm Greeting -->
+                    <p style="color: #2A2A2A; margin: 0 0 24px 0; font-size: 16px; font-weight: 500; line-height: 1.5;">
+                      ${getWarmGreeting()}
+                    </p>
+
+                    <!-- Warm Message -->
+                    <p style="color: #555555; margin: 0 0 32px 0; font-size: 15px; line-height: 1.8; font-weight: 400;">
+                      ${getWarmMessage()}
+                    </p>
+
+                    <!-- OTP Code Section with Premium Styling -->
+                    <div style="background: linear-gradient(135deg, #f9faf7 0%, #f0f1ec 100%); border: 1px solid #dfe0d8; border-radius: 12px; padding: 36px 28px; margin: 0 0 32px 0; box-shadow: inset 0 2px 12px rgba(126, 141, 101, 0.06);">
+                      <p style="color: #999999; margin: 0 0 16px 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">Your Verification Code</p>
+                      <div style="font-family: 'Courier New', monospace; font-size: 48px; font-weight: 700; color: #7E8D65; letter-spacing: 14px; margin: 0; word-break: break-all; user-select: all; text-align: center; padding: 8px 0;">
+                        ${otp.split('').join(' ')}
+                      </div>
+                    </div>
+
+                    <!-- Features/Benefits Section -->
+                    <div style="background: #f9faf7; border-left: 3px solid #7E8D65; border-radius: 6px; padding: 18px 20px; margin: 0 0 28px 0;">
+                      <p style="color: #666666; margin: 0; font-size: 13px; line-height: 1.7; font-weight: 400;">
+                        <strong style="color: #7E8D65;">🎯 Next Steps:</strong> Enter this code in your verification window. The code will expire in <strong>2 minutes</strong>, so please complete your verification shortly.
+                      </p>
+                    </div>
+
+                    <!-- Security Note -->
+                    <div style="background: #fef8f3; border-radius: 8px; padding: 16px 18px; border: 1px solid #f0ebe3;">
+                      <p style="color: #666666; margin: 0; font-size: 12px; line-height: 1.6; font-weight: 400;">
+                        <strong style="color: #8B7355;">🔒 Keep it safe:</strong> Never share this code with anyone. Planzia team members will never ask for your verification code.
+                      </p>
+                    </div>
+
+                    <!-- Divider -->
+                    <div style="height: 1px; background: #ede9e1; margin: 28px 0; border: none;"></div>
+
+                    <!-- Didn't Request Section -->
+                    <p style="color: #888888; margin: 0; font-size: 13px; line-height: 1.6; font-weight: 400; text-align: center;">
+                      Didn't request this? Don't worry, your account is safe. Just ignore this email and your current password will remain unchanged.
+                    </p>
+
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="padding: 32px 40px; background: linear-gradient(180deg, #f9faf7 0%, #ede9e1 100%); border-top: 1px solid #ede9e1; text-align: center;">
+                    <p style="color: #2A2A2A; margin: 0 0 8px 0; font-size: 15px; font-weight: 600;">Planzia</p>
+                    <p style="color: #888888; margin: 0 0 16px 0; font-size: 13px; font-weight: 400;">Professional Venue Solutions</p>
+
+                    <div style="border-top: 1px solid #dfe0d8; padding-top: 16px; margin-top: 0;">
+                      <p style="color: #999999; margin: 0; font-size: 11px; line-height: 1.6; font-weight: 400;">
+                        This is an automated message from Planzia.<br>
+                        Please do not reply to this email.<br><br>
+                        © ${new Date().getFullYear()} Planzia. All rights reserved.<br>
+                        <a href="https://planzia.com/privacy-policy" style="color: #7E8D65; text-decoration: none; font-weight: 500;">Privacy Policy</a> •
+                        <a href="https://planzia.com/terms-and-conditions" style="color: #7E8D65; text-decoration: none; font-weight: 500;">Terms & Conditions</a>
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+
       </body>
       </html>
     `

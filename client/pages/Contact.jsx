@@ -3,111 +3,76 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Mail,
   Phone,
-  MapPin,
   Clock,
+  MapPin,
   Send,
   CheckCircle,
-  AlertCircle,
-  Users,
-  Handshake,
-  Facebook,
-  Instagram,
-  Linkedin,
   MessageCircle,
-  HelpCircle
+  ArrowRight,
+  Zap,
+  Users,
+  Headphones
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { scrollToTop } from '@/lib/navigation';
 
-const contactInfo = [
-  {
-    title: "Support Team",
-    description: "We're here to help with any questions or concerns",
-    value: "info@planzia.demo",
-    icon: Mail,
-    link: "mailto:info@planzia.demo"
-  },
-  {
-    title: "Partner with Us",
-    description: "Interested in joining our growing venue network?",
-    value: "partnerships@planzia.demo",
-    icon: Handshake,
-    link: "mailto:partnerships@planzia.demo"
-  },
-  {
-    title: "Speak with Our Team",
-    description: "Monday–Friday, 9:00 AM to 6:00 PM IST",
-    value: "+91-9876543210",
-    icon: Phone,
-    link: "tel:+919876543210"
-  },
-  {
-    title: "Visit Our Office",
-    description: "Planzia Demo Office",
-    value: "New Delhi, India",
-    icon: MapPin,
-    link: null
-  }
-];
-
-const socialLinks = [
-  {
-    name: "Facebook",
-    handle: "facebook.com/planzia.demo",
-    icon: Facebook,
-    color: "text-blue-600"
-  },
-  {
-    name: "Instagram",
-    handle: "@planzia_demo",
-    icon: Instagram,
-    color: "text-pink-600"
-  },
-  {
-    name: "LinkedIn",
-    handle: "linkedin.com/company/planzia-demo",
-    icon: Linkedin,
-    color: "text-blue-700"
-  },
-  {
-    name: "WhatsApp",
-    handle: "+91-9876543210",
-    icon: MessageCircle,
-    color: "text-green-600"
-  }
-];
-
-const faqs = [
-  {
-    question: "How do I get started with Planzia?",
-    answer: "Create your account in seconds, browse our curated venues, and book with confidence. Our intuitive platform makes finding your perfect space effortless and enjoyable."
-  },
-  {
-    question: "Can I modify or cancel my booking?",
-    answer: "Absolutely. Check our Cancellation & Refund Policy in Terms & Conditions for full details on how we make changes easy and fair for everyone."
-  },
-  {
-    question: "Do you accept venue partners?",
-    answer: "Yes! We're always excited to onboard exceptional venues. Reach out to partnerships@planzia.demo and let's explore partnership opportunities together."
-  }
-];
-
-const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] };
+const transition = { duration: 0.5, ease: [0.22, 1, 0.36, 1] };
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
   visible: { opacity: 1, y: 0 }
 };
 
+const contactChannels = [
+  {
+    icon: Mail,
+    title: 'Email Support',
+    description: 'Get a response within 24 hours',
+    value: 'hello@planzia.demo',
+    actionText: 'Send Email',
+    link: 'mailto:hello@planzia.demo'
+  },
+  {
+    icon: Phone,
+    title: 'Call Us',
+    description: 'Available Monday-Friday, 9 AM - 6 PM IST',
+    value: '+91 987-654-3210',
+    actionText: 'Call Now',
+    link: 'tel:+919876543210'
+  },
+  {
+    icon: MessageCircle,
+    title: 'WhatsApp',
+    description: 'Quick response on WhatsApp',
+    value: '+91 987-654-3210',
+    actionText: 'Message',
+    link: 'https://wa.me/919876543210'
+  },
+  {
+    icon: MapPin,
+    title: 'Visit Us',
+    description: 'Our office in New Delhi',
+    value: 'New Delhi, India',
+    actionText: 'Get Directions',
+    link: 'https://maps.google.com'
+  }
+];
+
 export default function Contact() {
   const [result, setResult] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    scrollToTop();
+  }, []);
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    setResult("Sending....");
+    setIsLoading(true);
+    setResult("");
 
     try {
       const formData = new FormData(event.target);
@@ -121,164 +86,169 @@ export default function Contact() {
       const data = await response.json();
 
       if (data.success) {
-        setResult("Form Submitted Successfully");
+        setResult("success");
         event.target.reset();
+        setTimeout(() => setResult(""), 5000);
       } else {
-        console.log("Error", data);
-        setResult(data.message || "Submission failed. Please try again.");
+        setResult("error");
       }
     } catch (err) {
       console.error("Submission error", err);
-      setResult("Something went wrong. Please try again.");
+      setResult("error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section - Text Over Image */}
-      <section className="relative h-[70vh] overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat contact-hero-image">
-          <div className="absolute inset-0 bg-black/50"></div>
-        </div>
-
-        {/* Content Over Image */}
-        <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto text-center">
-            <motion.h1
-              className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins"
+      {/* Hero Section */}
+      <motion.section
+        className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={transition}
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Hero Text */}
+            <motion.div
               variants={fadeUp}
               initial="hidden"
               animate="visible"
               transition={transition}
+              className="space-y-6"
             >
-              Let's Connect & Create Magic
-            </motion.h1>
-            <motion.p
-              className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed"
+              <div className="space-y-4">
+                <h1 className="text-5xl md:text-6xl font-bold text-venue-dark leading-tight">
+                  Let's Connect
+                </h1>
+                <p className="text-xl text-gray-700 leading-relaxed max-w-xl">
+                  We'd love to hear from you. Whether you have a question, feedback, or want to explore a partnership, reach out and let's create something great together.
+                </p>
+              </div>
+              <Button
+                asChild
+                size="lg"
+                className="bg-gradient-to-r from-venue-indigo to-venue-indigo/80 hover:shadow-lg hover:shadow-venue-indigo/30 text-white w-fit"
+              >
+                <a href="#contact-form">Send a Message</a>
+              </Button>
+            </motion.div>
+
+            {/* Right: Hero Image */}
+            <motion.div
               variants={fadeUp}
               initial="hidden"
               animate="visible"
-              transition={{ ...transition, delay: 0.1 }}
+              transition={{ ...transition, delay: 0.2 }}
+              className="hidden lg:block"
             >
-              Your vision matters to us. Whether you're seeking support, exploring partnerships, or have brilliant ideas to share—our team is here and genuinely excited to help you succeed.
-            </motion.p>
+              <div className="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=500&fit=crop&q=80"
+                  alt="Team collaboration and communication"
+                  className="rounded-3xl shadow-2xl object-cover w-full h-[500px]"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-venue-indigo/5 to-transparent pointer-events-none"></div>
+              </div>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Contact Information */}
+      {/* Contact Methods Grid */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-venue-lavender/10 to-white">
+        <div className="max-w-7xl mx-auto">
           <motion.div
-            className="lg:col-span-1"
+            className="text-center mb-16"
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
             transition={transition}
           >
-            <h2 className="text-2xl font-bold text-venue-dark mb-6">
-              Reach Out Today
-            </h2>
-            <p className="text-gray-600 mb-8">
-              Choose any channel that works best for you. We're committed to responding promptly and thoughtfully.
-            </p>
-
-            <div className="space-y-6 mb-12">
-              {contactInfo.map((info, index) => {
-                const Icon = info.icon;
-                const content = (
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-venue-lavender rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon className="h-6 w-6 text-venue-indigo" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-venue-dark mb-1">{info.title}</h3>
-                      <p className="text-gray-600 text-sm mb-1">{info.description}</p>
-                      <p className="text-venue-indigo font-medium">{info.value}</p>
-                    </div>
-                  </div>
-                );
-
-                return (
-                  <motion.div
-                    key={index}
-                    variants={fadeUp}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.2 }}
-                    transition={{ ...transition, delay: index * 0.05 }}
-                  >
-                    {info.link ? (
-                      <a href={info.link} className="block hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors">
-                        {content}
-                      </a>
-                    ) : (
-                      <div>{content}</div>
-                    )}
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            {/* Social Media Section */}
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-              transition={transition}
-            >
-              <h3 className="text-xl font-bold text-venue-dark mb-4">Follow Our Journey</h3>
-              <div className="space-y-3">
-                {socialLinks.map((social, index) => {
-                  const Icon = social.icon;
-                  return (
-                    <div key={index} className="flex items-center space-x-3 text-gray-600 hover:text-venue-indigo transition-colors">
-                      <Icon className={`h-5 w-5 ${social.color}`} />
-                      <span className="font-medium">{social.handle}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.div>
+            <h2 className="text-4xl font-bold text-venue-dark mb-4">Multiple Ways to Connect</h2>
+            <p className="text-lg text-gray-600">Choose the channel that works best for you</p>
           </motion.div>
 
-          {/* Enhanced Contact Form */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {contactChannels.map((channel, index) => {
+              const Icon = channel.icon;
+              return (
+                <motion.a
+                  key={index}
+                  href={channel.link}
+                  target={channel.link?.startsWith('http') ? '_blank' : undefined}
+                  rel={channel.link?.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ ...transition, delay: index * 0.1 }}
+                  className="group"
+                >
+                  <Card className="h-full hover:shadow-lg hover:-translate-y-2 transition-all duration-300 border-venue-lavender/30 bg-white">
+                    <CardContent className="p-8 text-center space-y-4">
+                      <div className="w-14 h-14 bg-gradient-to-br from-venue-indigo/20 to-venue-indigo/10 rounded-lg flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                        <Icon className="h-7 w-7 text-venue-indigo" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-venue-dark text-lg mb-1">{channel.title}</h3>
+                        <p className="text-sm text-gray-600 mb-4">{channel.description}</p>
+                        <p className="font-semibold text-venue-indigo text-sm">{channel.value}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.a>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Form Section */}
+      <section id="contact-form" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-3xl mx-auto">
           <motion.div
-            className="lg:col-span-2"
+            className="text-center mb-12"
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
-            transition={{ ...transition, delay: 0.05 }}
+            transition={transition}
           >
-            <Card className="shadow-lg border-0 bg-white">
-              <CardHeader className="pb-6">
-                <CardTitle className="text-3xl text-venue-dark font-bold">Share Your Thoughts</CardTitle>
-                <p className="text-gray-600 text-lg">
-                  Drop us a line and we'll respond with the care and attention you deserve.
-                </p>
-              </CardHeader>
-              <CardContent className="px-8 pb-8">
+            <h2 className="text-4xl font-bold text-venue-dark mb-4">Send Us a Message</h2>
+            <p className="text-lg text-gray-600">Fill out the form below and we'll get back to you shortly</p>
+          </motion.div>
+
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <Card className="shadow-lg">
+              <CardContent className="p-8 sm:p-12">
                 <form onSubmit={onSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="text-sm font-semibold text-gray-700">
-                        Full Name *
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <Label htmlFor="name" className="font-semibold text-gray-700">
+                        Your Name *
                       </Label>
                       <Input
                         id="name"
                         name="name"
                         type="text"
                         required
-                        placeholder="Enter your full name"
-                        className="h-12 border-2 border-gray-200 focus:border-venue-indigo focus:ring-2 focus:ring-venue-indigo/20 transition-all duration-200"
+                        placeholder="John Doe"
+                        className="mt-1"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
+                    <div className="space-y-3">
+                      <Label htmlFor="email" className="font-semibold text-gray-700">
                         Email Address *
                       </Label>
                       <Input
@@ -286,27 +256,27 @@ export default function Contact() {
                         name="email"
                         type="email"
                         required
-                        placeholder="Enter your email"
-                        className="h-12 border-2 border-gray-200 focus:border-venue-indigo focus:ring-2 focus:ring-venue-indigo/20 transition-all duration-200"
+                        placeholder="you@example.com"
+                        className="mt-1"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-sm font-semibold text-gray-700">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <Label htmlFor="phone" className="font-semibold text-gray-700">
                         Phone Number
                       </Label>
                       <Input
                         id="phone"
                         name="phone"
                         type="tel"
-                        placeholder="Enter your phone number"
-                        className="h-12 border-2 border-gray-200 focus:border-venue-indigo focus:ring-2 focus:ring-venue-indigo/20 transition-all duration-200"
+                        placeholder="+91 98765-43210"
+                        className="mt-1"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="subject" className="text-sm font-semibold text-gray-700">
+                    <div className="space-y-3">
+                      <Label htmlFor="subject" className="font-semibold text-gray-700">
                         Subject *
                       </Label>
                       <Input
@@ -314,14 +284,14 @@ export default function Contact() {
                         name="subject"
                         type="text"
                         required
-                        placeholder="What is this about?"
-                        className="h-12 border-2 border-gray-200 focus:border-venue-indigo focus:ring-2 focus:ring-venue-indigo/20 transition-all duration-200"
+                        placeholder="How can we help?"
+                        className="mt-1"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="message" className="text-sm font-semibold text-gray-700">
+                  <div className="space-y-3">
+                    <Label htmlFor="message" className="font-semibold text-gray-700">
                       Message *
                     </Label>
                     <Textarea
@@ -330,80 +300,153 @@ export default function Contact() {
                       required
                       placeholder="Tell us more about your inquiry..."
                       rows={6}
-                      className="border-2 border-gray-200 focus:border-venue-indigo focus:ring-2 focus:ring-venue-indigo/20 transition-all duration-200 resize-none"
+                      className="mt-1"
                     />
                   </div>
 
-                  {result && (
-                    <div className={`flex items-center space-x-3 p-4 rounded-lg border ${
-                      result.includes("Successfully")
-                        ? "bg-green-50 text-green-700 border-green-200"
-                        : "bg-blue-50 text-blue-700 border-blue-200"
-                    }`}>
-                      {result.includes("Successfully") ? (
-                        <CheckCircle className="h-5 w-5 flex-shrink-0" />
-                      ) : (
-                        <AlertCircle className="h-5 w-5 flex-shrink-0" />
-                      )}
-                      <span className="text-sm">{result}</span>
-                    </div>
+                  {result === "success" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700"
+                    >
+                      <CheckCircle className="h-5 w-5 flex-shrink-0" />
+                      <span className="font-medium">Message sent successfully! We'll be in touch soon.</span>
+                    </motion.div>
+                  )}
+
+                  {result === "error" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700"
+                    >
+                      <span className="font-medium">Something went wrong. Please try again.</span>
+                    </motion.div>
                   )}
 
                   <Button
                     type="submit"
-                    className="w-full bg-venue-indigo hover:bg-venue-purple text-white h-14 text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
+                    disabled={isLoading}
+                    className="w-full h-12 bg-gradient-to-r from-venue-indigo to-venue-indigo/80 hover:shadow-lg hover:shadow-venue-indigo/30 text-white font-semibold transition-all"
                   >
-                    Send Message
-                    <Send className="ml-2 h-5 w-5" />
+                    {isLoading ? 'Sending...' : 'Send Message'}
+                    {!isLoading && <Send className="ml-2 h-4 w-4" />}
                   </Button>
                 </form>
               </CardContent>
             </Card>
           </motion.div>
         </div>
+      </section>
 
-        {/* FAQ Section */}
-        <motion.div
-          className="mt-16"
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          transition={transition}
-        >
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              Quick Answers to Your Questions
+      {/* Why Choose Us Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-venue-lavender/10 to-white">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            className="text-center mb-16"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <h2 className="text-4xl font-bold text-venue-dark mb-4">Why Reach Out to Us?</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">We're committed to providing exceptional support and service</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Headphones,
+                title: 'Dedicated Support',
+                description: 'Our team is here to assist you with any questions or concerns 24/7.'
+              },
+              {
+                icon: Zap,
+                title: 'Quick Response',
+                description: 'We respond to all inquiries within 24 hours, ensuring you get help when you need it.'
+              },
+              {
+                icon: Users,
+                title: 'Expert Team',
+                description: 'Our experienced team is equipped to handle partnerships, support, and special requests.'
+              }
+            ].map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <motion.div
+                  key={index}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ ...transition, delay: index * 0.1 }}
+                  className="text-center"
+                >
+                  <div className="w-16 h-16 bg-gradient-to-br from-venue-indigo/20 to-venue-indigo/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Icon className="h-8 w-8 text-venue-indigo" />
+                  </div>
+                  <h3 className="font-semibold text-xl text-venue-dark mb-3">{item.title}</h3>
+                  <p className="text-gray-600 leading-relaxed">{item.description}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-venue-indigo/5 via-venue-lavender/5 to-transparent">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+            className="space-y-4"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-venue-dark">
+              Ready to Take the Next Step?
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Get instant clarity on common inquiries—because your time is valuable
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto leading-relaxed">
+              Whether you're looking to list your venue, need support, or want to explore a partnership, we're excited to connect with you.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="max-w-4xl mx-auto">
-            <Card className="shadow-lg border-0">
-              <CardContent className="p-8">
-                <Accordion type="single" collapsible className="w-full">
-                  {faqs.map((faq, index) => (
-                    <AccordionItem key={index} value={`item-${index}`} className="border-b border-gray-200 last:border-b-0">
-                      <AccordionTrigger className="text-left py-6 hover:no-underline">
-                        <div className="flex items-center space-x-3">
-                          <HelpCircle className="h-5 w-5 text-venue-indigo flex-shrink-0" />
-                          <span className="font-semibold text-venue-dark">{faq.question}</span>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="pb-6 text-gray-600 leading-relaxed">
-                        {faq.answer}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </CardContent>
-            </Card>
-          </div>
-        </motion.div>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ ...transition, delay: 0.1 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center pt-4"
+          >
+            <Button
+              asChild
+              size="lg"
+              className="bg-gradient-to-r from-venue-indigo to-venue-indigo/80 hover:shadow-lg hover:shadow-venue-indigo/30 text-white font-semibold group"
+            >
+              <a href="#contact-form" className="flex items-center">
+                Start a Conversation
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </a>
+            </Button>
+          </motion.div>
 
-      </div>
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ ...transition, delay: 0.2 }}
+            className="text-gray-600 text-sm"
+          >
+            We typically respond within 24 hours. For urgent matters, please call us directly.
+          </motion.p>
+        </div>
+      </section>
     </div>
   );
 }

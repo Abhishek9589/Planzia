@@ -142,6 +142,29 @@ export default function VenueDetail() {
     fetchUserBookingsForVenue();
   }, [isLoggedIn, id, ratingRefreshTrigger]);
 
+
+  useEffect(() => {
+    const fetchHeroRating = async () => {
+      try {
+        const data = await apiClient.getJson(`/api/ratings/venue/${id}`);
+        const ratingElement = document.getElementById('hero-rating');
+        const countElement = document.getElementById('hero-rating-count');
+        if (ratingElement) {
+          ratingElement.textContent = (data.averageRating || 0).toFixed(1);
+        }
+        if (countElement) {
+          countElement.textContent = `(${data.totalRatings || 0})`;
+        }
+      } catch (err) {
+        console.error('Error fetching ratings for hero:', err);
+      }
+    };
+
+    if (id) {
+      fetchHeroRating();
+    }
+  }, [id]);
+
   const handleFavoriteClick = async () => {
     if (!isLoggedIn) {
       setNotification({
@@ -331,7 +354,7 @@ export default function VenueDetail() {
     : [venue.image || "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800&h=600&fit=crop"];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-16">
       {notification && (
         <Notification
           type={notification.type}
@@ -341,9 +364,10 @@ export default function VenueDetail() {
       )}
 
       <div className="w-full">
-        {/* Full Width Image Gallery */}
+        {/* Full Width Image Gallery with Overlay Info */}
         <motion.div
-          className="relative w-full h-96 md:h-[500px] overflow-hidden"
+          id="hero-section"
+          className="relative w-full h-96 md:h-[550px] overflow-hidden"
           variants={fadeUp}
           initial="hidden"
           animate="visible"
@@ -355,26 +379,27 @@ export default function VenueDetail() {
             className="w-full h-full object-cover"
           />
 
-
+          {/* Image Navigation */}
           {venueImages.length > 1 && (
             <>
               <button
                 onClick={prevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors z-10"
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
               <button
                 onClick={nextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors z-10"
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
             </>
           )}
 
+          {/* Dot Indicators */}
           {venueImages.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
               {venueImages.map((_, index) => (
                 <button
                   key={index}
@@ -387,7 +412,8 @@ export default function VenueDetail() {
             </div>
           )}
 
-          <div className="absolute top-4 right-4 flex gap-2">
+          {/* Top Right Actions */}
+          <div className="absolute top-4 right-4 flex gap-2 z-20">
             <Button
               size="icon"
               variant="secondary"
@@ -406,8 +432,8 @@ export default function VenueDetail() {
             </Button>
           </div>
 
-          {/* Back Button & Category Badge - Side by Side */}
-          <div className="absolute top-4 left-4 flex items-center gap-2">
+          {/* Top Left - Back Button & Badge */}
+          <div className="absolute top-4 left-4 flex items-center gap-2 z-20">
             <Button
               asChild
               variant="ghost"
@@ -423,11 +449,67 @@ export default function VenueDetail() {
               {venue.type || 'Venue'}
             </Badge>
           </div>
+
+          {/* Bottom Overlay - Venue Info Card */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent pt-20 pb-6 px-4 md:px-6 z-20">
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                {/* Left: Venue Details */}
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">{venue.name}</h1>
+                  <div className="flex items-center gap-4 flex-wrap mb-4">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                      <span className="font-semibold text-sm text-white" id="hero-rating">--</span>
+                      <span className="text-sm text-white/80" id="hero-rating-count">-</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-white mb-3">
+                    <MapPin className="h-5 w-5 flex-shrink-0" />
+                    <span className="text-lg">{venue.location}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-white">
+                    <Users className="h-5 w-5 flex-shrink-0" />
+                    <span className="text-lg">Up to {venue.capacity} guests</span>
+                  </div>
+                </div>
+
+                {/* Right: Price & Booking Button */}
+                <div className="flex flex-col gap-4 items-start md:items-end">
+                  {(() => {
+                    const priceBreakdown = getPriceBreakdownComponent(venue.price);
+                    const finalPrice = priceBreakdown.items.find(item => item.type === 'final');
+                    return (
+                      <div className="text-white">
+                        <p className="text-sm text-white/80 mb-1">Starting from</p>
+                        <p className="text-3xl font-bold">{finalPrice?.formatted || 'Contact for pricing'}</p>
+                        <p className="text-sm text-white/80">per day</p>
+                      </div>
+                    );
+                  })()}
+                  <Button
+                    onClick={() => {
+                      if (!isLoggedIn) {
+                        setShowLoginDialog(true);
+                        return;
+                      }
+                      setShowBookingForm(true);
+                    }}
+                    className="bg-venue-indigo hover:bg-venue-purple text-white w-full md:w-auto px-8"
+                    size="lg"
+                  >
+                    Start Booking Process
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
+        {/* Thumbnail Gallery */}
         {venueImages.length > 1 && (
           <motion.div
-            className="max-w-7xl mx-auto px-4 py-8 mb-8"
+            className="max-w-7xl mx-auto px-4 py-6"
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
@@ -459,470 +541,425 @@ export default function VenueDetail() {
           </motion.div>
         )}
 
-        {/* Main Content */}
+        {/* Main Content - Two Column Layout */}
         <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Venue Details */}
-            <motion.div
-              className="lg:col-span-2 space-y-6"
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-              transition={transition}
-            >
-              {/* Venue Header */}
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h1 className="text-3xl md:text-4xl font-bold text-venue-dark mb-3">{venue.name}</h1>
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center text-gray-600">
-                          <MapPin className="h-5 w-5 mr-2" />
-                          <span className="text-lg">{venue.location}</span>
-                        </div>
-                        {venue.googleMapsUrl && isLoggedIn && (
-                          <a
-                            href={venue.googleMapsUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-venue-indigo hover:text-venue-purple font-medium transition-colors flex items-center text-sm ml-4"
-                          >
-                            View on Google Maps
-                            <ExternalLink className="h-4 w-4 ml-1" />
-                          </a>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-6 flex-wrap">
-                        <div className="flex items-center">
-                          <Users className="h-5 w-5 mr-2 text-gray-500" />
-                          <span className="text-gray-600">Up to {venue.capacity} guests</span>
-                        </div>
-                        <div>
-                          <RatingDisplay venueId={id} key={ratingRefreshTrigger} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
+          <motion.div
+            className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            {/* Left Column */}
+            <div className="space-y-6">
               {/* About Section */}
               <Card>
                 <CardContent className="p-6">
-                  <h2 className="text-2xl font-semibold mb-4">About This Venue</h2>
-                  <p className="text-gray-600 leading-relaxed text-lg">{venue.description}</p>
+                  <h2 className="text-2xl font-semibold mb-4 text-venue-dark">About This Venue</h2>
+                  <p className="text-gray-600 leading-relaxed text-base">{venue.description}</p>
                 </CardContent>
               </Card>
 
-
-              {/* Facilities */}
+              {/* Facilities & Amenities */}
               {venue.facilities && venue.facilities.length > 0 && (
                 <Card>
                   <CardContent className="p-6">
-                    <h2 className="text-2xl font-semibold mb-4">Facilities & Amenities</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <h2 className="text-2xl font-semibold mb-4 text-venue-dark">Facilities & Amenities</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {venue.facilities.map((facility, index) => (
-                        <motion.div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg"
+                        <motion.div
+                          key={index}
+                          className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                           variants={fadeUp}
                           initial="hidden"
                           whileInView="visible"
                           viewport={{ once: true, amount: 0.2 }}
-                          transition={{ ...transition, delay: (index % 6) * 0.04 }}
+                          transition={{ ...transition, delay: (index % 8) * 0.04 }}
                         >
-                          {facility.toLowerCase().includes('wifi') && <Wifi className="h-5 w-5 mr-2 text-venue-indigo" />}
-                          {facility.toLowerCase().includes('parking') && <Car className="h-5 w-5 mr-2 text-venue-indigo" />}
-                          {facility.toLowerCase().includes('catering') && <Coffee className="h-5 w-5 mr-2 text-venue-indigo" />}
-                          <span className="font-medium">{facility}</span>
+                          {facility.toLowerCase().includes('wifi') && <Wifi className="h-6 w-6 mb-2 text-venue-indigo" />}
+                          {facility.toLowerCase().includes('parking') && <Car className="h-6 w-6 mb-2 text-venue-indigo" />}
+                          {facility.toLowerCase().includes('catering') && <Coffee className="h-6 w-6 mb-2 text-venue-indigo" />}
+                          {!facility.toLowerCase().includes('wifi') && !facility.toLowerCase().includes('parking') && !facility.toLowerCase().includes('catering') && <div className="h-6 w-6 mb-2" />}
+                          <span className="font-medium text-sm text-center text-gray-700">{facility}</span>
                         </motion.div>
                       ))}
                     </div>
                   </CardContent>
                 </Card>
               )}
+            </div>
 
-              {/* Rate This Venue Section */}
-              {isLoggedIn && userBookings && userBookings.length > 0 && (
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl font-semibold mb-4">Share Your Experience</h2>
-                    <p className="text-gray-600 mb-4">Have you already hosted an event at this venue? Share your feedback with others!</p>
-                    <Button
-                      onClick={() => setShowRatingForm(true)}
-                      className="w-full bg-venue-indigo hover:bg-venue-purple text-white"
-                    >
-                      <Star className="h-4 w-4 mr-2" />
-                      Rate This Venue
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-
-            </motion.div>
-
-            {/* Right Column - Price Breakdown & Booking */}
-            <motion.div
-              className="space-y-6"
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ ...transition, delay: 0.05 }}
-            >
+            {/* Right Column */}
+            <div className="space-y-6">
               {/* Price Breakdown Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center text-xl">
+                  <CardTitle className="flex items-center text-xl text-venue-dark">
                     <CalendarIcon className="h-5 w-5 mr-2" />
                     Price Breakdown
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-gray-50 rounded-lg p-4 border-2 border-venue-indigo/10">
+                  <div className="bg-gray-50 rounded-lg p-6 border border-venue-indigo/10">
                     {(() => {
                       const priceBreakdown = getPriceBreakdownComponent(venue.price);
                       return (
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           {priceBreakdown.items.map((item, index) => (
-                            <div key={index} className={`flex justify-between text-sm ${
-                              item.type === 'subtotal' ? 'border-t pt-2 mt-2 font-medium' :
+                            <div key={index} className={`flex justify-between ${
+                              item.type === 'subtotal' ? 'border-t pt-3 mt-3 font-medium text-gray-700' :
                               item.type === 'discount' ? 'text-green-600 font-medium' :
-                              item.type === 'final' ? 'border-t pt-2 mt-2 text-lg font-bold text-venue-indigo' :
-                              ''
+                              item.type === 'fee' ? 'text-gray-600' :
+                              item.type === 'final' ? 'border-t pt-3 mt-3 text-lg font-bold text-venue-indigo' :
+                              'text-gray-600'
                             }`}>
-                              <span>{item.label}:</span>
+                              <span>{item.label}</span>
                               <span>{item.formatted}</span>
                             </div>
                           ))}
                         </div>
                       );
                     })()}
-                    <div className="mt-2 text-xs text-gray-500 text-center">per day</div>
+                    <div className="mt-3 text-xs text-gray-500 text-center pt-3 border-t">per day</div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Book This Venue Card */}
+              {/* Location & Directions Section */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center text-xl">
-                    <CalendarIcon className="h-5 w-5 mr-2" />
-                    Book This Venue
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="text-center p-6 bg-gray-50 rounded-lg">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2">Ready to book?</h3>
-                      <p className="text-gray-600 mb-4">Select your event date and fill in your details to send an inquiry.</p>
-                      <Button
-                        onClick={() => {
-                          if (!isLoggedIn) {
-                            setShowLoginDialog(true);
-                            return;
-                          }
-                          setShowBookingForm(true);
-                        }}
-                        className="w-full bg-venue-indigo hover:bg-venue-purple text-white"
-                        size="lg"
-                      >
-                        Start Booking Process
-                      </Button>
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-semibold mb-4 text-venue-dark">Location & Directions</h2>
+                  <div className="flex items-start gap-4 mb-6">
+                    <MapPin className="h-6 w-6 text-venue-indigo flex-shrink-0 mt-1" />
+                    <div className="flex-1">
+                      <p className="text-gray-600 text-lg font-medium mb-1">{venue.location}</p>
+                      <p className="text-gray-500 text-sm">{venue.address || 'Address details coming soon'}</p>
+                    </div>
+                  </div>
+                  {venue.googleMapsUrl && (
+                    <a
+                      href={venue.googleMapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-venue-indigo hover:bg-venue-purple text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                    >
+                      View on Google Maps
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
+
+          {/* Full Width Sections Below */}
+          <motion.div
+            className="space-y-6"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            {/* Customer Feedback Section - Full Width */}
+            <FeedbackDisplay venueId={id} key={ratingRefreshTrigger} />
+
+            {/* Rate This Venue Section */}
+            {isLoggedIn && userBookings && userBookings.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-semibold mb-4 text-venue-dark">Share Your Experience</h2>
+                  <p className="text-gray-600 mb-4">Have you already hosted an event at this venue? Share your feedback with others!</p>
+                  <Button
+                    onClick={() => setShowRatingForm(true)}
+                    className="w-full bg-venue-indigo hover:bg-venue-purple text-white"
+                  >
+                    <Star className="h-4 w-4 mr-2" />
+                    Rate This Venue
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Booking Dialog */}
+      <Dialog open={showBookingForm} onOpenChange={setShowBookingForm}>
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-5xl sm:rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Start Booking</DialogTitle>
+            <DialogDescription>
+              Provide your details to send an inquiry to {venue?.name}.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleInquireSubmit} className="space-y-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <p className="text-sm text-blue-800">
+                <strong>Note:</strong> Your full name, email, and phone number are pre-filled from your account and cannot be changed here. To update these details, please visit your account settings.
+              </p>
+            </div>
+
+            {/* Calendar + Details */}
+            <div>
+              <div className="flex flex-col md:flex-row gap-2 items-start">
+                {/* Left: Calendar */}
+                <div className="w-full md:w-[296px]">
+                  <Label className="text-base font-semibold">Select Event Date</Label>
+                  <div className="mt-2 w-full overflow-x-auto border border-gray-300 rounded-md p-2 shadow-md hover:shadow-lg">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      disabled={(date) => date < new Date()}
+                      className="w-auto" classNames={{ table: "w-auto" }}
+                    />
+                  </div>
+                  {selectedDate && (
+                    <p className="text-sm text-venue-indigo mt-2 font-medium">
+                      Selected: {selectedDate.toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
+
+                {/* Right: Details */}
+                <div className="flex-1 w-full">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Label htmlFor="fullName">Full Name*</Label>
+                        <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded font-semibold">Locked</span>
+                      </div>
+                      <Input
+                        id="fullName"
+                        name="fullName"
+                        value={bookingForm.fullName}
+                        onChange={handleBookingFormChange}
+                        placeholder="Enter your full name"
+                        required
+                        disabled
+                        className="mt-1 bg-gray-100 cursor-not-allowed"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Label htmlFor="email">Email*</Label>
+                        <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded font-semibold">Locked</span>
+                      </div>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={bookingForm.email}
+                        onChange={handleBookingFormChange}
+                        placeholder="name@example.com"
+                        required
+                        disabled
+                        className="mt-1 bg-gray-100 cursor-not-allowed"
+                      />
                     </div>
                   </div>
 
-                  <Dialog open={showBookingForm} onOpenChange={setShowBookingForm}>
-                    <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-5xl sm:rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>Start Booking</DialogTitle>
-                        <DialogDescription>
-                          Provide your details to send an inquiry to {venue?.name}.
-                        </DialogDescription>
-                      </DialogHeader>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Label htmlFor="phone">Phone Number*</Label>
+                        <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded font-semibold">Locked</span>
+                      </div>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        value={bookingForm.phone}
+                        onChange={handleBookingFormChange}
+                        placeholder="10-digit mobile number"
+                        required
+                        disabled
+                        className="mt-1 bg-gray-100 cursor-not-allowed"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="eventType">Event Type*</Label>
+                      <Input
+                        id="eventType"
+                        name="eventType"
+                        value={bookingForm.eventType}
+                        onChange={handleBookingFormChange}
+                        placeholder="e.g., Wedding Reception, Conference"
+                        required
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="guestCount">Expected Guest Count*</Label>
+                      <Input
+                        id="guestCount"
+                        name="guestCount"
+                        type="number"
+                        value={bookingForm.guestCount}
+                        onChange={handleBookingFormChange}
+                        placeholder="Expected number of guests"
+                        required
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
 
-                      <form onSubmit={handleInquireSubmit} className="space-y-6">
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                          <p className="text-sm text-blue-800">
-                            <strong>Note:</strong> Your full name, email, and phone number are pre-filled from your account and cannot be changed here. To update these details, please visit your account settings.
-                          </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <Label>Event Start Time*</Label>
+                      <div className="flex gap-2 items-end mt-1">
+                        <div className="flex-1">
+                          <Label className="text-xs text-gray-600">Hour</Label>
+                          <Input
+                            name="timeFromHour"
+                            type="number"
+                            min="1"
+                            max="12"
+                            value={bookingForm.timeFromHour}
+                            onChange={handleBookingFormChange}
+                            placeholder="HH"
+                            required
+                            className="mt-1"
+                          />
                         </div>
-
-                        {/* Calendar + Details */}
-                        <div>
-                          <div className="flex flex-col md:flex-row gap-2 items-start">
-                            {/* Left: Calendar */}
-                            <div className="w-full md:w-[296px]">
-                              <Label className="text-base font-semibold">Select Event Date</Label>
-                              <div className="mt-2 w-full overflow-x-auto border rounded-lg p-2">
-                                <Calendar
-                                  mode="single"
-                                  selected={selectedDate}
-                                  onSelect={setSelectedDate}
-                                  disabled={(date) => date < new Date()}
-                                  className="w-auto" classNames={{ table: "w-auto" }}
-                                />
-                              </div>
-                              {selectedDate && (
-                                <p className="text-sm text-venue-indigo mt-2 font-medium">
-                                  Selected: {selectedDate.toLocaleDateString()}
-                                </p>
-                              )}
-                            </div>
-
-                            {/* Right: Details */}
-                            <div className="flex-1 w-full">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <Label htmlFor="fullName">Full Name*</Label>
-                                    <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded font-semibold">Locked</span>
-                                  </div>
-                                  <Input
-                                    id="fullName"
-                                    name="fullName"
-                                    value={bookingForm.fullName}
-                                    onChange={handleBookingFormChange}
-                                    placeholder="Enter your full name"
-                                    required
-                                    disabled
-                                    className="mt-1 bg-gray-100 cursor-not-allowed"
-                                  />
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <Label htmlFor="email">Email*</Label>
-                                    <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded font-semibold">Locked</span>
-                                  </div>
-                                  <Input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    value={bookingForm.email}
-                                    onChange={handleBookingFormChange}
-                                    placeholder="name@example.com"
-                                    required
-                                    disabled
-                                    className="mt-1 bg-gray-100 cursor-not-allowed"
-                                  />
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                                <div>
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <Label htmlFor="phone">Phone Number*</Label>
-                                    <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded font-semibold">Locked</span>
-                                  </div>
-                                  <Input
-                                    id="phone"
-                                    name="phone"
-                                    type="tel"
-                                    value={bookingForm.phone}
-                                    onChange={handleBookingFormChange}
-                                    placeholder="10-digit mobile number"
-                                    required
-                                    disabled
-                                    className="mt-1 bg-gray-100 cursor-not-allowed"
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor="eventType">Event Type*</Label>
-                                  <Input
-                                    id="eventType"
-                                    name="eventType"
-                                    value={bookingForm.eventType}
-                                    onChange={handleBookingFormChange}
-                                    placeholder="e.g., Wedding Reception, Conference"
-                                    required
-                                    className="mt-1"
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor="guestCount">Expected Guest Count*</Label>
-                                  <Input
-                                    id="guestCount"
-                                    name="guestCount"
-                                    type="number"
-                                    value={bookingForm.guestCount}
-                                    onChange={handleBookingFormChange}
-                                    placeholder="Expected number of guests"
-                                    required
-                                    className="mt-1"
-                                  />
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                                <div>
-                                  <Label>Event Start Time*</Label>
-                                  <div className="flex gap-2 items-end mt-1">
-                                    <div className="flex-1">
-                                      <Label className="text-xs text-gray-600">Hour</Label>
-                                      <Input
-                                        name="timeFromHour"
-                                        type="number"
-                                        min="1"
-                                        max="12"
-                                        value={bookingForm.timeFromHour}
-                                        onChange={handleBookingFormChange}
-                                        placeholder="HH"
-                                        required
-                                        className="mt-1"
-                                      />
-                                    </div>
-                                    <div className="flex-1">
-                                      <Label className="text-xs text-gray-600">Minute</Label>
-                                      <Input
-                                        name="timeFromMinute"
-                                        type="number"
-                                        min="0"
-                                        max="59"
-                                        value={bookingForm.timeFromMinute}
-                                        onChange={handleBookingFormChange}
-                                        placeholder="MM"
-                                        required
-                                        className="mt-1"
-                                      />
-                                    </div>
-                                    <div className="flex-1">
-                                      <Label className="text-xs text-gray-600">Period</Label>
-                                      <select
-                                        name="timeFromPeriod"
-                                        value={bookingForm.timeFromPeriod}
-                                        onChange={handleBookingFormChange}
-                                        className="w-full h-10 mt-1 px-3 border border-gray-300 rounded-md text-sm"
-                                      >
-                                        <option value="AM">AM</option>
-                                        <option value="PM">PM</option>
-                                      </select>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div>
-                                  <Label>Event End Time*</Label>
-                                  <div className="flex gap-2 items-end mt-1">
-                                    <div className="flex-1">
-                                      <Label className="text-xs text-gray-600">Hour</Label>
-                                      <Input
-                                        name="timeToHour"
-                                        type="number"
-                                        min="1"
-                                        max="12"
-                                        value={bookingForm.timeToHour}
-                                        onChange={handleBookingFormChange}
-                                        placeholder="HH"
-                                        required
-                                        className="mt-1"
-                                      />
-                                    </div>
-                                    <div className="flex-1">
-                                      <Label className="text-xs text-gray-600">Minute</Label>
-                                      <Input
-                                        name="timeToMinute"
-                                        type="number"
-                                        min="0"
-                                        max="59"
-                                        value={bookingForm.timeToMinute}
-                                        onChange={handleBookingFormChange}
-                                        placeholder="MM"
-                                        required
-                                        className="mt-1"
-                                      />
-                                    </div>
-                                    <div className="flex-1">
-                                      <Label className="text-xs text-gray-600">Period</Label>
-                                      <select
-                                        name="timeToPeriod"
-                                        value={bookingForm.timeToPeriod}
-                                        onChange={handleBookingFormChange}
-                                        className="w-full h-10 mt-1 px-3 border border-gray-300 rounded-md text-sm"
-                                      >
-                                        <option value="AM">AM</option>
-                                        <option value="PM">PM</option>
-                                      </select>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="mt-4">
-                                <Label htmlFor="specialRequests">Special Requests</Label>
-                                <Textarea
-                                  id="specialRequests"
-                                  name="specialRequests"
-                                  value={bookingForm.specialRequests}
-                                  onChange={handleBookingFormChange}
-                                  placeholder="Any special requests or details (optional)"
-                                  rows={4}
-                                  className="mt-1"
-                                />
-                              </div>
-                            </div>
-                          </div>
+                        <div className="flex-1">
+                          <Label className="text-xs text-gray-600">Minute</Label>
+                          <Input
+                            name="timeFromMinute"
+                            type="number"
+                            min="0"
+                            max="59"
+                            value={bookingForm.timeFromMinute}
+                            onChange={handleBookingFormChange}
+                            placeholder="MM"
+                            required
+                            className="mt-1"
+                          />
                         </div>
-
-                        <DialogFooter className="gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setShowBookingForm(false)}
-                            className="w-full sm:w-auto"
+                        <div className="flex-1">
+                          <Label className="text-xs text-gray-600">Period</Label>
+                          <select
+                            name="timeFromPeriod"
+                            value={bookingForm.timeFromPeriod}
+                            onChange={handleBookingFormChange}
+                            className="w-full h-10 mt-1 px-3 border border-gray-300 rounded-md text-sm"
                           >
-                            Cancel
-                          </Button>
-                          <Button
-                            type="submit"
-                            disabled={isSubmitting || !selectedDate || !bookingForm.timeFromHour || !bookingForm.timeFromMinute || !bookingForm.timeToHour || !bookingForm.timeToMinute}
-                            className="bg-venue-indigo hover:bg-venue-purple text-white w-full sm:w-auto"
-                          >
-                            {isSubmitting ? 'Sending Inquiry...' : 'Send Inquiry'}
-                          </Button>
-                        </DialogFooter>
-
-                        <div className="text-xs text-gray-500 text-center">
-                          Your inquiry will be sent to the venue owner and our team. We'll get back to you within 24 hours.
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                          </select>
                         </div>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Event End Time*</Label>
+                      <div className="flex gap-2 items-end mt-1">
+                        <div className="flex-1">
+                          <Label className="text-xs text-gray-600">Hour</Label>
+                          <Input
+                            name="timeToHour"
+                            type="number"
+                            min="1"
+                            max="12"
+                            value={bookingForm.timeToHour}
+                            onChange={handleBookingFormChange}
+                            placeholder="HH"
+                            required
+                            className="mt-1"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <Label className="text-xs text-gray-600">Minute</Label>
+                          <Input
+                            name="timeToMinute"
+                            type="number"
+                            min="0"
+                            max="59"
+                            value={bookingForm.timeToMinute}
+                            onChange={handleBookingFormChange}
+                            placeholder="MM"
+                            required
+                            className="mt-1"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <Label className="text-xs text-gray-600">Period</Label>
+                          <select
+                            name="timeToPeriod"
+                            value={bookingForm.timeToPeriod}
+                            onChange={handleBookingFormChange}
+                            className="w-full h-10 mt-1 px-3 border border-gray-300 rounded-md text-sm"
+                          >
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-                  <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
-                    <DialogContent className="sm:max-w-md sm:rounded-2xl">
-                      <DialogHeader>
-                        <DialogTitle>Sign in required</DialogTitle>
-                        <DialogDescription>
-                          Without logging in, you cannot start the booking process. Please sign in to continue.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <DialogFooter className="gap-2">
-                        <Button variant="outline" onClick={() => setShowLoginDialog(false)}>
-                          Close
-                        </Button>
-                        <Button asChild className="bg-venue-indigo hover:bg-venue-purple text-white">
-                          <Link to="/signin">Go to Sign In</Link>
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-        </div>
+                  <div className="mt-4">
+                    <Label htmlFor="specialRequests">Special Requests</Label>
+                    <Textarea
+                      id="specialRequests"
+                      name="specialRequests"
+                      value={bookingForm.specialRequests}
+                      onChange={handleBookingFormChange}
+                      placeholder="Any special requests or details (optional)"
+                      rows={4}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        {/* Feedback Section */}
-        <motion.div
-          className="mt-12 max-w-7xl mx-auto px-4 py-8"
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          transition={transition}
-        >
-          <FeedbackDisplay venueId={id} key={ratingRefreshTrigger} />
-        </motion.div>
-      </div>
+            <DialogFooter className="gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowBookingForm(false)}
+                className="w-full sm:w-auto"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !selectedDate || !bookingForm.timeFromHour || !bookingForm.timeFromMinute || !bookingForm.timeToHour || !bookingForm.timeToMinute}
+                className="bg-venue-indigo hover:bg-venue-purple text-white w-full sm:w-auto"
+              >
+                {isSubmitting ? 'Sending Inquiry...' : 'Send Inquiry'}
+              </Button>
+            </DialogFooter>
+
+            <div className="text-xs text-gray-500 text-center">
+              Your inquiry will be sent to the venue owner and our team. We'll get back to you within 24 hours.
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Login Dialog */}
+      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+        <DialogContent className="sm:max-w-md sm:rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Sign in required</DialogTitle>
+            <DialogDescription>
+              Without logging in, you cannot start the booking process. Please sign in to continue.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setShowLoginDialog(false)}>
+              Close
+            </Button>
+            <Button asChild className="bg-venue-indigo hover:bg-venue-purple text-white">
+              <Link to="/signin">Go to Sign In</Link>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Rating Form Modal */}
       {isLoggedIn && userBookings && userBookings.length > 0 && (

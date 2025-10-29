@@ -1,306 +1,467 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { motion } from 'framer-motion';
 import {
-  Download,
   FileText,
   Scale,
   ShieldCheck,
   CreditCard,
   Users,
   Building,
-  Mail,
-  MapPin,
-  Calendar
+  Lock,
+  AlertCircle,
+  Copyright,
+  RefreshCw,
+  ArrowRight
 } from 'lucide-react';
 
-export default function TermsAndConditions() {
-  const handleDownloadPDF = () => {
-    // Use the PDF URL from the attachment
-    const pdfUrl = "/terms-and-conditions.pdf";
-    const link = document.createElement('a');
-    link.href = pdfUrl;
-    link.download = 'Planzia-Terms-and-Conditions.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+const transition = { duration: 0.5, ease: [0.22, 1, 0.36, 1] };
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0 }
+};
 
+const SectionDivider = () => (
+  <div className="my-16 border-t border-venue-lavender/50"></div>
+);
+
+export default function TermsAndConditions() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative h-[60vh] overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&h=800&fit=crop')"
-          }}
-        >
-          <div className="absolute inset-0 bg-black/50"></div>
-        </div>
+      <motion.section
+        className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={transition}
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Text Content */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              transition={transition}
+            >
+              <h1 className="text-5xl md:text-6xl font-bold text-venue-dark mb-6 leading-tight">
+                Terms & Conditions
+              </h1>
+              <p className="text-xl text-gray-700 mb-8 leading-relaxed max-w-xl">
+                These terms define your rights, responsibilities, and our mutual commitments while using Planzia's platform.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gradient-to-r from-venue-indigo to-venue-indigo/80 hover:shadow-lg hover:shadow-venue-indigo/30 text-white hover:text-white transition-all duration-200"
+                >
+                  <Link to="/contact">Contact Support</Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo/10 hover:text-venue-indigo transition-colors"
+                >
+                  <Link to="/#faq">View FAQ</Link>
+                </Button>
+              </div>
+            </motion.div>
 
-        <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins">
-              Terms & Conditions
-            </h1>
-            <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Please read these terms carefully before using Planzia platform and services.
-            </p>
-            <div className="flex justify-center items-center space-x-4">
-              <Badge variant="secondary" className="text-sm px-3 py-1">
-                <Calendar className="h-4 w-4 mr-1" />
-                Effective: 25 August 2025
-              </Badge>
-              <Button 
-                onClick={handleDownloadPDF}
-                className="bg-venue-indigo hover:bg-venue-purple text-white"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download PDF
-              </Button>
-            </div>
+            {/* Right: Image */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              transition={{ ...transition, delay: 0.2 }}
+              className="hidden lg:block"
+            >
+              <div className="relative">
+                <img
+                  src="https://plus.unsplash.com/premium_photo-1661306439089-e627ab5d7863?w=600&h=500&fit=crop&q=80"
+                  alt="Legal contract and documents"
+                  className="rounded-3xl shadow-2xl object-cover w-full h-[500px]"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-venue-indigo/5 to-transparent pointer-events-none"></div>
+              </div>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Introduction */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center text-2xl text-venue-dark">
-              <FileText className="h-6 w-6 mr-3 text-venue-indigo" />
-              Agreement Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              These Terms and Conditions ("Terms") constitute a legally binding agreement between <span className="font-semibold">Virtues Seven Events Pvt. Ltd.</span>, 
-              a company incorporated under the Companies Act, 2013, having its registered office at Pune, Maharashtra, India 
-              (hereinafter referred to as "Planzia", "Company", "We", "Us" or "Our"), and any person or entity accessing 
-              or using the Planzia platform.
+      {/* Main Content */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-venue-lavender/10">
+        <div className="max-w-4xl mx-auto">
+          {/* Introduction */}
+          <motion.div
+            className="mb-12"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <p className="text-lg text-gray-700 leading-relaxed mb-4">
+              Welcome to Planzia. By using our website and services, you agree to comply with the following terms and conditions. Please read them carefully before proceeding.
             </p>
-            <p className="text-gray-600 leading-relaxed">
-              By accessing, browsing, registering, or using the Platform, you ("User" or "Customer") and/or "Venue Partner" 
-              expressly agree to be bound by these Terms.
+            <p className="text-lg text-gray-700 leading-relaxed">
+              These Terms and Conditions ("Terms") constitute a legally binding agreement between <span className="font-semibold">Virtues Seven Events Pvt. Ltd.</span> (hereinafter referred to as "Planzia," "Company," "we," "us," or "our"), and any person or entity accessing or using the Planzia platform.
             </p>
-          </CardContent>
-        </Card>
+          </motion.div>
 
-        {/* Definitions */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center text-2xl text-venue-dark">
-              <Scale className="h-6 w-6 mr-3 text-venue-indigo" />
-              Key Definitions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <span className="font-semibold text-venue-dark">Customer/User:</span>
-                <span className="text-gray-600 ml-2">Any individual or entity browsing, registering, or booking venues via the Platform.</span>
+          <SectionDivider />
+
+          {/* 1. Acceptance of Terms */}
+          <motion.div
+            className="mb-12"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="flex-shrink-0 mt-1">
+                <FileText className="h-6 w-6 text-venue-indigo" />
               </div>
-              <div>
-                <span className="font-semibold text-venue-dark">Venue Partner:</span>
-                <span className="text-gray-600 ml-2">Any individual, company, or entity listing, promoting, or offering their venue(s) for booking on the Platform.</span>
-              </div>
-              <div>
-                <span className="font-semibold text-venue-dark">Services:</span>
-                <span className="text-gray-600 ml-2">Includes venue discovery, booking management, digital listing, marketing support, and related services provided by Planzia.</span>
-              </div>
-              <div>
-                <span className="font-semibold text-venue-dark">Booking:</span>
-                <span className="text-gray-600 ml-2">Any confirmed reservation of a venue made through the Platform.</span>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-venue-dark mb-4">1. Acceptance of Terms</h2>
+                <p className="text-gray-700 leading-relaxed">
+                  By accessing, browsing, registering, or using the Planzia platform, you expressly agree to be bound by these Terms and Conditions. If you do not agree to these Terms, please do not use our platform. We reserve the right to update, modify, or supplement these Terms at any time. Your continued use of the platform following any changes constitutes your acceptance of the updated Terms.
+                </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </motion.div>
 
-        {/* Scope of Services */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center text-2xl text-venue-dark">
-              <Building className="h-6 w-6 mr-3 text-venue-indigo" />
-              Scope of Services
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc list-inside text-gray-600 space-y-2">
-              <li>Planzia provides an online marketplace that connects Customers with Venue Partners for discovery, inquiry, and booking of venues.</li>
-              <li>Planzia acts solely as an <span className="font-semibold">intermediary</span> and does not own, operate, or control any venue listed on the Platform.</li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* User Obligations */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center text-2xl text-venue-dark">
-              <Users className="h-6 w-6 mr-3 text-venue-indigo" />
-              User Obligations
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc list-inside text-gray-600 space-y-2">
-              <li>Users shall provide accurate information during registration and booking.</li>
-              <li>Users must not misuse the Platform for fraudulent, illegal, or unauthorized purposes.</li>
-              <li>Users agree to comply with all applicable laws, rules, and regulations while using the Services.</li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* Venue Partner Obligations */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center text-2xl text-venue-dark">
-              <Building className="h-6 w-6 mr-3 text-venue-indigo" />
-              Venue Partner Obligations
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc list-inside text-gray-600 space-y-2">
-              <li>Venue Partners shall provide truthful, accurate, and updated information about their venues.</li>
-              <li>Venue Partners shall ensure compliance with all statutory licenses, permits, and safety norms.</li>
-              <li>Planzia reserves the right to verify and/or delist any venue in case of non-compliance or fraudulent activity.</li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* Bookings, Payments & Refunds */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center text-2xl text-venue-dark">
-              <CreditCard className="h-6 w-6 mr-3 text-venue-indigo" />
-              Bookings, Payments & Refunds
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-venue-dark mb-3">5.1 Booking Confirmation</h3>
-                <p className="text-gray-600">A booking is confirmed only upon receipt of payment (full or partial, as applicable).</p>
+          {/* 2. Eligibility */}
+          <motion.div
+            className="mb-12"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="flex-shrink-0 mt-1">
+                <Users className="h-6 w-6 text-venue-indigo" />
               </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-venue-dark mb-3">5.2 Payment Gateway</h3>
-                <p className="text-gray-600">All payments shall be processed through authorized payment gateways. Planzia is not liable for any delays or failures caused by third-party payment processors.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-venue-dark mb-3">5.3 Cancellation by Customer</h3>
-                <ul className="list-disc list-inside text-gray-600 space-y-1 ml-4">
-                  <li>Cancellations made <span className="font-semibold">30 days prior</span> to the event date: <span className="font-semibold text-green-600">80% refund</span></li>
-                  <li>Cancellations made <span className="font-semibold">15–29 days prior</span>: <span className="font-semibold text-yellow-600">50% refund</span></li>
-                  <li>Cancellations made <span className="font-semibold">less than 15 days prior</span>: <span className="font-semibold text-red-600">Non-refundable</span></li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-venue-dark mb-3">5.4 Cancellation by Venue Partner</h3>
-                <p className="text-gray-600">In the event a Venue Partner cancels a confirmed booking, the Customer shall receive a <span className="font-semibold text-green-600">full refund</span>. Planzia may impose penalties on the Venue Partner, including suspension/delisting.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-venue-dark mb-3">5.5 Refund Timeline</h3>
-                <p className="text-gray-600">Refunds shall be processed within <span className="font-semibold">7–14 working days</span>, subject to bank/payment gateway policies.</p>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-venue-dark mb-4">2. Eligibility</h2>
+                <p className="text-gray-700 leading-relaxed">
+                  You must be at least 18 years of age to use this platform. If you are under 18, you may only use Planzia with the consent and supervision of a parent or legal guardian. By registering, you represent and warrant that you have the legal capacity to enter into this agreement and that all information provided is accurate and truthful.
+                </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </motion.div>
 
-        {/* Liability & Disclaimer */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center text-2xl text-venue-dark">
-              <ShieldCheck className="h-6 w-6 mr-3 text-venue-indigo" />
-              Liability & Disclaimer
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-gray-600">Planzia is only a facilitator and is not responsible for the condition, quality, safety, or legal compliance of venues.</p>
-              <p className="text-gray-600">Customers agree that Planzia shall not be liable for:</p>
-              <ul className="list-disc list-inside text-gray-600 space-y-1 ml-6">
-                <li>Cancellation by Venue Partner</li>
-                <li>Disputes between Customer and Venue Partner</li>
-                <li>Force Majeure events (natural calamities, government restrictions, strikes, etc.)</li>
-              </ul>
-              <p className="text-gray-600">Planzia's maximum liability shall be limited to the booking amount paid by the Customer to Planzia.</p>
-            </div>
-          </CardContent>
-        </Card>
+          <SectionDivider />
 
-        {/* Governing Law */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center text-2xl text-venue-dark">
-              <Scale className="h-6 w-6 mr-3 text-venue-indigo" />
-              Governing Law & Dispute Resolution
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc list-inside text-gray-600 space-y-2">
-              <li>These Terms shall be governed by and construed in accordance with the <span className="font-semibold">laws of India</span>.</li>
-              <li>Courts at <span className="font-semibold">Pune, Maharashtra</span> shall have exclusive jurisdiction over any disputes arising hereunder.</li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* Contact Information */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center text-2xl text-venue-dark">
-              <Mail className="h-6 w-6 mr-3 text-venue-indigo" />
-              Contact Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">
-              For any queries, grievances, or legal notices, please contact:
-            </p>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-venue-indigo" />
-                <div>
-                  <span className="font-semibold text-venue-dark">Email:</span>
-                  <a href="mailto:support@Planzia.in" className="text-venue-indigo hover:underline ml-2">
-                    support@Planzia.in
-                  </a>
-                </div>
+          {/* 3. Account Responsibilities */}
+          <motion.div
+            className="mb-12"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="flex-shrink-0 mt-1">
+                <Lock className="h-6 w-6 text-venue-indigo" />
               </div>
-              <div className="flex items-center space-x-3">
-                <MapPin className="h-5 w-5 text-venue-indigo" />
-                <div>
-                  <span className="font-semibold text-venue-dark">Registered Office:</span>
-                  <span className="ml-2 text-gray-600">Pune, Maharashtra, India</span>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-venue-dark mb-4">3. Account Responsibilities</h2>
+                <div className="space-y-4">
+                  <p className="text-gray-700 leading-relaxed">
+                    You are responsible for maintaining the confidentiality of your account credentials and password. You agree not to share your login information with anyone else and to immediately notify us of any unauthorized access to your account.
+                  </p>
+                  <p className="text-gray-700 leading-relaxed">
+                    All activities conducted through your account are your responsibility. Planzia is not liable for any unauthorized access, fraudulent activities, or misuse of your account. You agree to keep all information in your profile accurate, complete, and up-to-date.
+                  </p>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </motion.div>
 
-        {/* Download Section */}
-        <Card className="bg-venue-lavender border-venue-indigo">
-          <CardContent className="text-center py-8">
-            <h3 className="text-xl font-semibold text-venue-dark mb-4">
-              Need a Copy of Our Terms & Conditions?
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Download the complete Terms & Conditions document for your records.
+          {/* 4. Booking & Payments */}
+          <motion.div
+            className="mb-12"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="flex-shrink-0 mt-1">
+                <CreditCard className="h-6 w-6 text-venue-indigo" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-venue-dark mb-4">4. Booking & Payments</h2>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-venue-dark mb-2">4.1 Booking Confirmation</h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      A booking is confirmed only upon receipt of full payment. You will receive a confirmation email with all booking details within 24 hours.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-venue-dark mb-2">4.2 Payment Window</h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      You have 24 hours from the time you place a booking to complete the payment. If payment is not completed within this period, your reservation will be automatically cancelled, and the date will become available for other users.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-venue-dark mb-2">4.3 Payment Security</h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      All payments are processed through authorized payment gateways. Planzia is not liable for any delays, failures, or issues caused by third-party payment processors.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <SectionDivider />
+
+          {/* 5. Venue Listings & Ownership */}
+          <motion.div
+            className="mb-12"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="flex-shrink-0 mt-1">
+                <Building className="h-6 w-6 text-venue-indigo" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-venue-dark mb-4">5. Venue Listings & Ownership</h2>
+                <div className="space-y-4">
+                  <p className="text-gray-700 leading-relaxed">
+                    Planzia operates as a digital marketplace and acts solely as a platform intermediary. We do not own, operate, or control any venue listed on our platform. Venue partners are solely responsible for the accuracy, legality, and compliance of their venue listings.
+                  </p>
+                  <p className="text-gray-700 leading-relaxed">
+                    Venue partners guarantee that they have the legal right to list and offer their venues for booking, and that all information provided is truthful and current. Planzia reserves the right to verify listings and remove any venue that violates these terms or our quality standards.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* 6. Refunds & Cancellations */}
+          <motion.div
+            className="mb-12"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="flex-shrink-0 mt-1">
+                <RefreshCw className="h-6 w-6 text-venue-indigo" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-venue-dark mb-4">6. Refunds & Cancellations</h2>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-venue-dark mb-2">6.1 Customer Cancellations</h3>
+                    <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
+                      <li>Cancellation 30+ days before event: 100% refund</li>
+                      <li>Cancellation 7–29 days before event: 50% refund</li>
+                      <li>Cancellation less than 7 days before event: Non-refundable</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-venue-dark mb-2">6.2 Venue Partner Cancellations</h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      If a venue partner cancels a confirmed booking, the customer receives a full refund plus the right to rebook at a comparable venue at no extra cost. Venue partners may face penalties including suspension or delisting.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-venue-dark mb-2">6.3 Refund Processing</h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      Approved refunds are processed within 7–14 working days to your original payment method, subject to your bank's processing times.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <SectionDivider />
+
+          {/* 7. Intellectual Property */}
+          <motion.div
+            className="mb-12"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="flex-shrink-0 mt-1">
+                <Copyright className="h-6 w-6 text-venue-indigo" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-venue-dark mb-4">7. Intellectual Property</h2>
+                <p className="text-gray-700 leading-relaxed">
+                  All content, designs, logos, photographs, software, and materials on the Planzia platform are the exclusive intellectual property of Planzia or our content providers. You may not reproduce, distribute, transmit, or modify any content without our explicit written permission. Unauthorized use is prohibited and may result in legal action.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* 8. Limitation of Liability */}
+          <motion.div
+            className="mb-12"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="flex-shrink-0 mt-1">
+                <AlertCircle className="h-6 w-6 text-venue-indigo" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-venue-dark mb-4">8. Limitation of Liability</h2>
+                <div className="space-y-4">
+                  <p className="text-gray-700 leading-relaxed">
+                    Planzia is a platform facilitator and is not liable for:
+                  </p>
+                  <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
+                    <li>The condition, quality, accuracy, or safety of any venue listing</li>
+                    <li>Disputes between customers and venue partners</li>
+                    <li>Cancellations by venue partners</li>
+                    <li>Force majeure events (natural calamities, pandemics, government restrictions, strikes)</li>
+                    <li>Indirect, incidental, or consequential damages</li>
+                  </ul>
+                  <p className="text-gray-700 leading-relaxed mt-4">
+                    Our maximum liability shall be limited to the booking amount paid by the customer to Planzia.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <SectionDivider />
+
+          {/* 9. Privacy & Data Protection */}
+          <motion.div
+            className="mb-12"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="flex-shrink-0 mt-1">
+                <ShieldCheck className="h-6 w-6 text-venue-indigo" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-venue-dark mb-4">9. Privacy & Data Protection</h2>
+                <p className="text-gray-700 leading-relaxed">
+                  Your personal data is handled according to our Privacy Policy. By using Planzia, you consent to the collection, processing, and use of your information as described in our Privacy Policy. We are committed to protecting your data and complying with applicable data protection laws.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* 10. Changes to Terms */}
+          <motion.div
+            className="mb-12"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="flex-shrink-0 mt-1">
+                <RefreshCw className="h-6 w-6 text-venue-indigo" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-venue-dark mb-4">10. Changes to Terms</h2>
+                <p className="text-gray-700 leading-relaxed">
+                  Planzia may update or modify these Terms at any time. Changes will be effective immediately upon posting to our website. We will make reasonable efforts to notify you of significant changes. Your continued use of the platform following any updates constitutes your acceptance of the new Terms.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* 11. Governing Law */}
+          <motion.div
+            className="mb-12"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="flex-shrink-0 mt-1">
+                <Scale className="h-6 w-6 text-venue-indigo" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-venue-dark mb-4">11. Governing Law & Jurisdiction</h2>
+                <p className="text-gray-700 leading-relaxed">
+                  These Terms and Conditions are governed by and construed in accordance with the laws of India, without regard to its conflict of law provisions. Any disputes arising out of or relating to these Terms shall be subject to the exclusive jurisdiction of the competent courts in Pune, Maharashtra, India.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          <SectionDivider />
+
+          {/* Final Note */}
+          <motion.div
+            className="bg-gradient-to-r from-venue-indigo/5 to-venue-lavender/10 p-8 rounded-2xl border border-venue-lavender/50"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <p className="text-lg text-gray-700 leading-relaxed">
+              Your trust matters to us. We encourage you to review these terms regularly to stay informed of updates and changes. If you have any questions about our Terms & Conditions, please don't hesitate to <Link to="/contact" className="text-venue-indigo font-semibold hover:underline">contact us</Link>.
             </p>
-            <Button 
-              onClick={handleDownloadPDF}
-              className="bg-venue-indigo hover:bg-venue-purple text-white"
+          </motion.div>
+
+          {/* Contact Section */}
+          <motion.div
+            className="mt-16 text-center"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <h3 className="text-2xl font-bold text-venue-dark mb-4">Questions About Our Terms?</h3>
+            <p className="text-gray-600 mb-6">Get in touch with our support team anytime.</p>
+            <Button
+              asChild
               size="lg"
+              className="bg-gradient-to-r from-venue-indigo to-venue-indigo/80 hover:shadow-lg hover:shadow-venue-indigo/30 text-white hover:text-white transition-all duration-200"
             >
-              <Download className="h-5 w-5 mr-2" />
-              Download Full Terms & Conditions (PDF)
+              <Link to="/contact" className="flex items-center space-x-2">
+                <span>Contact Support</span>
+                <ArrowRight className="h-5 w-5" />
+              </Link>
             </Button>
-          </CardContent>
-        </Card>
-      </div>
+          </motion.div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -137,22 +137,31 @@ export default function Venues() {
       setFilterOptionsLoading(true);
       const options = await venueService.getFilterOptions();
 
-      setVenueTypes(options.venueTypes || []);
-      setLocations(options.locations || []);
+      if (!options || typeof options !== 'object') {
+        throw new Error('Invalid filter options response');
+      }
 
-      const statesCitiesMap = buildStatesCitiesMap(options.locations || []);
+      const venueTypesList = options.venueTypes || [];
+      const locationsList = options.locations || [];
+
+      setVenueTypes(venueTypesList);
+      setLocations(locationsList);
+
+      const statesCitiesMap = buildStatesCitiesMap(locationsList);
       const statesList = Object.keys(statesCitiesMap).sort();
       setStates(statesList);
       setCities([]);
 
-      if (options.priceRange) {
-        const roundedMaxPrice = Math.ceil(options.priceRange.max / 10000) * 10000;
+      if (options.priceRange && typeof options.priceRange === 'object') {
+        const maxPrice = options.priceRange.max || 500000;
+        const roundedMaxPrice = Math.ceil(maxPrice / 10000) * 10000;
         setMaxPrice(roundedMaxPrice);
         setPriceRange([0, roundedMaxPrice]);
       }
 
-      if (options.capacityRange) {
-        const roundedMaxCapacity = Math.ceil(options.capacityRange.max / 100) * 100;
+      if (options.capacityRange && typeof options.capacityRange === 'object') {
+        const maxCapacity = options.capacityRange.max || 5000;
+        const roundedMaxCapacity = Math.ceil(maxCapacity / 100) * 100;
         setMaxCapacity(roundedMaxCapacity);
         setCapacityRange([0, roundedMaxCapacity]);
       }
@@ -191,6 +200,10 @@ export default function Venues() {
 
       const response = await venueService.getVenues(filters);
 
+      if (!response || !Array.isArray(response.venues)) {
+        throw new Error('Invalid venues response format');
+      }
+
       const apiVenues = response.venues.map(venue => ({
         id: venue._id || venue.id,
         name: venue.name,
@@ -205,7 +218,13 @@ export default function Venues() {
       }));
 
       setVenues(apiVenues);
-      setPagination(response.pagination);
+      setPagination(response.pagination || {
+        currentPage: 1,
+        totalPages: 0,
+        totalCount: 0,
+        hasNextPage: false,
+        hasPrevPage: false
+      });
 
     } catch (error) {
       console.error('Error loading venues:', error);
@@ -316,8 +335,8 @@ export default function Venues() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="w-full px-4 py-8">
+    <div className="min-h-screen bg-white/70 backdrop-blur-lg">
+      <div className="w-full px-4 py-8 pt-20">
         {/* Header (instant show) */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">

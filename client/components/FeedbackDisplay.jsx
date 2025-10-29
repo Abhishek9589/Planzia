@@ -49,6 +49,10 @@ export function FeedbackDisplay({ venueId }) {
     );
   }
 
+  if (totalRatings === 0 && feedbacks.length === 0) {
+    return null;
+  }
+
   return (
     <Card>
       <CardHeader>

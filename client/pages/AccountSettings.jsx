@@ -16,6 +16,7 @@ import AddVenueForm from '@/components/AddVenueForm';
 import EditVenueForm from '@/components/EditVenueForm';
 import DeleteAccountDialog from '@/components/DeleteAccountDialog';
 import { ToggleSwitch } from '@/components/ui/toggle-switch';
+import BookingDetailsModal from '@/pages/BookingDetailsModal';
 import venueService from '../services/venueService';
 import {
   ArrowLeft,
@@ -95,6 +96,8 @@ export default function AccountSettings() {
   const [otpResendCooldown, setOtpResendCooldown] = useState(0);
   const [processingBookingId, setProcessingBookingId] = useState(null);
   const [processingPaymentBookingId, setProcessingPaymentBookingId] = useState(null);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [showBookingDetails, setShowBookingDetails] = useState(false);
 
   const [profileData, setProfileData] = useState({
     name: '',
@@ -484,7 +487,7 @@ export default function AccountSettings() {
 
   const handleVerifyEmailUpdate = async () => {
     if (!emailVerificationOtp.trim()) {
-      setErrors({ emailVerification: 'Please enter the verification code' });
+      setErrors({ emailVerification: 'Please enter the verification code sent to your email.' });
       return;
     }
 
@@ -497,7 +500,7 @@ export default function AccountSettings() {
         otp: emailVerificationOtp
       });
 
-      toast.success('Email verified and profile updated successfully!');
+      toast.success('✅ Email verified and profile updated successfully!');
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
 
@@ -515,9 +518,25 @@ export default function AccountSettings() {
       setNewEmail('');
     } catch (error) {
       console.error('Error verifying email:', error);
-      const errorMsg = error.response?.data?.error || 'Invalid or expired verification code';
-      setErrors({ emailVerification: errorMsg });
-      toast.error(errorMsg);
+      const errorMsg = error?.response?.data?.error || error.message || '';
+      const lowerCaseError = errorMsg.toLowerCase();
+
+      let userFriendlyMessage = '';
+
+      if (lowerCaseError.includes('invalid') && lowerCaseError.includes('otp')) {
+        userFriendlyMessage = '❌ The verification code is incorrect. Please check and try again.';
+      } else if (lowerCaseError.includes('expired') || lowerCaseError.includes('timeout')) {
+        userFriendlyMessage = '⏱️ Your verification code has expired. Please request a new one.';
+      } else if (lowerCaseError.includes('too many') || lowerCaseError.includes('too many attempts')) {
+        userFriendlyMessage = '🔒 Too many incorrect attempts. Please request a new code.';
+      } else if (lowerCaseError.includes('not found')) {
+        userFriendlyMessage = '⚠️ Verification code not found. Please request a new one.';
+      } else {
+        userFriendlyMessage = 'Unable to verify the code. Please try again or request a new one.';
+      }
+
+      setErrors({ emailVerification: userFriendlyMessage });
+      toast.error(userFriendlyMessage);
     } finally {
       setEmailVerificationLoading(false);
     }
@@ -535,13 +554,14 @@ export default function AccountSettings() {
         email: newEmail
       });
 
-      toast.success('Verification code resent to your email');
+      toast.success('✅ Verification code sent to your email');
       setOtpResendCooldown(60);
       setEmailVerificationOtp('');
     } catch (error) {
       console.error('Error resending OTP:', error);
-      const errorMsg = error.response?.data?.error || 'Failed to resend verification code';
-      toast.error(errorMsg);
+      const errorMsg = error?.response?.data?.error || error.message || '';
+      const userFriendlyMessage = '⚠️ Unable to send the code. Please check your email is correct and try again.';
+      toast.error(userFriendlyMessage);
     } finally {
       setOtpResendLoading(false);
     }
@@ -570,10 +590,26 @@ export default function AccountSettings() {
       });
 
       setErrors({ password: '' });
-      toast.success('Password changed successfully');
+      toast.success('✅ Your password has been changed successfully!');
     } catch (error) {
       console.error('Error changing password:', error);
-      const userFriendlyMessage = getUserFriendlyError(error.message || error, 'password-reset');
+      const errorMsg = error?.response?.data?.error || error.message || '';
+      const lowerCaseError = errorMsg.toLowerCase();
+
+      let userFriendlyMessage = '';
+
+      if (lowerCaseError.includes('current password') && (lowerCaseError.includes('incorrect') || lowerCaseError.includes('invalid') || lowerCaseError.includes('wrong'))) {
+        userFriendlyMessage = '❌ Your current password is incorrect. Please check and try again.';
+      } else if (lowerCaseError.includes('password') && lowerCaseError.includes('match')) {
+        userFriendlyMessage = '⚠️ The new passwords you entered do not match. Please check and try again.';
+      } else if (lowerCaseError.includes('password') && (lowerCaseError.includes('weak') || lowerCaseError.includes('strong'))) {
+        userFriendlyMessage = '🔐 Your password must be at least 6 characters long.';
+      } else if (lowerCaseError.includes('same') || lowerCaseError.includes('old password')) {
+        userFriendlyMessage = '⚠️ Your new password cannot be the same as your current password.';
+      } else {
+        userFriendlyMessage = getUserFriendlyError(error, 'password-reset') || 'Unable to change your password. Please try again.';
+      }
+
       setErrors({ password: userFriendlyMessage });
       toast.error(userFriendlyMessage);
     } finally {
@@ -638,8 +674,8 @@ export default function AccountSettings() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-white/70 backdrop-blur-lg pt-14">
+      <div className="w-full px-4 py-8">
         {/* Header */}
         <motion.div
           className="mb-8"
@@ -706,7 +742,7 @@ export default function AccountSettings() {
               viewport={{ once: true, amount: 0.2 }}
               transition={transition}
             >
-              <Card className="sticky top-8 p-4">
+              <Card className="sticky top-24 p-4">
                 <CardContent className="p-0">
                   <nav className="space-y-2">
                     {sidebarTabs.map((tab) => {
@@ -921,16 +957,27 @@ export default function AccountSettings() {
                       <CardTitle>Your Venues</CardTitle>
                       <CardDescription>Manage all your registered venues</CardDescription>
                     </div>
-                    <Button
-                      onClick={fetchVenues}
-                      disabled={venuesLoading}
-                      variant="outline"
-                      size="sm"
-                      className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white"
-                    >
-                      <RefreshCw className={`h-4 w-4 mr-2 ${venuesLoading ? 'animate-spin' : ''}`} />
-                      Refresh
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={fetchVenues}
+                        disabled={venuesLoading}
+                        variant="outline"
+                        size="sm"
+                        className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white"
+                      >
+                        <RefreshCw className={`h-4 w-4 mr-2 ${venuesLoading ? 'animate-spin' : ''}`} />
+                        Refresh
+                      </Button>
+                      {userVenues && userVenues.length > 0 && (
+                        <Button
+                          onClick={() => setAddVenueDialogOpen(true)}
+                          className="bg-venue-indigo hover:bg-venue-purple text-white"
+                          size="sm"
+                        >
+                          Add Venue
+                        </Button>
+                      )}
+                    </div>
                   </CardHeader>
                   <CardContent>
                     {venuesLoading ? (
@@ -1006,14 +1053,6 @@ export default function AccountSettings() {
                               </Card>
                             </motion.div>
                           ))}
-                        </div>
-                        <div className="mt-6 flex justify-center">
-                          <Button
-                            onClick={() => setAddVenueDialogOpen(true)}
-                            className="bg-venue-indigo hover:bg-venue-purple text-white"
-                          >
-                            Add Another Venue
-                          </Button>
                         </div>
                       </div>
                     ) : (
@@ -1191,7 +1230,7 @@ export default function AccountSettings() {
                               value={profileData.name}
                               onChange={(e) => handleProfileInputChange('name', e.target.value)}
                               placeholder="Enter your full name"
-                              className={errors.name ? 'border-red-500' : ''}
+                              className={errors.name ? 'border-red-500 focus:border-red-500 focus:border-2' : ''}
                             />
                             {errors.name && (
                               <p className="text-sm text-red-600">{errors.name}</p>
@@ -1209,7 +1248,7 @@ export default function AccountSettings() {
                                 value={profileData.email}
                                 onChange={(e) => handleProfileInputChange('email', e.target.value)}
                                 placeholder="Enter your email"
-                                className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
+                                className={`pl-10 ${errors.email ? 'border-red-500 focus:border-red-500 focus:border-2' : ''}`}
                               />
                             </div>
                             {errors.email && (
@@ -1228,7 +1267,7 @@ export default function AccountSettings() {
                                 value={profileData.phone}
                                 onChange={(e) => handleProfileInputChange('phone', e.target.value)}
                                 placeholder="Enter your phone number"
-                                className={`pl-10 ${errors.phone ? 'border-red-500' : ''}`}
+                                className={`pl-10 ${errors.phone ? 'border-red-500 focus:border-red-500 focus:border-2' : ''}`}
                               />
                             </div>
                             {errors.phone && (
@@ -1267,7 +1306,7 @@ export default function AccountSettings() {
                                 }
                               }}
                               placeholder="Type to search..."
-                              className={`h-10 ${errors.state ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500`}
+                              className={`h-10 ${errors.state ? 'border-red-300 focus:border-red-300 focus:border-2' : ''}`}
                             />
                           </div>
 
@@ -1285,7 +1324,7 @@ export default function AccountSettings() {
                               }}
                               placeholder={!profileData.state ? 'Select state first' : 'Type to search...'}
                               disabled={!profileData.state}
-                              className={`h-10 ${errors.city ? 'border-red-300' : 'border-gray-300'} ${!profileData.state ? 'opacity-50' : ''} focus:border-indigo-500`}
+                              className={`h-10 ${errors.city ? 'border-red-300 focus:border-red-300 focus:border-2' : ''} ${!profileData.state ? 'opacity-50' : ''}`}
                             />
                           </div>
                         </div>
@@ -1310,51 +1349,52 @@ export default function AccountSettings() {
                     </CardContent>
                   </Card>
 
-                  {/* Change Password */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Lock className="h-5 w-5 mr-2" />
-                        Change Password
-                      </CardTitle>
-                      <CardDescription>
-                        Update your password to keep your account secure
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {errors.password && (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                          <p className="text-sm text-red-800">{errors.password}</p>
-                        </div>
-                      )}
-
-                      <form onSubmit={handleChangePassword} className="space-y-6">
-                        {/* Current Password */}
-                        <div className="space-y-2">
-                          <Label htmlFor="currentPassword">Current Password *</Label>
-                          <div className="relative">
-                            <Input
-                              id="currentPassword"
-                              type={showCurrentPassword ? 'text' : 'password'}
-                              value={passwordData.currentPassword}
-                              onChange={(e) => handlePasswordInputChange('currentPassword', e.target.value)}
-                              placeholder="Enter your current password"
-                              className={errors.currentPassword ? 'border-red-500 pr-10' : 'pr-10'}
-                            />
-                            <button
-                              type="button"
-                              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                            >
-                              {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
+                  {/* Change Password and Delete Account - Two Column Layout */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Change Password */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <Lock className="h-5 w-5 mr-2" />
+                          Change Password
+                        </CardTitle>
+                        <CardDescription>
+                          Update your password to keep your account secure
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {errors.password && (
+                          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                            <p className="text-sm text-red-800">{errors.password}</p>
                           </div>
-                          {errors.currentPassword && (
-                            <p className="text-sm text-red-600">{errors.currentPassword}</p>
-                          )}
-                        </div>
+                        )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <form onSubmit={handleChangePassword} className="space-y-4">
+                          {/* Current Password */}
+                          <div className="space-y-2">
+                            <Label htmlFor="currentPassword">Current Password *</Label>
+                            <div className="relative">
+                              <Input
+                                id="currentPassword"
+                                type={showCurrentPassword ? 'text' : 'password'}
+                                value={passwordData.currentPassword}
+                                onChange={(e) => handlePasswordInputChange('currentPassword', e.target.value)}
+                                placeholder="Enter your current password"
+                                className={errors.currentPassword ? 'border-red-500 pr-10' : 'pr-10'}
+                              />
+                              <button
+                                type="button"
+                                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                              >
+                                {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {errors.currentPassword && (
+                              <p className="text-sm text-red-600">{errors.currentPassword}</p>
+                            )}
+                          </div>
+
                           {/* New Password */}
                           <div className="space-y-2">
                             <Label htmlFor="newPassword">New Password *</Label>
@@ -1404,48 +1444,48 @@ export default function AccountSettings() {
                               <p className="text-sm text-red-600">{errors.confirmPassword}</p>
                             )}
                           </div>
-                        </div>
 
-                        <div className="flex justify-end">
-                          <Button
-                            type="submit"
-                            disabled={loading}
-                            variant="outline"
-                            className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white"
-                          >
-                            {loading ? 'Updating...' : 'Change Password'}
-                          </Button>
-                        </div>
-                      </form>
-                    </CardContent>
-                  </Card>
+                          <div className="flex justify-end pt-2">
+                            <Button
+                              type="submit"
+                              disabled={loading}
+                              variant="outline"
+                              className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white"
+                            >
+                              {loading ? 'Updating...' : 'Change Password'}
+                            </Button>
+                          </div>
+                        </form>
+                      </CardContent>
+                    </Card>
 
-                  {/* Delete Account */}
-                  <Card className="border-red-200">
-                    <CardHeader>
-                      <CardTitle className="flex items-center text-red-600">
-                        <Trash2 className="h-5 w-5 mr-2" />
-                        Delete Account
-                      </CardTitle>
-                      <CardDescription>
-                        Permanently delete your account and all associated data
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                        <p className="text-sm text-red-800">
-                          <strong>Warning:</strong> This action cannot be undone. Your account, venues, bookings, and all other data will be permanently deleted.
-                        </p>
-                      </div>
-                      <Button
-                        onClick={() => setDeleteAccountDialogOpen(true)}
-                        className="bg-red-600 hover:bg-red-700 text-white"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete My Account
-                      </Button>
-                    </CardContent>
-                  </Card>
+                    {/* Delete Account */}
+                    <Card className="border-red-200">
+                      <CardHeader>
+                        <CardTitle className="flex items-center text-red-600">
+                          <Trash2 className="h-5 w-5 mr-2" />
+                          Delete Account
+                        </CardTitle>
+                        <CardDescription>
+                          Permanently delete your account and all associated data
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                          <p className="text-sm text-red-800">
+                            <strong>Warning:</strong> This action cannot be undone. Your account, venues, bookings, and all other data will be permanently deleted.
+                          </p>
+                        </div>
+                        <Button
+                          onClick={() => setDeleteAccountDialogOpen(true)}
+                          className="bg-red-600 hover:bg-red-700 text-white w-full"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete My Account
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
               )}
             </motion.div>
@@ -1462,7 +1502,7 @@ export default function AccountSettings() {
               viewport={{ once: true, amount: 0.2 }}
               transition={transition}
             >
-              <Card className="sticky top-8 p-4">
+              <Card className="sticky top-24 p-4">
                 <CardContent className="p-0">
                   <nav className="space-y-2">
                     <button
@@ -1541,7 +1581,7 @@ export default function AccountSettings() {
                         <p className="text-gray-600 mt-4">Loading bookings...</p>
                       </div>
                     ) : userBookings && userBookings.length > 0 ? (
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         {userBookings.map((booking) => (
                           <motion.div
                             key={booking._id}
@@ -1551,143 +1591,68 @@ export default function AccountSettings() {
                             viewport={{ once: true, amount: 0.2 }}
                             transition={transition}
                           >
-                            <Card className="border border-gray-200 hover:shadow-lg transition-shadow">
-                              <CardContent className="p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                  {/* Left Column - Venue and Event Details */}
-                                  <div>
-                                    <h3 className="text-lg font-semibold text-venue-dark mb-4">{booking.venue_name}</h3>
-
-                                    <div className="space-y-3">
-                                      <div>
-                                        <p className="text-sm text-gray-600">Location</p>
-                                        <p className="flex items-center text-gray-800 font-medium">
-                                          <MapPin className="h-4 w-4 mr-2 text-venue-indigo" />
-                                          {booking.venue_location}
-                                        </p>
-                                      </div>
-
-                                      <div>
-                                        <p className="text-sm text-gray-600">Event Date</p>
-                                        <p className="flex items-center text-gray-800 font-medium">
-                                          <Calendar className="h-4 w-4 mr-2 text-venue-indigo" />
-                                          {new Date(booking.event_date).toLocaleDateString('en-IN', {
-                                            weekday: 'short',
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric'
-                                          })}
-                                        </p>
-                                      </div>
-
-                                      <div>
-                                        <p className="text-sm text-gray-600">Event Type</p>
-                                        <p className="text-gray-800 font-medium">{booking.event_type}</p>
-                                      </div>
-
-                                      <div>
-                                        <p className="text-sm text-gray-600">Guest Count</p>
-                                        <p className="flex items-center text-gray-800 font-medium">
-                                          <Users className="h-4 w-4 mr-2 text-venue-indigo" />
-                                          {booking.guest_count} guests
-                                        </p>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Right Column - Payment and Status */}
-                                  <div>
-                                    <div className="space-y-4">
-                                      {/* Amount Section */}
-                                      <div className="bg-gray-50 rounded-lg p-4">
-                                        <p className="text-sm text-gray-600 mb-2">Amount</p>
-                                        <p className="text-2xl font-bold text-venue-indigo">
-                                          ₹{Number(booking.amount || booking.payment_amount || 0).toLocaleString('en-IN')}
-                                        </p>
-                                        {booking.payment_amount && booking.payment_amount !== booking.amount && (
-                                          <p className="text-xs text-gray-500 mt-1">
-                                            Paid: ₹{Number(booking.payment_amount).toLocaleString('en-IN')}
-                                          </p>
-                                        )}
-                                      </div>
-
-                                      {/* Booking Status */}
-                                      <div>
-                                        <p className="text-sm text-gray-600 mb-2">Booking Status</p>
-                                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                                          booking.status === 'confirmed'
-                                            ? 'bg-green-100 text-green-800'
-                                            : booking.status === 'pending'
-                                            ? 'bg-yellow-100 text-yellow-800'
-                                            : booking.status === 'rejected'
-                                            ? 'bg-red-100 text-red-800'
-                                            : 'bg-gray-100 text-gray-800'
-                                        }`}>
-                                          {booking.status}
-                                        </span>
-                                      </div>
-
-                                      {/* Payment Status */}
-                                      <div>
-                                        <p className="text-sm text-gray-600 mb-2">Payment Status</p>
-                                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                                          booking.payment_status === 'completed'
-                                            ? 'bg-green-100 text-green-800'
-                                            : booking.payment_status === 'pending'
-                                            ? 'bg-yellow-100 text-yellow-800'
-                                            : 'bg-gray-100 text-gray-800'
-                                        }`}>
-                                          {booking.payment_status || 'Not Paid'}
-                                        </span>
-                                      </div>
-
-                                      {/* Payment Button */}
-                                      {booking.status === 'confirmed' && booking.payment_status !== 'completed' && (
-                                        <Button
-                                          onClick={() => handlePaymentClick(booking._id, booking.payment_amount || booking.amount, booking.venue_name)}
-                                          disabled={processingPaymentBookingId === booking._id}
-                                          className="w-full bg-green-600 hover:bg-green-700 text-white mt-2"
-                                        >
-                                          {processingPaymentBookingId === booking._id ? (
-                                            <>
-                                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                                              Processing...
-                                            </>
-                                          ) : (
-                                            <>
-                                              <CreditCard className="h-4 w-4 mr-2" />
-                                              Pay with Razorpay
-                                            </>
-                                          )}
-                                        </Button>
-                                      )}
-
-                                      {/* Booked Date */}
-                                      <div className="border-t border-gray-200 pt-4">
-                                        <p className="text-xs text-gray-500">
-                                          Booked on {new Date(booking.created_at).toLocaleDateString('en-IN', {
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric',
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                          })}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  </div>
+                            <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                              <div className="flex items-center justify-between gap-4 flex-wrap">
+                                {/* Left - Venue Name and Date */}
+                                <div className="flex-1 min-w-[200px]">
+                                  <h3 className="text-lg font-semibold text-venue-dark">{booking.venue_name}</h3>
+                                  <p className="text-sm text-gray-600 mt-1 flex items-center">
+                                    <Calendar className="h-4 w-4 mr-2 text-venue-indigo" />
+                                    {new Date(booking.event_date).toLocaleDateString('en-IN', {
+                                      weekday: 'short',
+                                      year: 'numeric',
+                                      month: 'short',
+                                      day: 'numeric'
+                                    })}
+                                  </p>
                                 </div>
 
-                                {/* Special Requirements - if any */}
-                                {booking.special_requirements && (
-                                  <div className="mt-4 pt-4 border-t border-gray-200">
-                                    <p className="text-sm text-gray-600 mb-2">Special Requirements</p>
-                                    <p className="text-gray-700 text-sm">{booking.special_requirements}</p>
-                                  </div>
-                                )}
+                                {/* Middle - Payment Status */}
+                                <div className="flex items-center gap-2">
+                                  {booking.payment_status === 'completed' ? (
+                                    <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                      ✓ Paid
+                                    </span>
+                                  ) : (
+                                    <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                      Pending
+                                    </span>
+                                  )}
+                                </div>
 
-                              </CardContent>
-                            </Card>
+                                {/* Right - Action Buttons */}
+                                <div className="flex gap-2">
+                                  {booking.payment_status !== 'completed' && booking.status === 'confirmed' && (
+                                    <Button
+                                      onClick={() => handlePaymentClick(booking._id, booking.payment_amount || booking.amount, booking.venue_name)}
+                                      disabled={processingPaymentBookingId === booking._id}
+                                      size="sm"
+                                      className="bg-venue-indigo hover:bg-opacity-90 text-white transition-all"
+                                    >
+                                      {processingPaymentBookingId === booking._id ? (
+                                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                      ) : (
+                                        <>
+                                          <CreditCard className="h-4 w-4 mr-1" />
+                                          Pay Now
+                                        </>
+                                      )}
+                                    </Button>
+                                  )}
+                                  <Button
+                                    onClick={() => {
+                                      setSelectedBooking(booking);
+                                      setShowBookingDetails(true);
+                                    }}
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white"
+                                  >
+                                    View Details
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
                           </motion.div>
                         ))}
                       </div>
@@ -1701,6 +1666,15 @@ export default function AccountSettings() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Booking Details Modal */}
+              <BookingDetailsModal
+                open={showBookingDetails}
+                onOpenChange={setShowBookingDetails}
+                booking={selectedBooking}
+                onPaymentClick={handlePaymentClick}
+                isProcessing={processingPaymentBookingId === selectedBooking?._id}
+              />
 
               {/* Notifications Tab */}
               {activeTab === 'notifications' && (
@@ -1743,10 +1717,10 @@ export default function AccountSettings() {
                           >
                             <Card className={`border-l-4 ${
                               notification.status === 'confirmed'
-                                ? 'border-l-green-500 bg-green-50'
+                                ? 'border-l-green-600 bg-green-50'
                                 : notification.status === 'cancelled'
-                                ? 'border-l-red-500 bg-red-50'
-                                : 'border-l-yellow-500 bg-yellow-50'
+                                ? 'border-l-red-600 bg-red-50'
+                                : 'border-l-amber-600 bg-amber-50'
                             } hover:shadow-md transition-shadow`}>
                               <CardContent className="p-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1754,11 +1728,11 @@ export default function AccountSettings() {
                                   <div>
                                     <div className="flex items-start gap-3 mb-3">
                                       {notification.status === 'confirmed' ? (
-                                        <CheckCheck className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                                        <CheckCheck className="h-5 w-5 text-green-700 flex-shrink-0 mt-0.5" />
                                       ) : notification.status === 'cancelled' ? (
-                                        <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                        <XCircle className="h-5 w-5 text-red-700 flex-shrink-0 mt-0.5" />
                                       ) : (
-                                        <Clock className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                                        <Clock className="h-5 w-5 text-amber-700 flex-shrink-0 mt-0.5" />
                                       )}
                                       <div>
                                         <h3 className="font-semibold text-venue-dark">
@@ -1808,17 +1782,34 @@ export default function AccountSettings() {
                                       </p>
                                     </div>
 
-                                    <div>
+                                    <div className="space-y-2">
                                       <p className="text-xs text-gray-500 mb-2">Status</p>
-                                      <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-medium ${
+                                      <span className={`inline-block px-3 py-1.5 rounded-md text-xs font-semibold ${
                                         notification.status === 'confirmed'
-                                          ? 'bg-green-200 text-green-800'
+                                          ? 'bg-green-100 text-green-700'
                                           : notification.status === 'cancelled'
-                                          ? 'bg-red-200 text-red-800'
-                                          : 'bg-yellow-200 text-yellow-800'
+                                          ? 'bg-red-100 text-red-700'
+                                          : 'bg-amber-100 text-amber-700'
                                       }`}>
-                                        {notification.status === 'confirmed' ? '✓ Accepted' : notification.status === 'cancelled' ? '✗ Declined' : '⏳ Pending'}
+                                        {notification.status === 'confirmed' ? 'Accepted' : notification.status === 'cancelled' ? 'Declined' : 'Pending'}
                                       </span>
+                                      {notification.status === 'confirmed' && (
+                                        <Button
+                                          onClick={() => handlePaymentClick(notification.id, notification.amount, notification.venue_name)}
+                                          disabled={processingPaymentBookingId === notification.id}
+                                          size="sm"
+                                          className="mt-2 bg-green-600 hover:bg-green-700 text-white"
+                                        >
+                                          {processingPaymentBookingId === notification.id ? (
+                                            <>
+                                              <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent mr-2"></div>
+                                              Processing...
+                                            </>
+                                          ) : (
+                                            'Pay Now'
+                                          )}
+                                        </Button>
+                                      )}
                                     </div>
 
                                     <div className="mt-3 pt-3 border-t border-gray-200">
@@ -1875,7 +1866,7 @@ export default function AccountSettings() {
                               value={profileData.name}
                               onChange={(e) => handleProfileInputChange('name', e.target.value)}
                               placeholder="Enter your full name"
-                              className={errors.name ? 'border-red-500' : ''}
+                              className={errors.name ? 'border-red-500 focus:border-red-500 focus:border-2' : ''}
                             />
                             {errors.name && (
                               <p className="text-sm text-red-600">{errors.name}</p>
@@ -1893,7 +1884,7 @@ export default function AccountSettings() {
                                 value={profileData.email}
                                 onChange={(e) => handleProfileInputChange('email', e.target.value)}
                                 placeholder="Enter your email"
-                                className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
+                                className={`pl-10 ${errors.email ? 'border-red-500 focus:border-red-500 focus:border-2' : ''}`}
                               />
                             </div>
                             {errors.email && (
@@ -1912,7 +1903,7 @@ export default function AccountSettings() {
                                 value={profileData.phone}
                                 onChange={(e) => handleProfileInputChange('phone', e.target.value)}
                                 placeholder="Enter your phone number"
-                                className={`pl-10 ${errors.phone ? 'border-red-500' : ''}`}
+                                className={`pl-10 ${errors.phone ? 'border-red-500 focus:border-red-500 focus:border-2' : ''}`}
                               />
                             </div>
                             {errors.phone && (
@@ -1936,7 +1927,7 @@ export default function AccountSettings() {
                                 }
                               }}
                               placeholder="Type to search..."
-                              className={`h-10 ${errors.state ? 'border-red-300' : 'border-gray-300'} focus:border-indigo-500`}
+                              className={`h-10 ${errors.state ? 'border-red-300 focus:border-red-300 focus:border-2' : ''}`}
                             />
                           </div>
 
@@ -1954,7 +1945,7 @@ export default function AccountSettings() {
                               }}
                               placeholder={!profileData.state ? 'Select state first' : 'Type to search...'}
                               disabled={!profileData.state}
-                              className={`h-10 ${errors.city ? 'border-red-300' : 'border-gray-300'} ${!profileData.state ? 'opacity-50' : ''} focus:border-indigo-500`}
+                              className={`h-10 ${errors.city ? 'border-red-300 focus:border-red-300 focus:border-2' : ''} ${!profileData.state ? 'opacity-50' : ''}`}
                             />
                           </div>
                         </div>
@@ -1979,51 +1970,52 @@ export default function AccountSettings() {
                     </CardContent>
                   </Card>
 
-                  {/* Change Password */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Lock className="h-5 w-5 mr-2" />
-                        Change Password
-                      </CardTitle>
-                      <CardDescription>
-                        Update your password to keep your account secure
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {errors.password && (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                          <p className="text-sm text-red-800">{errors.password}</p>
-                        </div>
-                      )}
-
-                      <form onSubmit={handleChangePassword} className="space-y-6">
-                        {/* Current Password */}
-                        <div className="space-y-2">
-                          <Label htmlFor="currentPassword">Current Password *</Label>
-                          <div className="relative">
-                            <Input
-                              id="currentPassword"
-                              type={showCurrentPassword ? 'text' : 'password'}
-                              value={passwordData.currentPassword}
-                              onChange={(e) => handlePasswordInputChange('currentPassword', e.target.value)}
-                              placeholder="Enter your current password"
-                              className={errors.currentPassword ? 'border-red-500 pr-10' : 'pr-10'}
-                            />
-                            <button
-                              type="button"
-                              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                            >
-                              {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
+                  {/* Change Password and Delete Account - Two Column Layout */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Change Password */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <Lock className="h-5 w-5 mr-2" />
+                          Change Password
+                        </CardTitle>
+                        <CardDescription>
+                          Update your password to keep your account secure
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {errors.password && (
+                          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                            <p className="text-sm text-red-800">{errors.password}</p>
                           </div>
-                          {errors.currentPassword && (
-                            <p className="text-sm text-red-600">{errors.currentPassword}</p>
-                          )}
-                        </div>
+                        )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <form onSubmit={handleChangePassword} className="space-y-4">
+                          {/* Current Password */}
+                          <div className="space-y-2">
+                            <Label htmlFor="currentPassword">Current Password *</Label>
+                            <div className="relative">
+                              <Input
+                                id="currentPassword"
+                                type={showCurrentPassword ? 'text' : 'password'}
+                                value={passwordData.currentPassword}
+                                onChange={(e) => handlePasswordInputChange('currentPassword', e.target.value)}
+                                placeholder="Enter your current password"
+                                className={errors.currentPassword ? 'border-red-500 pr-10' : 'pr-10'}
+                              />
+                              <button
+                                type="button"
+                                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                              >
+                                {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {errors.currentPassword && (
+                              <p className="text-sm text-red-600">{errors.currentPassword}</p>
+                            )}
+                          </div>
+
                           {/* New Password */}
                           <div className="space-y-2">
                             <Label htmlFor="newPassword">New Password *</Label>
@@ -2073,48 +2065,48 @@ export default function AccountSettings() {
                               <p className="text-sm text-red-600">{errors.confirmPassword}</p>
                             )}
                           </div>
-                        </div>
 
-                        <div className="flex justify-end">
-                          <Button
-                            type="submit"
-                            disabled={loading}
-                            variant="outline"
-                            className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white"
-                          >
-                            {loading ? 'Updating...' : 'Change Password'}
-                          </Button>
-                        </div>
-                      </form>
-                    </CardContent>
-                  </Card>
+                          <div className="flex justify-end pt-2">
+                            <Button
+                              type="submit"
+                              disabled={loading}
+                              variant="outline"
+                              className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white"
+                            >
+                              {loading ? 'Updating...' : 'Change Password'}
+                            </Button>
+                          </div>
+                        </form>
+                      </CardContent>
+                    </Card>
 
-                  {/* Delete Account */}
-                  <Card className="border-red-200">
-                    <CardHeader>
-                      <CardTitle className="flex items-center text-red-600">
-                        <Trash2 className="h-5 w-5 mr-2" />
-                        Delete Account
-                      </CardTitle>
-                      <CardDescription>
-                        Permanently delete your account and all associated data
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                        <p className="text-sm text-red-800">
-                          <strong>Warning:</strong> This action cannot be undone. Your account, bookings, and all other data will be permanently deleted.
-                        </p>
-                      </div>
-                      <Button
-                        onClick={() => setDeleteAccountDialogOpen(true)}
-                        className="bg-red-600 hover:bg-red-700 text-white"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete My Account
-                      </Button>
-                    </CardContent>
-                  </Card>
+                    {/* Delete Account */}
+                    <Card className="border-red-200">
+                      <CardHeader>
+                        <CardTitle className="flex items-center text-red-600">
+                          <Trash2 className="h-5 w-5 mr-2" />
+                          Delete Account
+                        </CardTitle>
+                        <CardDescription>
+                          Permanently delete your account and all associated data
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                          <p className="text-sm text-red-800">
+                            <strong>Warning:</strong> This action cannot be undone. Your account, bookings, and all other data will be permanently deleted.
+                          </p>
+                        </div>
+                        <Button
+                          onClick={() => setDeleteAccountDialogOpen(true)}
+                          className="bg-red-600 hover:bg-red-700 text-white w-full"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete My Account
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
               )}
             </motion.div>

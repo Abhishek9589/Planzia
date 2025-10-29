@@ -1,147 +1,224 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { scrollToTop } from '@/lib/navigation';
-import {
-  Users,
-  Shield,
-  Award,
-  Heart,
-  MapPin,
-  Star,
-  Clock,
-  CheckCircle,
-  Building,
-  Search,
-  Handshake,
-  TrendingUp
-} from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Sparkles,
+  CheckCircle,
+  Shield,
+  Users,
+  Zap,
+  Heart,
+  Target,
+  Lightbulb,
+  Award,
+  TrendingUp,
+  ArrowRight,
+  Globe,
+  MapPin
+} from 'lucide-react';
+import { scrollToTop } from '@/lib/navigation';
 
-const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] };
+const transition = { duration: 0.5, ease: [0.22, 1, 0.36, 1] };
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
   visible: { opacity: 1, y: 0 }
 };
 
+const coreValues = [
+  {
+    title: 'Transparency',
+    description: 'Clear communication, honest pricing, and no hidden surprises',
+    icon: Globe
+  },
+  {
+    title: 'Innovation',
+    description: 'Continuously evolving to provide better solutions and experiences',
+    icon: Lightbulb
+  },
+  {
+    title: 'Integrity',
+    description: 'Built on trust, reliability, and ethical business practices',
+    icon: Award
+  },
+  {
+    title: 'Excellence',
+    description: 'Pursuing the highest standards in every aspect of our service',
+    icon: Sparkles
+  },
+  {
+    title: 'Community',
+    description: 'Creating meaningful connections between venues and event creators',
+    icon: Users
+  }
+];
+
+const services = [
+  {
+    title: 'Smart Venue Matching',
+    description: 'Our intelligent algorithm connects you with venues that perfectly match your event needs, budget, and vision.',
+    icon: Target
+  },
+  {
+    title: 'Transparent Pricing',
+    description: 'No hidden fees, no surprises. See exactly what you\'re paying for with our clear and honest pricing breakdown.',
+    icon: CheckCircle
+  },
+  {
+    title: 'Verified Venues',
+    description: 'Every venue is thoroughly verified and authenticated to ensure you get quality and peace of mind.',
+    icon: Shield
+  },
+  {
+    title: 'Always Available Support',
+    description: 'Our dedicated team is available 24/7 to answer questions and ensure your event runs flawlessly.',
+    icon: Zap
+  }
+];
+
+const stats = [
+  { number: '500+', label: 'Verified Venues', icon: MapPin },
+  { number: '10K+', label: 'Successful Events', icon: TrendingUp },
+  { number: '50K+', label: 'Happy Customers', icon: Heart },
+  { number: '4.9★', label: 'Average Rating', icon: Award }
+];
+
 export default function About() {
+  React.useEffect(() => {
+    scrollToTop();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section - Text Over Image */}
-      <section className="relative h-[70vh] overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat about-hero-image">
-          <div className="absolute inset-0 bg-black/50"></div>
-        </div>
-
-        {/* Content Over Image */}
-        <div className="relative h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto text-center">
-            <motion.h1
-              className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins"
+      {/* Hero Section */}
+      <motion.section
+        className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={transition}
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Hero Text */}
+            <motion.div
               variants={fadeUp}
               initial="hidden"
               animate="visible"
               transition={transition}
+              className="space-y-6"
             >
-              Reimagining Venue Discovery
-            </motion.h1>
-            <motion.p
-              className="text-xl text-white/90 mb-8 max-w-4xl mx-auto leading-relaxed"
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              transition={{ ...transition, delay: 0.1 }}
-            >
-              At Planzia, we've revolutionized how events come to life. We're India's premier platform connecting visionary event planners with exceptional venues—transparent, seamless, and built for modern celebrations.
-            </motion.p>
+              <div className="space-y-4">
+                <h1 className="text-5xl md:text-6xl font-bold text-venue-dark leading-tight">
+                  Reimagining Event Venues
+                </h1>
+                <p className="text-xl text-gray-700 leading-relaxed max-w-xl">
+                  We believe every event deserves a perfect venue. Our mission is to make venue discovery simple, transparent, and inspiring.
+                </p>
+              </div>
+              <Button
+                asChild
+                size="lg"
+                className="bg-gradient-to-r from-venue-indigo to-venue-indigo/80 hover:shadow-lg hover:shadow-venue-indigo/30 text-white w-fit"
+              >
+                <Link to="/venues">Explore Venues</Link>
+              </Button>
+            </motion.div>
 
-            {/* Statistics from PDF */}
+            {/* Right: Hero Image */}
             <motion.div
-              className="grid grid-cols-3 gap-8 max-w-2xl mx-auto"
               variants={fadeUp}
               initial="hidden"
               animate="visible"
               transition={{ ...transition, delay: 0.2 }}
+              className="hidden lg:block"
             >
-              <div>
-                <div className="text-3xl md:text-4xl font-bold text-white">500+</div>
-                <div className="text-white/80 text-sm">Societies</div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl font-bold text-white">25+</div>
-                <div className="text-white/80 text-sm">Malls</div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl font-bold text-white">50+</div>
-                <div className="text-white/80 text-sm">IT Parks & Open Spaces</div>
+              <div className="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1524824267900-2fa9cbf7a506?w=600&h=500&fit=crop&q=80"
+                  alt="Modern event venue with sophisticated design"
+                  className="rounded-3xl shadow-2xl object-cover w-full h-[500px]"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-venue-indigo/5 to-transparent pointer-events-none"></div>
               </div>
             </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* Company Overview Section */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="max-w-4xl mx-auto text-center mb-12"
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            transition={transition}
-          >
-            <h2 className="text-3xl font-bold text-venue-dark mb-6">
-              Our Story
-            </h2>
-            <p className="text-gray-600 text-lg leading-relaxed">
-              Built under <span className="font-semibold text-venue-indigo">Virtues Seven Events Pvt. Ltd.</span>, Planzia unites the most vibrant event spaces—from residential societies and premium malls to tech parks and sprawling open grounds—into one intelligent, user-friendly platform. Whether you're orchestrating a dream wedding, launching a brand experience, organizing community events, or creating corporate moments, Planzia empowers you to discover, book, and execute with confidence.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Mission and Vision Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Our Mission */}
+      {/* Who We Are Section */}
+      <section className="py-20 bg-gradient-to-b from-white to-venue-lavender/20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Image */}
             <motion.div
-              className="text-center lg:text-left"
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
               transition={transition}
+              className="hidden lg:block"
             >
-              <h3 className="text-3xl font-bold text-venue-dark mb-6">Our Mission</h3>
-              <p className="text-gray-600 leading-relaxed text-lg">
-                To revolutionize venue booking by creating an effortless, transparent, and intelligent platform. We empower event creators and venue partners alike with smart tools, genuine trust, and exceptional experiences at every step of the journey.
-              </p>
+              <div className="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=500&fit=crop&q=80"
+                  alt="Our team collaborating on event planning"
+                  className="rounded-3xl shadow-2xl object-cover w-full h-[500px]"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-venue-indigo/10 to-transparent pointer-events-none"></div>
+              </div>
             </motion.div>
 
-            {/* Our Vision */}
+            {/* Right: Text */}
             <motion.div
-              className="text-center lg:text-left"
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
-              transition={{ ...transition, delay: 0.05 }}
+              transition={transition}
+              className="space-y-6"
             >
-              <h3 className="text-3xl font-bold text-venue-dark mb-6">Our Vision</h3>
-              <p className="text-gray-600 leading-relaxed text-lg">
-                To become the most loved and trusted platform in India, where millions of remarkable events are born each year. We envision a vibrant ecosystem where every celebration is effortless, every booking is transparent, and every moment becomes unforgettable.
-              </p>
+              <div className="space-y-4">
+                <h2 className="text-4xl md:text-5xl font-bold text-venue-dark">
+                  Who We Are
+                </h2>
+                <p className="text-lg text-gray-700 leading-relaxed">
+                  We are a passionate team dedicated to transforming how people discover and book venues. Founded on the belief that every celebration deserves to be effortless, we've built a platform that combines cutting-edge technology with genuine care for our users.
+                </p>
+                <p className="text-lg text-gray-700 leading-relaxed">
+                  From intimate gatherings to grand celebrations, from corporate conferences to creative workshops — we understand that every event is unique. That's why we've created a platform that puts you in control, offering transparency, choice, and unwavering support at every step.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-venue-indigo/20 flex items-center justify-center flex-shrink-0 mt-1">
+                    <CheckCircle className="h-4 w-4 text-venue-indigo" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-venue-dark">Venue Verified</h3>
+                    <p className="text-sm text-gray-600">Every venue is personally checked</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-venue-indigo/20 flex items-center justify-center flex-shrink-0 mt-1">
+                    <Heart className="h-4 w-4 text-venue-indigo" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-venue-dark">Customer First</h3>
+                    <p className="text-sm text-gray-600">Your satisfaction is our priority</p>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* What We Offer Section */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Mission & Vision Section */}
+      <section className="py-20 bg-white px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             className="text-center mb-16"
             variants={fadeUp}
@@ -150,53 +227,110 @@ export default function About() {
             viewport={{ once: true, amount: 0.2 }}
             transition={transition}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              What Makes Us Different
+            <h2 className="text-4xl md:text-5xl font-bold text-venue-dark mb-4">
+              Mission & Vision
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              A comprehensive platform engineered for simplicity, trust, and exceptional results
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Guided by purpose, driven by impact
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[{
-              icon: Search,
-              title: 'Intelligent Discovery',
-              desc: 'Browse hand-curated venues filtered precisely to match your vision and requirements.'
-            },{
-              icon: CheckCircle,
-              title: 'Effortless Booking',
-              desc: 'A streamlined experience from search to confirmation with complete transparency every step.'
-            },{
-              icon: Handshake,
-              title: 'Trusted Network',
-              desc: 'Partner with verified, reliable venues backed by our commitment to quality and excellence.'
-            },{
-              icon: TrendingUp,
-              title: 'Thriving Ecosystem',
-              desc: '500+ societies, 25+ premier malls, 50+ IT parks, and countless open spaces—all expanding daily.'
-            }].map((item, idx) => {
-              const Icon = item.icon;
+            {/* Mission Card */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              transition={transition}
+            >
+              <Card className="h-full border-2 border-venue-indigo/10 hover:border-venue-indigo/30 hover:shadow-xl transition-all duration-300">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-gradient-to-br from-venue-indigo to-venue-indigo/80 rounded-lg flex items-center justify-center mb-4">
+                    <Target className="h-6 w-6 text-white" />
+                  </div>
+                  <CardTitle className="text-2xl text-venue-dark">Our Mission</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-gray-700 leading-relaxed text-lg">
+                    To democratize venue discovery and make event planning accessible, transparent, and delightful for everyone.
+                  </p>
+                  <p className="text-gray-600 leading-relaxed">
+                    We empower event creators with verified venues, honest pricing, and dedicated support to bring their visions to life.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Vision Card */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ ...transition, delay: 0.1 }}
+            >
+              <Card className="h-full border-2 border-venue-indigo/10 hover:border-venue-indigo/30 hover:shadow-xl transition-all duration-300">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-gradient-to-br from-venue-indigo to-venue-indigo/80 rounded-lg flex items-center justify-center mb-4">
+                    <Lightbulb className="h-6 w-6 text-white" />
+                  </div>
+                  <CardTitle className="text-2xl text-venue-dark">Our Vision</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-gray-700 leading-relaxed text-lg">
+                    To become the world's most trusted platform where remarkable venues and inspired event creators connect seamlessly.
+                  </p>
+                  <p className="text-gray-600 leading-relaxed">
+                    We envision a future where every celebration is perfectly matched with the ideal venue, creating unforgettable moments.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* What We Do / Services Section */}
+      <section className="py-20 bg-gradient-to-b from-venue-lavender/20 to-white px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            className="text-center mb-16"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={transition}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-venue-dark mb-4">
+              What We Do
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Comprehensive services designed to make event planning effortless
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {services.map((service, index) => {
+              const Icon = service.icon;
               return (
                 <motion.div
-                  key={item.title}
+                  key={index}
                   variants={fadeUp}
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, amount: 0.2 }}
-                  transition={{ ...transition, delay: (idx % 2) * 0.05 }}
+                  transition={{ ...transition, delay: index * 0.08 }}
                 >
-                  <Card className="p-6 hover:shadow-lg transition-shadow duration-300">
-                    <CardContent className="p-0">
-                      <div className="flex items-start space-x-4">
-                        <div className="w-12 h-12 bg-venue-lavender rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Icon className="h-6 w-6 text-venue-indigo" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-semibold text-venue-dark mb-2">{item.title}</h3>
-                          <p className="text-gray-600">{item.desc}</p>
-                        </div>
+                  <Card className="h-full hover:shadow-lg hover:-translate-y-2 transition-all duration-300 border-venue-lavender/50">
+                    <CardHeader>
+                      <div className="w-14 h-14 bg-gradient-to-br from-venue-indigo/20 to-venue-indigo/10 rounded-lg flex items-center justify-center mb-4">
+                        <Icon className="h-7 w-7 text-venue-indigo" />
                       </div>
+                      <CardTitle className="text-xl text-venue-dark">{service.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 leading-relaxed text-sm">{service.description}</p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -206,9 +340,9 @@ export default function About() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Core Values Section */}
+      <section className="py-20 bg-white px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             className="text-center mb-16"
             variants={fadeUp}
@@ -217,40 +351,38 @@ export default function About() {
             viewport={{ once: true, amount: 0.2 }}
             transition={transition}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              Our Impact by the Numbers
+            <h2 className="text-4xl md:text-5xl font-bold text-venue-dark mb-4">
+              Core Values
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              A rapidly expanding network dedicated to transforming how India celebrates and connects
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              The principles that guide everything we do
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[{
-              icon: Users, title: '500+', subtitle: 'Societies'
-            },{
-              icon: Building, title: '25+', subtitle: 'Malls'
-            },{
-              icon: MapPin, title: '50+', subtitle: 'IT Parks & Open Spaces'
-            },{
-              icon: Heart, title: '∞', subtitle: 'Celebrations to Life'
-            }].map((stat, idx) => {
-              const Icon = stat.icon;
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+            {coreValues.map((value, index) => {
+              const Icon = value.icon;
               return (
                 <motion.div
-                  key={stat.subtitle}
-                  className="text-center"
+                  key={index}
                   variants={fadeUp}
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, amount: 0.2 }}
-                  transition={{ ...transition, delay: (idx % 4) * 0.05 }}
+                  transition={{ ...transition, delay: index * 0.08 }}
+                  className="text-center space-y-4 group"
                 >
-                  <div className="w-16 h-16 bg-venue-lavender rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-venue-indigo/20 to-venue-indigo/10 rounded-full flex items-center justify-center mx-auto group-hover:from-venue-indigo/30 group-hover:to-venue-indigo/20 group-hover:scale-110 transition-all duration-300">
                     <Icon className="h-8 w-8 text-venue-indigo" />
                   </div>
-                  <div className="text-3xl font-bold text-venue-dark mb-2">{stat.title}</div>
-                  <div className="text-gray-600">{stat.subtitle}</div>
+                  <div>
+                    <h3 className="font-semibold text-lg text-venue-dark mb-2">
+                      {value.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {value.description}
+                    </p>
+                  </div>
                 </motion.div>
               );
             })}
@@ -258,32 +390,102 @@ export default function About() {
         </div>
       </section>
 
-      {/* Closing Message */}
-      <section className="py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h2
-            className="text-3xl font-bold text-venue-dark mb-6"
+      {/* By the Numbers Section */}
+      <section className="py-20 bg-gradient-to-b from-venue-lavender/20 to-white px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            className="text-center mb-16"
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
             transition={transition}
           >
-            We Create Moments, Not Just Bookings
-          </motion.h2>
-          <motion.p
-            className="text-xl text-gray-600 leading-relaxed"
+            <h2 className="text-4xl md:text-5xl font-bold text-venue-dark mb-4">
+              Our Impact
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Growing together with our community
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => {
+              const Icon = stat.icon;
+              return (
+                <motion.div
+                  key={index}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ ...transition, delay: index * 0.08 }}
+                  className="bg-white rounded-2xl p-8 text-center hover:shadow-lg transition-shadow"
+                >
+                  <div className="w-14 h-14 bg-gradient-to-br from-venue-indigo/20 to-venue-indigo/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Icon className="h-6 w-6 text-venue-indigo" />
+                  </div>
+                  <p className="text-4xl font-bold text-venue-indigo mb-2">
+                    {stat.number}
+                  </p>
+                  <p className="text-gray-600 font-medium">
+                    {stat.label}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-venue-indigo/5 to-venue-indigo/10 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
+          <motion.div
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
-            transition={{ ...transition, delay: 0.05 }}
+            transition={transition}
+            className="space-y-4"
           >
-            At Planzia, every venue selection is a step toward <span className="font-semibold text-venue-indigo">crafting memories that last forever</span>.
-          </motion.p>
+            <h2 className="text-4xl md:text-5xl font-bold text-venue-dark">
+              Ready to Plan Your Perfect Event?
+            </h2>
+            <p className="text-xl text-gray-700 leading-relaxed max-w-2xl mx-auto">
+              Join thousands of satisfied customers who've discovered their dream venues on our platform. Start exploring today.
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ ...transition, delay: 0.1 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center pt-4"
+          >
+            <Button
+              asChild
+              size="lg"
+              className="bg-gradient-to-r from-venue-indigo to-venue-indigo/80 hover:shadow-lg hover:shadow-venue-indigo/30 text-white group"
+            >
+              <Link to="/venues" className="flex items-center gap-2">
+                Explore Venues
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo/5"
+            >
+              <Link to="/contact">Get in Touch</Link>
+            </Button>
+          </motion.div>
         </div>
       </section>
-
     </div>
   );
 }

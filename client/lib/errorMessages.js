@@ -80,10 +80,12 @@ export const getUserFriendlyError = (error, context = 'general') => {
   }
 
   if (context === 'otp') {
-    if (lowerCaseError.includes('invalid') && lowerCaseError.includes('otp')) {
+    if ((lowerCaseError.includes('verification code') && lowerCaseError.includes('incorrect')) ||
+        (lowerCaseError.includes('invalid') && lowerCaseError.includes('otp'))) {
       return 'The verification code is incorrect. Please check and try again.';
     }
-    if (lowerCaseError.includes('expired') && lowerCaseError.includes('otp')) {
+    if ((lowerCaseError.includes('verification code') && lowerCaseError.includes('expired')) ||
+        (lowerCaseError.includes('expired') && lowerCaseError.includes('otp'))) {
       return 'Your verification code has expired. Please request a new one.';
     }
     if (lowerCaseError.includes('too many attempts')) {
@@ -95,7 +97,8 @@ export const getUserFriendlyError = (error, context = 'general') => {
   }
 
   if (context === 'password-reset') {
-    if (lowerCaseError.includes('email') && lowerCaseError.includes('not found')) {
+    if ((lowerCaseError.includes('email') && lowerCaseError.includes('not found')) ||
+        (lowerCaseError.includes('email') && lowerCaseError.includes("doesn't exist"))) {
       return 'No account found with this email address.';
     }
     if (lowerCaseError.includes('account not verified')) {
