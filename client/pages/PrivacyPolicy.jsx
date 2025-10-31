@@ -147,13 +147,12 @@ export default function PrivacyPolicy() {
                   <div className="mt-4">
                     <h3 className="text-lg font-semibold text-venue-dark mb-2">1.2 Usage Data</h3>
                     <p className="text-gray-700 leading-relaxed mb-3">
-                      We automatically collect technical information when you use Planzia:
+                      We collect minimal technical information necessary to operate the platform:
                     </p>
                     <ul className="list-disc list-inside text-gray-700 space-y-1 ml-4">
-                      <li>Device information (IP address, browser type, operating system)</li>
-                      <li>Browsing activity (pages visited, search queries, time spent)</li>
-                      <li>Interaction logs and click patterns</li>
-                      <li>Location data (if location services are enabled)</li>
+                      <li>Server logs for security and debugging purposes</li>
+                      <li>Booking and transaction information for service fulfillment</li>
+                      <li>Contact information provided during account creation and bookings</li>
                     </ul>
                   </div>
                   <div className="mt-4">
@@ -190,11 +189,9 @@ export default function PrivacyPolicy() {
                     "To process and manage your bookings with venue partners",
                     "To send booking confirmations, reminders, and updates",
                     "To process payments and handle refunds securely",
-                    "To personalize your experience and improve our platform",
                     "To send promotional offers, newsletters, and service updates (with your consent)",
                     "To detect, investigate, and prevent fraud or misuse",
-                    "To comply with legal obligations and government requests",
-                    "To analyze platform usage and improve our services"
+                    "To comply with legal obligations and government requests"
                   ].map((item, index) => (
                     <li key={index} className="flex items-start space-x-3">
                       <CheckCircle className="h-5 w-5 text-venue-indigo flex-shrink-0 mt-0.5" />
@@ -295,7 +292,7 @@ export default function PrivacyPolicy() {
                       <li><span className="font-semibold">Payment Gateway:</span> Razorpay (for payment processing)</li>
                       <li><span className="font-semibold">Email Service:</span> Nodemailer (for transactional emails)</li>
                       <li><span className="font-semibold">Cloud Storage:</span> Cloudinary (for image hosting and optimization)</li>
-                      <li><span className="font-semibold">Analytics:</span> Google Analytics (for usage insights)</li>
+                      <li><span className="font-semibold">Authentication:</span> Google OAuth 2.0 (for secure user authentication)</li>
                     </ul>
                   </div>
                   <div className="mt-4">
@@ -332,16 +329,15 @@ export default function PrivacyPolicy() {
                 <h2 className="text-3xl font-bold text-venue-dark mb-4">6. Cookies & Tracking Technologies</h2>
                 <div className="space-y-4">
                   <p className="text-gray-700 leading-relaxed">
-                    Planzia uses cookies and similar tracking technologies to enhance your user experience, remember preferences, and analyze platform usage patterns. Cookies are small files stored on your browser that help us:
+                    Planzia uses minimal cookies and tracking technologies, strictly limited to enhancing your user experience and maintaining secure sessions. Cookies are small files stored on your browser that help us:
                   </p>
                   <ul className="list-disc list-inside text-gray-700 space-y-1 ml-4">
-                    <li>Keep you logged in securely</li>
-                    <li>Remember your search and booking preferences</li>
-                    <li>Track website performance and user behavior</li>
-                    <li>Personalize content and recommendations</li>
+                    <li>Keep you logged in securely with authentication tokens</li>
+                    <li>Remember your session preferences and login state</li>
+                    <li>Maintain platform functionality and user experience</li>
                   </ul>
                   <p className="text-gray-700 leading-relaxed mt-4">
-                    You can control cookie settings in your browser preferences. Disabling cookies may limit certain platform features.
+                    <span className="font-semibold">We do not use third-party analytics, advertising trackers, or cookies for behavioral tracking.</span> You can control cookie settings in your browser preferences. Disabling cookies may limit certain platform features, such as remaining logged in.
                   </p>
                 </div>
               </div>

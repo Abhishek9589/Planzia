@@ -7,10 +7,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { AutocompleteInput } from '@/components/ui/autocomplete-input';
+import { SortDropdown } from '@/components/ui/sort-dropdown';
 import { RatingDisplay } from '../components/RatingDisplay';
 import { useFavorites } from '../hooks/useFavorites';
 import { useAuth } from '../contexts/AuthContext';
 import venueService from '../services/venueService';
+import apiClient from '../lib/apiClient';
 import { getUserFriendlyError } from '../lib/errorMessages';
 import { getPricingInfo } from '../lib/priceUtils';
 import { PUNE_AREAS, VENUE_TYPES } from '@/constants/venueOptions';
@@ -63,6 +65,93 @@ export default function Venues() {
     await toggleFavorite(venueId);
   };
 
+  const sortingOptions = [
+    "Relevance",
+    "A → Z",
+    "Z → A",
+    "High to Low (Rating)",
+    "Low to High (Rating)",
+    "High to Low (Price)",
+    "Low to High (Price)"
+  ];
+
+  const calculateRelevanceScore = (venue) => {
+    const rating = venueRatings[venue.id]?.average || 0;
+    const bookings = venue.reviews || 0;
+    const maxBookings = Math.max(...venues.map(v => v.reviews || 0), 1);
+
+    const ratingWeight = 0.6;
+    const bookingsWeight = 0.4;
+
+    const normalizedRating = (rating / 5) * 100;
+    const normalizedBookings = (bookings / maxBookings) * 100;
+
+    return (normalizedRating * ratingWeight) + (normalizedBookings * bookingsWeight);
+  };
+
+  const applySorting = (venuesToSort) => {
+    const sorted = [...venuesToSort];
+
+    try {
+      switch (sortOption) {
+        case "Relevance":
+          if (venuesToSort.length >= 50) {
+            sorted.sort((a, b) => calculateRelevanceScore(b) - calculateRelevanceScore(a));
+          } else if (user && user.city && !selectedState && sorted.length > 0) {
+            // For <50 venues, show user's location venues first
+            const userCityVenues = sorted.filter(venue =>
+              venue.location?.toLowerCase().includes(user.city.toLowerCase())
+            );
+            const otherVenues = sorted.filter(venue =>
+              !venue.location?.toLowerCase().includes(user.city.toLowerCase())
+            );
+            return [...userCityVenues, ...otherVenues];
+          }
+          break;
+
+        case "A → Z":
+          sorted.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+
+        case "Z → A":
+          sorted.sort((a, b) => b.name.localeCompare(a.name));
+          break;
+
+        case "High to Low (Rating)":
+          sorted.sort((a, b) => {
+            const ratingA = venueRatings[a.id]?.average || 0;
+            const ratingB = venueRatings[b.id]?.average || 0;
+            return ratingB - ratingA;
+          });
+          break;
+
+        case "Low to High (Rating)":
+          sorted.sort((a, b) => {
+            const ratingA = venueRatings[a.id]?.average || 0;
+            const ratingB = venueRatings[b.id]?.average || 0;
+            return ratingA - ratingB;
+          });
+          break;
+
+        case "High to Low (Price)":
+          sorted.sort((a, b) => b.price - a.price);
+          break;
+
+        case "Low to High (Price)":
+          sorted.sort((a, b) => a.price - b.price);
+          break;
+
+        default:
+          return venuesToSort;
+      }
+    } catch (error) {
+      console.error('Error applying sort:', error);
+      return venuesToSort;
+    }
+
+    return sorted;
+  };
+
   // Filter states
   const [selectedType, setSelectedType] = useState("");
   const [selectedState, setSelectedState] = useState("");
@@ -73,6 +162,9 @@ export default function Venues() {
   const [maxCapacity, setMaxCapacity] = useState(5000);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [sortOption, setSortOption] = useState("Relevance");
+  const [venueRatings, setVenueRatings] = useState({});
+  const [sortingLoading, setSortingLoading] = useState(false);
 
   const parseLocationToStateCity = (location) => {
     if (!location) return { city: '', state: '' };
@@ -102,6 +194,39 @@ export default function Venues() {
   useEffect(() => {
     loadFilterOptions();
   }, []);
+
+  useEffect(() => {
+    const needsRatings = sortOption.includes("Rating") || sortOption === "Relevance";
+
+    if (needsRatings && venues.length > 0) {
+      const fetchAllRatings = async () => {
+        setSortingLoading(true);
+        try {
+          const ratings = {};
+          for (const venue of venues) {
+            try {
+              const data = await apiClient.getJson(`/api/ratings/venue/${venue.id}`);
+              if (data) {
+                ratings[venue.id] = {
+                  average: data.average || 0,
+                  totalRatings: data.totalRatings || 0
+                };
+              }
+            } catch (error) {
+              ratings[venue.id] = { average: 0, totalRatings: 0 };
+            }
+          }
+          setVenueRatings(ratings);
+        } catch (error) {
+          console.error('Error fetching ratings for sorting:', error);
+        } finally {
+          setSortingLoading(false);
+        }
+      };
+
+      fetchAllRatings();
+    }
+  }, [sortOption, venues]);
 
   useEffect(() => {
     loadVenues();
@@ -294,18 +419,8 @@ export default function Venues() {
       venue.capacity >= capacityRange[0] && venue.capacity <= capacityRange[1]
     );
 
-    // Sort venues to show user's location venues first (only if user hasn't explicitly selected a state)
-    if (user && user.city && !selectedState && filtered.length > 0) {
-      const userCityVenues = filtered.filter(venue =>
-        venue.location?.toLowerCase().includes(user.city.toLowerCase())
-      );
-      const otherVenues = filtered.filter(venue =>
-        !venue.location?.toLowerCase().includes(user.city.toLowerCase())
-      );
-
-      // Return user's location venues first, then other venues
-      filtered = [...userCityVenues, ...otherVenues];
-    }
+    // Apply sorting
+    filtered = applySorting(filtered);
 
     return filtered;
   };
@@ -397,6 +512,25 @@ export default function Venues() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full"
                 />
+              </div>
+
+              {/* Sorting */}
+              <div className="space-y-2 mb-6">
+                <label className="text-sm font-medium text-gray-700">Sort By</label>
+                <SortDropdown
+                  options={sortingOptions}
+                  value={sortOption}
+                  onChange={(value) => {
+                    setSortOption(value);
+                    setCurrentPage(1);
+                  }}
+                />
+                {sortingLoading && (
+                  <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                    <span className="inline-block w-3 h-3 rounded-full bg-venue-indigo animate-pulse"></span>
+                    Applying sort...
+                  </p>
+                )}
               </div>
 
 

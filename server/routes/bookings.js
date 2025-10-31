@@ -17,6 +17,89 @@ import { triggerPaymentReminderForBooking } from '../services/bookingCleanupJob.
 
 const router = Router();
 
+// Helper function to convert 12-hour time string to 24-hour format
+const convertTo24Hour = (hour, minute, period) => {
+  let hour24 = parseInt(hour);
+  if (period === 'PM' && hour24 !== 12) {
+    hour24 += 12;
+  } else if (period === 'AM' && hour24 === 12) {
+    hour24 = 0;
+  }
+  return { hour24, minute: parseInt(minute) };
+};
+
+// Helper function to create DateTime from date string and time components
+const createDateTime = (dateStr, hour, minute, period) => {
+  if (!dateStr || !hour || !minute || !period) {
+    return null;
+  }
+
+  try {
+    // dateStr can be YYYY-MM-DD or a Date object
+    let date;
+    if (typeof dateStr === 'string') {
+      const [year, month, day] = dateStr.split('-');
+      date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    } else {
+      date = new Date(dateStr);
+    }
+
+    const { hour24, minute: min } = convertTo24Hour(hour, minute, period);
+    date.setHours(hour24, min, 0, 0);
+    return date;
+  } catch (error) {
+    console.error('Error creating datetime:', error);
+    return null;
+  }
+};
+
+// Helper function to convert dates_timings array with proper datetime conversion
+const processDatesTimings = (datesTimings) => {
+  if (!datesTimings || !Array.isArray(datesTimings)) {
+    return [];
+  }
+
+  return datesTimings.map(item => {
+    const { date: dateStr, timing } = item;
+    if (!timing) {
+      return null;
+    }
+
+    const { timeFromHour, timeFromMinute, timeFromPeriod, timeToHour, timeToMinute, timeToPeriod } = timing;
+
+    // Validate time fields
+    if (!timeFromHour || !timeFromMinute || !timeToHour || !timeToMinute) {
+      console.warn('Incomplete timing data for date:', dateStr);
+      return null;
+    }
+
+    const dateObj = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
+
+    // Ensure dateObj is valid
+    if (isNaN(dateObj.getTime())) {
+      console.error('Invalid date:', dateStr);
+      return null;
+    }
+
+    const datetime_from = createDateTime(dateStr, timeFromHour, timeFromMinute, timeFromPeriod);
+    const datetime_to = createDateTime(dateStr, timeToHour, timeToMinute, timeToPeriod);
+
+    return {
+      date: dateObj,
+      datetime_from,
+      datetime_to,
+      timing: {
+        timeFromHour: String(timeFromHour).trim(),
+        timeFromMinute: String(timeFromMinute).padStart(2, '0'),
+        timeFromPeriod: String(timeFromPeriod || 'AM').toUpperCase(),
+        timeToHour: String(timeToHour).trim(),
+        timeToMinute: String(timeToMinute).padStart(2, '0'),
+        timeToPeriod: String(timeToPeriod || 'AM').toUpperCase()
+      }
+    };
+  }).filter(item => item !== null);
+};
+
 // Get bookings for venue owner (protected)
 router.get('/owner', authenticateToken, async (req, res) => {
   try {
@@ -93,9 +176,10 @@ router.get('/customer', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const customerId = req.user.id;
-    const { 
+    const {
       venueId, eventDate, eventType, guestCount, amount,
-      customerName, customerEmail, customerPhone, specialRequirements
+      customerName, customerEmail, customerPhone, specialRequirements,
+      eventTimeStart, eventTimeEnd, venueName, venueLocation, datesTimings
     } = req.body;
 
     if (!venueId || !eventDate || !guestCount || !amount || !customerName || !customerEmail) {
@@ -113,8 +197,35 @@ router.post('/', authenticateToken, async (req, res) => {
     if (sameDate) return res.status(400).json({ error: 'Venue is not available on this date' });
 
     const GST_RATE = 0.18;
-    const payment_amount = Math.round((venue.price_per_day || amount) * (1 + GST_RATE));
+    const PLATFORM_FEE_RATE = 0.10;
+    // Use the total amount passed in (venue price × total days), not just the daily price
+    const baseAmount = Number(amount);
+    const amountWithFee = baseAmount * (1 + PLATFORM_FEE_RATE);
+    const payment_amount = Math.round(amountWithFee * (1 + GST_RATE));
     const payment_deadline = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    // Prepare dates_timings array with proper date/time conversion
+    let storedDateTimings = [];
+    if (datesTimings && Array.isArray(datesTimings) && datesTimings.length > 0) {
+      storedDateTimings = processDatesTimings(datesTimings);
+    } else if (eventTimeStart && eventTimeEnd) {
+      // For single-day booking with event times
+      const timeStartParts = eventTimeStart.split(':');
+      const timeEndParts = eventTimeEnd.split(':');
+      storedDateTimings = [{
+        date: new Date(eventDate),
+        datetime_from: createDateTime(eventDate, timeStartParts[0], timeStartParts[1], eventTimeStart.includes('PM') ? 'PM' : 'AM'),
+        datetime_to: createDateTime(eventDate, timeEndParts[0], timeEndParts[1], eventTimeEnd.includes('PM') ? 'PM' : 'AM'),
+        timing: {
+          timeFromHour: timeStartParts[0] || '',
+          timeFromMinute: timeStartParts[1] || '',
+          timeFromPeriod: eventTimeStart.includes('PM') ? 'PM' : 'AM',
+          timeToHour: timeEndParts[0] || '',
+          timeToMinute: timeEndParts[1] || '',
+          timeToPeriod: eventTimeEnd.includes('PM') ? 'PM' : 'AM'
+        }
+      }];
+    }
 
     const doc = await Booking.create({
       venue_id: venueId,
@@ -125,6 +236,11 @@ router.post('/', authenticateToken, async (req, res) => {
       event_date: new Date(eventDate),
       event_type: eventType,
       guest_count: guestCount,
+      event_time_start: eventTimeStart || null,
+      event_time_end: eventTimeEnd || null,
+      venue_name: venueName || venue.name || null,
+      venue_location: venueLocation || venue.location || null,
+      dates_timings: storedDateTimings,
       amount: amount,
       payment_amount,
       status: 'pending',
@@ -266,7 +382,7 @@ router.get('/owner/inquiries', authenticateToken, async (req, res) => {
 router.post('/inquiry', authenticateToken, async (req, res) => {
   try {
     const customerId = req.user.id;
-    const { venue_id, venue_name, user_details, event_date, venue_owner } = req.body;
+    const { venue_id, venue_name, user_details, event_date, event_time, dates_timings, venue_owner } = req.body;
 
     if (!venue_id || !venue_name || !user_details || !event_date) {
       return res.status(400).json({ error: 'Required fields missing' });
@@ -285,11 +401,40 @@ router.post('/inquiry', authenticateToken, async (req, res) => {
     const basePrice = venue.price_per_day || venue.price_min || 50000;
     const payment_amount = Math.round(basePrice * (1 + GST_RATE));
 
+    const eventTimeStart = event_time?.from || null;
+    const eventTimeEnd = event_time?.to || null;
+
+    // Prepare dates_timings array - either from multi-day booking or single day booking
+    let storedDateTimings = [];
+    if (dates_timings && Array.isArray(dates_timings) && dates_timings.length > 0) {
+      storedDateTimings = processDatesTimings(dates_timings);
+    } else if (event_time) {
+      // For single-day booking with event_time, create dates_timings array
+      const timeFromParts = event_time.from?.split(':') || [];
+      const timeToParts = event_time.to?.split(':') || [];
+      storedDateTimings = [{
+        date: new Date(event_date),
+        datetime_from: createDateTime(event_date, timeFromParts[0], timeFromParts[1], event_time.from?.includes('PM') ? 'PM' : 'AM'),
+        datetime_to: createDateTime(event_date, timeToParts[0], timeToParts[1], event_time.to?.includes('PM') ? 'PM' : 'AM'),
+        timing: {
+          timeFromHour: timeFromParts[0] || '',
+          timeFromMinute: timeFromParts[1] || '',
+          timeFromPeriod: event_time.from?.includes('PM') ? 'PM' : 'AM',
+          timeToHour: timeToParts[0] || '',
+          timeToMinute: timeToParts[1] || '',
+          timeToPeriod: event_time.to?.includes('PM') ? 'PM' : 'AM'
+        }
+      }];
+    }
+
     try {
       await Booking.create({
         venue_id, customer_id: customerId,
         customer_name: fullName, customer_email: email, customer_phone: phone,
         event_date: new Date(event_date), event_type: eventType, guest_count: guestCount,
+        event_time_start: eventTimeStart, event_time_end: eventTimeEnd,
+        venue_name: venue_name, venue_location: venue.location || null,
+        dates_timings: storedDateTimings,
         amount: estimatedAmount, payment_amount, special_requirements: user_details.specialRequests || null,
         status: 'pending'
       });
@@ -342,12 +487,86 @@ router.get('/customer/notifications', authenticateToken, async (req, res) => {
     const withMsg = await Promise.all(bookings.map(async b => {
       const v = await Venue.findById(b.venue_id, { name: 1 }).lean();
       const message = b.status === 'confirmed' ? `Your inquiry for ${v?.name} has been accepted!` : b.status === 'cancelled' ? `Your inquiry for ${v?.name} has been declined.` : `Your inquiry for ${v?.name} is pending review.`;
-      return { id: b._id.toString(), venue_id: b.venue_id.toString(), venue_name: v?.name, event_date: b.event_date, guest_count: b.guest_count, amount: b.amount, status: b.status, updated_at: b.updated_at, notification_type: 'inquiry_status', message };
+
+      // Calculate payment amount if not stored
+      let displayAmount = b.payment_amount;
+      if (!displayAmount && b.amount) {
+        const PLATFORM_FEE_RATE = 0.10;
+        const GST_RATE = 0.18;
+        const amountWithFee = b.amount * (1 + PLATFORM_FEE_RATE);
+        displayAmount = Math.round(amountWithFee * (1 + GST_RATE));
+      }
+
+      return { id: b._id.toString(), venue_id: b.venue_id.toString(), venue_name: v?.name, event_date: b.event_date, guest_count: b.guest_count, amount: displayAmount || b.amount, status: b.status, updated_at: b.updated_at, notification_type: 'inquiry_status', message };
     }));
 
     res.json(withMsg);
   } catch (error) {
     console.error('Error fetching customer notifications:', error);
+    res.status(500).json({ error: 'Failed to fetch notifications' });
+  }
+});
+
+// Get owner/venue notifications for inquiries
+router.get('/owner/notifications', authenticateToken, async (req, res) => {
+  try {
+    const ownerId = req.user.id;
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+    const venueIds = await Venue.find({ owner_id: ownerId }, { _id: 1 }).lean();
+    const venueIdArray = venueIds.map(v => v._id);
+
+    if (venueIdArray.length === 0) {
+      return res.json([]);
+    }
+
+    const bookings = await Booking.find({ venue_id: { $in: venueIdArray }, updated_at: { $gt: since } })
+      .sort({ updated_at: -1 })
+      .limit(20)
+      .lean();
+
+    const withMsg = await Promise.all(bookings.map(async (b) => {
+      let message = '';
+      let notificationType = 'booking_inquiry';
+
+      if (b.payment_status === 'completed' && b.status === 'confirmed') {
+        const eventDate = new Date(b.event_date);
+        const eventDay = eventDate.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        message = `✓ Payment Received! ${b.customer_name} has completed payment for ${b.guest_count} guests. Your settlement will be credited to your account within 2-3 business days after the event on ${eventDay}.`;
+        notificationType = 'payment_completed';
+      } else if (b.status === 'confirmed') {
+        message = `✓ Booking Confirmed! ${b.customer_name} has confirmed a booking for ${b.guest_count} guests on ${new Date(b.event_date).toLocaleDateString('en-IN')}. Payment is pending.`;
+        notificationType = 'booking_confirmed';
+      } else if (b.status === 'cancelled') {
+        message = `✗ Booking Cancelled. ${b.customer_name}'s inquiry for ${new Date(b.event_date).toLocaleDateString('en-IN')} (${b.guest_count} guests) has been declined.`;
+        notificationType = 'booking_cancelled';
+      } else {
+        message = `◆ New Inquiry! ${b.customer_name} is interested in booking your venue for ${b.guest_count} guests on ${new Date(b.event_date).toLocaleDateString('en-IN')}. Please review and respond.`;
+        notificationType = 'booking_inquiry';
+      }
+
+      return {
+        id: b._id.toString(),
+        venue_id: b.venue_id.toString(),
+        venue_name: b.venue_name,
+        event_date: b.event_date,
+        guest_count: b.guest_count,
+        amount: b.amount,
+        payment_amount: b.payment_amount,
+        payment_status: b.payment_status,
+        status: b.status,
+        updated_at: b.updated_at,
+        payment_completed_at: b.payment_completed_at,
+        customer_name: b.customer_name,
+        customer_email: b.customer_email,
+        notification_type: notificationType,
+        message
+      };
+    }));
+
+    res.json(withMsg);
+  } catch (error) {
+    console.error('Error fetching owner notifications:', error);
     res.status(500).json({ error: 'Failed to fetch notifications' });
   }
 });

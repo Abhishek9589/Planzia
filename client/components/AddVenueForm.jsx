@@ -424,12 +424,14 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
               </label>
               <AutocompleteInput
                 options={allStates.map(s => s.name)}
-                value={allStates.find(s => s.code === formData.state)?.name || ''}
+                value={stateInputValue}
                 onChange={(stateName) => {
+                  setStateInputValue(stateName);
                   const selectedState = allStates.find(s => s.name.toLowerCase() === stateName.toLowerCase());
                   if (selectedState) {
                     handleInputChange('state', selectedState.code);
                     handleInputChange('city', '');
+                    setCityInputValue('');
                   }
                 }}
                 placeholder="Type to search..."
@@ -446,9 +448,12 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
               </label>
               <AutocompleteInput
                 options={cities}
-                value={formData.city}
+                value={cityInputValue}
                 onChange={(city) => {
-                  handleInputChange('city', city);
+                  setCityInputValue(city);
+                  if (cities.includes(city)) {
+                    handleInputChange('city', city);
+                  }
                 }}
                 placeholder={!formData.state ? 'Select state first' : 'Type to search...'}
                 disabled={!formData.state}

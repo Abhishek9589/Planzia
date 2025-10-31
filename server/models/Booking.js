@@ -7,8 +7,25 @@ const BookingSchema = new mongoose.Schema({
   customer_email: { type: String, required: true },
   customer_phone: { type: String },
   event_date: { type: Date, required: true },
+  event_time_start: { type: String },
+  event_time_end: { type: String },
   event_type: { type: String },
   guest_count: { type: Number, required: true },
+  venue_name: { type: String },
+  venue_location: { type: String },
+  dates_timings: [{
+    date: { type: Date },
+    datetime_from: { type: Date },
+    datetime_to: { type: Date },
+    timing: {
+      timeFromHour: String,
+      timeFromMinute: String,
+      timeFromPeriod: String,
+      timeToHour: String,
+      timeToMinute: String,
+      timeToPeriod: String
+    }
+  }],
   amount: { type: Number, required: true },
   payment_amount: { type: Number },
   status: { type: String, enum: ['pending', 'confirmed', 'cancelled'], default: 'pending' },

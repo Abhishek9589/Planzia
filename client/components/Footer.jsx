@@ -1,20 +1,55 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 import { scrollToTop } from '@/lib/navigation';
+import { useState, useEffect } from 'react';
 
 export default function Footer() {
+  const staticVenueTypes = [
+    { name: 'Banquet Halls', href: '/venues?type=banquet' },
+    { name: 'Wedding Venues', href: '/venues?type=wedding' },
+    { name: 'Conference Halls', href: '/venues?type=conference' },
+    { name: 'Resorts', href: '/venues?type=resort' },
+  ];
+
+  const [venueTypes, setVenueTypes] = useState(staticVenueTypes);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchDynamicVenueTypes = async () => {
+      try {
+        setIsLoading(true);
+
+        const countResponse = await fetch('/api/venues/total-count');
+        const countData = await countResponse.json();
+
+        if (countData.totalCount >= 50) {
+          const typesResponse = await fetch('/api/venues/top-types');
+          const typesData = await typesResponse.json();
+
+          if (typesData.topTypes && typesData.topTypes.length > 0) {
+            const dynamicTypes = typesData.topTypes.map(type => ({
+              name: type.name,
+              href: `/venues?type=${encodeURIComponent(type.name)}`
+            }));
+            setVenueTypes(dynamicTypes);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching dynamic venue types:', error);
+        setVenueTypes(staticVenueTypes);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDynamicVenueTypes();
+  }, []);
+
   const quickLinks = [
     { name: 'Home', href: '/' },
     { name: 'Venues', href: '/venues' },
     { name: 'About Us', href: '/about' },
     { name: 'Contact', href: '/contact' },
-  ];
-
-  const venueTypes = [
-    { name: 'Banquet Halls', href: '/venues?type=banquet' },
-    { name: 'Wedding Venues', href: '/venues?type=wedding' },
-    { name: 'Conference Halls', href: '/venues?type=conference' },
-    { name: 'Resorts', href: '/venues?type=resort' },
   ];
 
   const companyPages = [
@@ -89,19 +124,27 @@ export default function Footer() {
           {/* Venue Types */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wider text-venue-indigo mb-6">Venue Types</h3>
-            <ul className="space-y-3">
-              {venueTypes.map((type) => (
-                <li key={type.name}>
-                  <Link
-                    to={type.href}
-                    onClick={scrollToTop}
-                    className="text-gray-600 hover:text-venue-indigo transition-colors duration-200 text-sm font-medium"
-                  >
-                    {type.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {isLoading ? (
+              <ul className="space-y-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <li key={i} className="h-4 bg-gray-200 rounded animate-pulse"></li>
+                ))}
+              </ul>
+            ) : (
+              <ul className="space-y-3">
+                {venueTypes.map((type) => (
+                  <li key={type.name}>
+                    <Link
+                      to={type.href}
+                      onClick={scrollToTop}
+                      className="text-gray-600 hover:text-venue-indigo transition-colors duration-200 text-sm font-medium"
+                    >
+                      {type.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {/* Company */}

@@ -27,23 +27,70 @@ router.post('/create-order', authenticateToken, async (req, res) => {
     const { bookingId } = req.body;
     const customerId = req.user.id;
 
+    console.log('Creating payment order for booking:', { bookingId, customerId });
+
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+      console.error('Invalid booking ID format:', bookingId);
       return res.status(400).json({ error: 'Invalid booking id' });
     }
 
     const booking = await Booking.findOne({ _id: bookingId, customer_id: customerId, status: 'confirmed' }).lean();
-    if (!booking) return res.status(404).json({ error: 'Booking not found or not confirmed' });
-
-    if (booking.razorpay_order_id) return res.status(400).json({ error: 'Payment order already exists for this booking' });
-
-    let vName = undefined;
-    if (booking.venue_id && mongoose.Types.ObjectId.isValid(booking.venue_id)) {
-      const v = await Venue.findById(booking.venue_id, { name: 1 }).lean();
-      vName = v?.name;
+    console.log('Booking found:', { booking: !!booking, bookingId, customerId });
+    if (!booking) {
+      console.error('Booking not found or not confirmed:', { bookingId, customerId });
+      return res.status(404).json({ error: 'Booking not found or not confirmed' });
     }
 
-    const paymentAmount = Number(booking.payment_amount || booking.amount);
+    // Allow creating a new order only if payment hasn't been completed
+    if (booking.razorpay_order_id && booking.payment_status === 'completed') {
+      console.error('Payment already completed for booking:', bookingId);
+      return res.status(400).json({ error: 'Payment already completed for this booking' });
+    }
+
+    let vName = undefined;
+    let venue = null;
+    if (booking.venue_id && mongoose.Types.ObjectId.isValid(booking.venue_id)) {
+      venue = await Venue.findById(booking.venue_id, { name: 1, price_per_day: 1 }).lean();
+      vName = venue?.name;
+    }
+
+    // Recalculate payment amount using same logic as frontend modal
+    const GST_RATE = 0.18;
+    const PLATFORM_FEE_RATE = 0.10;
+
+    // Calculate number of days same way as frontend
+    let numberOfDays = 1;
+    if (booking.dates_timings && Array.isArray(booking.dates_timings) && booking.dates_timings.length > 0) {
+      numberOfDays = booking.dates_timings.length;
+    } else if (booking.number_of_days) {
+      numberOfDays = booking.number_of_days;
+    }
+
+    // Get price per day
+    const pricePerDay = Number(venue?.price_per_day || booking.price_per_day || 0);
+    if (!Number.isFinite(pricePerDay) || pricePerDay <= 0) {
+      console.error('Invalid price per day:', { pricePerDay, venue: venue?.price_per_day, booking: booking.price_per_day });
+      return res.status(400).json({ error: 'Invalid venue price' });
+    }
+
+    // Calculate same way as frontend modal:
+    // venueAmount → platformFee → gstFee → totalAmount
+    const venueAmount = pricePerDay * numberOfDays;
+    const platformFee = venueAmount * PLATFORM_FEE_RATE;
+    const gstFee = (venueAmount + platformFee) * GST_RATE;
+    const paymentAmount = Math.round(venueAmount + platformFee + gstFee);
+
+    console.log('Calculating payment amount (modal-aligned):', {
+      numberOfDays,
+      pricePerDay,
+      venueAmount,
+      platformFee,
+      gstFee,
+      paymentAmount
+    });
+
     if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) {
+      console.error('Final payment amount invalid:', paymentAmount);
       return res.status(400).json({ error: 'Invalid payment amount for booking' });
     }
     const amountPaise = Math.round(paymentAmount * 100);
@@ -84,10 +131,13 @@ router.post('/create-order', authenticateToken, async (req, res) => {
       { _id: bookingId },
       {
         $set: {
+          payment_amount: paymentAmount,
           razorpay_order_id: order.id,
+          razorpay_payment_id: null,
           payment_status: 'pending',
           payment_initiated_at: new Date(),
-          payment_deadline: paymentDeadline
+          payment_deadline: paymentDeadline,
+          payment_error_description: null
         }
       }
     );
@@ -96,6 +146,12 @@ router.post('/create-order', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error creating Razorpay order:', error);
     const safeMessage = typeof error?.message === 'string' && error.message.length < 300 ? error.message : 'Failed to create payment order';
+    console.error('Full error details:', {
+      message: error.message,
+      stack: error.stack,
+      bookingId: req.body.bookingId,
+      customerId: req.user?.id
+    });
     res.status(500).json({ error: safeMessage });
   }
 });

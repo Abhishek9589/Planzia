@@ -15,6 +15,7 @@ import { FloatingMessage } from '@/components/ui/floating-message';
 import { RatingDisplay } from '@/components/RatingDisplay';
 import { RatingForm } from '@/components/RatingForm';
 import { FeedbackDisplay } from '@/components/FeedbackDisplay';
+import MultiDayBookingModal from '@/components/MultiDayBookingModal';
 import { useFavorites } from '../hooks/useFavorites';
 import { getUserFriendlyError } from '../lib/errorMessages';
 import { getPriceBreakdownComponent } from '../lib/priceUtils';
@@ -60,13 +61,17 @@ export default function VenueDetail() {
   const navigate = useNavigate();
   const { user, isLoggedIn } = useAuth();
   const { toggleFavorite, isFavorite } = useFavorites();
-  
+
   const [venue, setVenue] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
-  
+
   const [selectedDate, setSelectedDate] = useState(null);
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  });
   const [bookingForm, setBookingForm] = useState({
     fullName: '',
     email: '',
@@ -82,6 +87,7 @@ export default function VenueDetail() {
     timeToPeriod: 'AM'
   });
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const [showMultiDayModal, setShowMultiDayModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notification, setNotification] = useState(null);
   const [showFloatingMessage, setShowFloatingMessage] = useState(false);
@@ -184,6 +190,14 @@ export default function VenueDetail() {
     }));
   };
 
+  const handleBookingDialogOpen = (open) => {
+    setShowBookingForm(open);
+    if (open) {
+      const today = new Date();
+      setCalendarMonth(new Date(today.getFullYear(), today.getMonth(), 1));
+    }
+  };
+
   const handleInquireSubmit = async (e) => {
     e.preventDefault();
     
@@ -217,7 +231,10 @@ export default function VenueDetail() {
       const inquiryData = {
         venue_id: venue.id,
         venue_name: venue.name,
-        user_details: bookingForm,
+        user_details: {
+          ...bookingForm,
+          guestCount: parseInt(bookingForm.guestCount) || 0
+        },
         event_date: selectedDate.toISOString().split('T')[0],
         event_time: {
           from: `${bookingForm.timeFromHour}:${bookingForm.timeFromMinute.padStart(2, '0')} ${bookingForm.timeFromPeriod}`,
@@ -225,24 +242,20 @@ export default function VenueDetail() {
         },
         inquiry_date: new Date().toISOString(),
         venue_owner: {
-          name: venue.owner_name,
-          email: venue.owner_email,
-          phone: venue.owner_phone
+          name: venue.owner_name || '',
+          email: venue.owner_email || '',
+          phone: venue.owner_phone || ''
         }
       };
 
-      try {
-        await apiCall('/api/bookings/inquiry', {
-          method: 'POST',
-          body: JSON.stringify(inquiryData)
-        });
-      } catch (apiError) {
-        console.log('API not available, simulating inquiry submission');
-      }
+      await apiCall('/api/bookings/inquiry', {
+        method: 'POST',
+        body: JSON.stringify(inquiryData)
+      });
 
       setShowFloatingMessage(true);
 
-      setShowBookingForm(false);
+      handleBookingDialogOpen(false);
       setSelectedDate(null);
       setBookingForm(prev => ({
         ...prev,
@@ -264,6 +277,57 @@ export default function VenueDetail() {
 
     } catch (error) {
       console.error('Error submitting inquiry:', error);
+      setNotification({
+        type: 'error',
+        message: 'Failed to send inquiry. Please try again.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleMultiDayBookingSubmit = async (bookingData) => {
+    if (!isLoggedIn) {
+      setNotification({
+        type: 'error',
+        message: 'Please sign in to make an inquiry'
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Use first date as event_date for the inquiry
+      const firstDate = bookingData.dates_timings && bookingData.dates_timings.length > 0
+        ? bookingData.dates_timings[0].date
+        : new Date().toISOString().split('T')[0];
+
+      const inquiryData = {
+        venue_id: bookingData.venue_id,
+        venue_name: bookingData.venue_name,
+        user_details: bookingData.user_details,
+        event_date: firstDate,
+        dates_timings: bookingData.dates_timings,
+        pricing: bookingData.pricing,
+        inquiry_date: bookingData.inquiry_date
+      };
+
+      await apiCall('/api/bookings/inquiry', {
+        method: 'POST',
+        body: JSON.stringify(inquiryData)
+      });
+
+      setShowFloatingMessage(true);
+      setShowMultiDayModal(false);
+
+      setTimeout(() => {
+        scrollToTop();
+        navigate('/');
+      }, 3000);
+
+    } catch (error) {
+      console.error('Error submitting multi-day inquiry:', error);
       setNotification({
         type: 'error',
         message: 'Failed to send inquiry. Please try again.'
@@ -493,7 +557,7 @@ export default function VenueDetail() {
                         setShowLoginDialog(true);
                         return;
                       }
-                      setShowBookingForm(true);
+                      setShowMultiDayModal(true);
                     }}
                     className="bg-venue-indigo hover:bg-venue-purple text-white w-full md:w-auto px-8"
                     size="lg"
@@ -686,7 +750,7 @@ export default function VenueDetail() {
       </div>
 
       {/* Booking Dialog */}
-      <Dialog open={showBookingForm} onOpenChange={setShowBookingForm}>
+      <Dialog open={showBookingForm} onOpenChange={handleBookingDialogOpen}>
         <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-5xl sm:rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Start Booking</DialogTitle>
@@ -713,8 +777,26 @@ export default function VenueDetail() {
                       mode="single"
                       selected={selectedDate}
                       onSelect={setSelectedDate}
-                      disabled={(date) => date < new Date()}
-                      className="w-auto" classNames={{ table: "w-auto" }}
+                      month={calendarMonth}
+                      onMonthChange={(month) => {
+                        const today = new Date();
+                        const currentYear = today.getFullYear();
+                        const currentMonth = today.getMonth();
+                        const selectedYear = month.getFullYear();
+                        const selectedMonth = month.getMonth();
+
+                        // Allow current month and any future months
+                        if (selectedYear > currentYear || (selectedYear === currentYear && selectedMonth >= currentMonth)) {
+                          setCalendarMonth(month);
+                        }
+                      }}
+                      disabled={(date) => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        return date <= today;
+                      }}
+                      className="w-auto"
+                      classNames={{ table: "w-auto" }}
                     />
                   </div>
                   {selectedDate && (
@@ -920,7 +1002,7 @@ export default function VenueDetail() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setShowBookingForm(false)}
+                onClick={() => handleBookingDialogOpen(false)}
                 className="w-full sm:w-auto"
               >
                 Cancel
@@ -960,6 +1042,16 @@ export default function VenueDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Multi-Day Booking Modal */}
+      <MultiDayBookingModal
+        open={showMultiDayModal}
+        onOpenChange={setShowMultiDayModal}
+        venue={venue}
+        user={user}
+        onSubmit={handleMultiDayBookingSubmit}
+        isSubmitting={isSubmitting}
+      />
 
       {/* Rating Form Modal */}
       {isLoggedIn && userBookings && userBookings.length > 0 && (

@@ -2,8 +2,39 @@ import { Router } from 'express';
 import { authenticateToken } from '../middleware/auth.js';
 import Venue from '../models/Venue.js';
 import Booking from '../models/Booking.js';
+import Favorite from '../models/Favorite.js';
+import Rating from '../models/Rating.js';
 
 const router = Router();
+
+// Get total venue count (public)
+router.get('/total-count', async (_req, res) => {
+  try {
+    const totalCount = await Venue.countDocuments({ status: 'active', is_active: true });
+    res.json({ totalCount });
+  } catch (error) {
+    console.error('Error fetching total venue count:', error);
+    res.status(500).json({ error: 'Failed to fetch venue count' });
+  }
+});
+
+// Get top venue types by upload count (public)
+router.get('/top-types', async (_req, res) => {
+  try {
+    const topTypes = await Venue.aggregate([
+      { $match: { status: 'active', is_active: true, type: { $exists: true, $ne: '' } } },
+      { $group: { _id: '$type', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 4 },
+      { $project: { _id: 0, name: '$_id', count: 1 } }
+    ]);
+
+    res.json({ topTypes });
+  } catch (error) {
+    console.error('Error fetching top venue types:', error);
+    res.status(500).json({ error: 'Failed to fetch top venue types' });
+  }
+});
 
 // Get filter options based on uploaded venue data (public)
 router.get('/filter-options', async (_req, res) => {
@@ -235,7 +266,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Delete venue (protected)
+// Delete venue (protected) - with cascade delete of related records
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -244,7 +275,13 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     const venue = await Venue.findOne({ _id: id, owner_id: ownerId });
     if (!venue) return res.status(404).json({ error: 'Venue not found or access denied' });
 
-    await Venue.deleteOne({ _id: id });
+    await Promise.all([
+      Venue.deleteOne({ _id: id }),
+      Booking.deleteMany({ venue_id: id }),
+      Favorite.deleteMany({ venue_id: id }),
+      Rating.deleteMany({ venue_id: id })
+    ]);
+
     res.json({ message: 'Venue deleted successfully' });
   } catch (error) {
     console.error('Error deleting venue:', error);

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { useScrollLock } from '@/hooks/useScrollLock';
 
 export function AutocompleteInput({
   options = [],
@@ -19,8 +18,6 @@ export function AutocompleteInput({
   const inputRef = useRef(null);
   const listRef = useRef(null);
   const containerRef = useRef(null);
-
-  useScrollLock(isOpen && filteredOptions.length > 0);
 
   // Filter options based on input value
   useEffect(() => {

@@ -66,6 +66,8 @@ export default function EditVenueForm({ isOpen, onClose, onSubmit, venue }) {
     images: []
   });
 
+  const [stateInputValue, setStateInputValue] = useState('');
+  const [cityInputValue, setCityInputValue] = useState('');
   const [errors, setErrors] = useState({});
   const [uploadingImages, setUploadingImages] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -91,12 +93,12 @@ export default function EditVenueForm({ isOpen, onClose, onSubmit, venue }) {
   useEffect(() => {
     if (venue) {
       // Parse location to extract state and city
-      let stateCode = '', city = '';
+      let stateCode = '', stateName = '', city = '';
       if (venue.location) {
         const parts = venue.location.split(',').map(p => p.trim());
         if (parts.length >= 2) {
           city = parts[0];
-          const stateName = parts[parts.length - 1];
+          stateName = parts[parts.length - 1];
           // Find the state code from the state name
           const foundState = allStates.find(s => s.name.toLowerCase() === stateName.toLowerCase());
           stateCode = foundState ? foundState.code : '';
@@ -115,6 +117,9 @@ export default function EditVenueForm({ isOpen, onClose, onSubmit, venue }) {
         facilities: venue.facilities || [''],
         price: venue.price || venue.price_per_day || ''
       });
+
+      setStateInputValue(stateName);
+      setCityInputValue(city);
     }
   }, [venue, allStates]);
 
@@ -479,12 +484,14 @@ export default function EditVenueForm({ isOpen, onClose, onSubmit, venue }) {
               </label>
               <AutocompleteInput
                 options={allStates.map(s => s.name)}
-                value={allStates.find(s => s.code === formData.state)?.name || ''}
+                value={stateInputValue}
                 onChange={(stateName) => {
+                  setStateInputValue(stateName);
                   const selectedState = allStates.find(s => s.name.toLowerCase() === stateName.toLowerCase());
                   if (selectedState) {
                     handleInputChange('state', selectedState.code);
                     handleInputChange('city', '');
+                    setCityInputValue('');
                   }
                 }}
                 placeholder="Type to search..."
@@ -501,9 +508,12 @@ export default function EditVenueForm({ isOpen, onClose, onSubmit, venue }) {
               </label>
               <AutocompleteInput
                 options={cities}
-                value={formData.city}
+                value={cityInputValue}
                 onChange={(city) => {
-                  handleInputChange('city', city);
+                  setCityInputValue(city);
+                  if (cities.includes(city)) {
+                    handleInputChange('city', city);
+                  }
                 }}
                 placeholder={!formData.state ? 'Select state first' : 'Type to search...'}
                 disabled={!formData.state}

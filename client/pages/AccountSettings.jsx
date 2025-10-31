@@ -86,7 +86,11 @@ export default function AccountSettings() {
   const [userBookings, setUserBookings] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [notificationsError, setNotificationsError] = useState(null);
   const [togglingVenueId, setTogglingVenueId] = useState(null);
+  const [venueToDelete, setVenueToDelete] = useState(null);
+  const [deleteVenueDialogOpen, setDeleteVenueDialogOpen] = useState(false);
+  const [deletingVenueId, setDeletingVenueId] = useState(null);
   const [emailVerificationOpen, setEmailVerificationOpen] = useState(false);
   const [emailVerificationOtp, setEmailVerificationOtp] = useState('');
   const [emailVerificationLoading, setEmailVerificationLoading] = useState(false);
@@ -171,6 +175,9 @@ export default function AccountSettings() {
         fetchDashboardStats();
         fetchVenues();
         fetchBookings();
+        if (activeTab === 'notifications') {
+          fetchNotifications();
+        }
       } else if (user?.userType === 'customer') {
         if (activeTab === 'bookings') {
           fetchCustomerBookings();
@@ -231,10 +238,21 @@ export default function AccountSettings() {
   const fetchNotifications = async () => {
     try {
       setNotificationsLoading(true);
-      const res = await apiClient.getJson('/api/bookings/customer/notifications');
+      setNotificationsError(null);
+      const endpoint = user?.userType === 'venue-owner'
+        ? '/api/bookings/owner/notifications'
+        : '/api/bookings/customer/notifications';
+      const res = await apiClient.getJson(endpoint);
       setNotifications(Array.isArray(res) ? res : res?.notifications || []);
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      const errorMessage = error?.message || 'Failed to load notifications. Please try again.';
+      setNotificationsError(errorMessage);
+      toast({
+        title: 'Error Loading Notifications',
+        description: errorMessage,
+        variant: 'destructive'
+      });
     } finally {
       setNotificationsLoading(false);
     }
@@ -314,6 +332,36 @@ export default function AccountSettings() {
       });
     } finally {
       setTogglingVenueId(null);
+    }
+  };
+
+  const handleDeleteVenue = async () => {
+    if (!venueToDelete) return;
+
+    try {
+      setDeletingVenueId(venueToDelete._id || venueToDelete.id);
+      await venueService.deleteVenue(venueToDelete._id || venueToDelete.id);
+
+      setUserVenues(prev =>
+        prev.filter(v => (v._id !== venueToDelete._id && v.id !== venueToDelete.id))
+      );
+
+      toast({
+        title: 'Success',
+        description: `${venueToDelete.name} has been deleted successfully`
+      });
+
+      setDeleteVenueDialogOpen(false);
+      setVenueToDelete(null);
+    } catch (error) {
+      console.error('Error deleting venue:', error);
+      toast({
+        title: 'Error',
+        description: getUserFriendlyError(error.message || error, 'general'),
+        variant: 'destructive'
+      });
+    } finally {
+      setDeletingVenueId(null);
     }
   };
 
@@ -733,6 +781,7 @@ export default function AccountSettings() {
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'venues', label: 'Venues', icon: Building },
     { id: 'bookings', label: 'Bookings', icon: Calendar },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
@@ -940,11 +989,10 @@ export default function AccountSettings() {
                           <table className="w-full">
                             <thead>
                               <tr className="border-b border-gray-200">
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">Customer</th>
+                                <th className="text-left py-3 px-4 font-semibold text-gray-700">Customer Name</th>
                                 <th className="text-left py-3 px-4 font-semibold text-gray-700">Venue Name</th>
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">Event Date</th>
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">Amount</th>
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
+                                <th className="text-left py-3 px-4 font-semibold text-gray-700">Booked Date</th>
+                                <th className="text-left py-3 px-4 font-semibold text-gray-700">Booking Status</th>
                                 <th className="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
                               </tr>
                             </thead>
@@ -956,7 +1004,6 @@ export default function AccountSettings() {
                                   <td className="py-3 px-4 text-gray-600">
                                     {new Date(booking.event_date || booking.created_at).toLocaleDateString('en-IN')}
                                   </td>
-                                  <td className="py-3 px-4 text-gray-800 font-medium">₹{parseInt(booking.amount).toLocaleString('en-IN')}</td>
                                   <td className="py-3 px-4">
                                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                                       booking.status === 'confirmed'
@@ -969,37 +1016,16 @@ export default function AccountSettings() {
                                     </span>
                                   </td>
                                   <td className="py-3 px-4">
-                                    {booking.status === 'pending' ? (
-                                      <div className="flex gap-1">
-                                        <Button
-                                          onClick={() => handleBookingStatusUpdate(booking._id, 'confirmed')}
-                                          disabled={processingBookingId === booking._id}
-                                          size="sm"
-                                          className="bg-green-600 hover:bg-green-700 text-white h-7 px-2"
-                                        >
-                                          {processingBookingId === booking._id ? (
-                                            <div className="animate-spin rounded-full h-3 w-3 border border-white border-t-transparent"></div>
-                                          ) : (
-                                            <Check className="h-3 w-3" />
-                                          )}
-                                        </Button>
-                                        <Button
-                                          onClick={() => handleBookingStatusUpdate(booking._id, 'cancelled')}
-                                          disabled={processingBookingId === booking._id}
-                                          size="sm"
-                                          variant="destructive"
-                                          className="h-7 px-2"
-                                        >
-                                          {processingBookingId === booking._id ? (
-                                            <div className="animate-spin rounded-full h-3 w-3 border border-white border-t-transparent"></div>
-                                          ) : (
-                                            <X className="h-3 w-3" />
-                                          )}
-                                        </Button>
-                                      </div>
-                                    ) : (
-                                      <span className="text-gray-500 text-xs">—</span>
-                                    )}
+                                    <Button
+                                      onClick={() => {
+                                        setSelectedBooking(booking);
+                                        setShowBookingDetails(true);
+                                      }}
+                                      size="sm"
+                                      className="bg-venue-indigo hover:bg-venue-purple text-white"
+                                    >
+                                      View Details
+                                    </Button>
                                   </td>
                                 </tr>
                               ))}
@@ -1009,6 +1035,16 @@ export default function AccountSettings() {
                       )}
                     </CardContent>
                   </Card>
+
+                  {/* Booking Details Modal for Recent Bookings */}
+                  <BookingDetailsModal
+                    open={showBookingDetails}
+                    onOpenChange={setShowBookingDetails}
+                    booking={selectedBooking}
+                    onPaymentClick={handlePaymentClick}
+                    isProcessing={processingBookingId === selectedBooking?._id}
+                    onStatusUpdate={handleBookingStatusUpdate}
+                  />
                 </div>
               )}
 
@@ -1111,6 +1147,17 @@ export default function AccountSettings() {
                                     >
                                       Edit Venue
                                     </Button>
+                                    <Button
+                                      onClick={() => {
+                                        setVenueToDelete(venue);
+                                        setDeleteVenueDialogOpen(true);
+                                      }}
+                                      variant="outline"
+                                      className="w-full border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                                    >
+                                      <Trash2 className="h-4 w-4 mr-2" />
+                                      Delete Venue
+                                    </Button>
                                   </div>
                                 </CardContent>
                               </Card>
@@ -1136,6 +1183,7 @@ export default function AccountSettings() {
 
               {/* Bookings Tab */}
               {activeTab === 'bookings' && (
+                <>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <div>
@@ -1164,10 +1212,11 @@ export default function AccountSettings() {
                         <table className="w-full">
                           <thead>
                             <tr className="border-b border-gray-200">
-                              <th className="text-left py-3 px-4 font-semibold text-gray-700">Venue</th>
-                              <th className="text-left py-3 px-4 font-semibold text-gray-700">Event Date</th>
-                              <th className="text-left py-3 px-4 font-semibold text-gray-700">Guests</th>
-                              <th className="text-left py-3 px-4 font-semibold text-gray-700">Amount</th>
+                              <th className="text-left py-3 px-4 font-semibold text-gray-700">Customer Name</th>
+                              <th className="text-left py-3 px-4 font-semibold text-gray-700">Venue Name</th>
+                              <th className="text-left py-3 px-4 font-semibold text-gray-700">Booked Date</th>
+                              <th className="text-left py-3 px-4 font-semibold text-gray-700">Guest Count</th>
+                              <th className="text-left py-3 px-4 font-semibold text-gray-700">Total Amount</th>
                               <th className="text-left py-3 px-4 font-semibold text-gray-700">Booking Status</th>
                               <th className="text-left py-3 px-4 font-semibold text-gray-700">Payment Status</th>
                               <th className="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
@@ -1176,11 +1225,11 @@ export default function AccountSettings() {
                           <tbody>
                             {userBookings.map((booking) => (
                               <tr key={booking._id || booking.id} className="border-b border-gray-100 hover:bg-gray-50">
-                                <td className="py-3 px-4">
-                                  <div className="flex flex-col">
-                                    <span className="font-medium text-gray-800">{booking.venue_name || 'N/A'}</span>
-                                    <span className="text-xs text-gray-500">{booking.venue_location || 'N/A'}</span>
-                                  </div>
+                                <td className="py-3 px-4 text-gray-800">
+                                  {booking.customer_name || 'N/A'}
+                                </td>
+                                <td className="py-3 px-4 text-gray-800">
+                                  {booking.venue_name || 'N/A'}
                                 </td>
                                 <td className="py-3 px-4 text-gray-600">
                                   {new Date(booking.event_date).toLocaleDateString('en-IN')}
@@ -1216,42 +1265,16 @@ export default function AccountSettings() {
                                   </span>
                                 </td>
                                 <td className="py-3 px-4">
-                                  {booking.status === 'pending' ? (
-                                    <div className="flex gap-2">
-                                      <Button
-                                        onClick={() => handleBookingStatusUpdate(booking._id || booking.id, 'confirmed')}
-                                        disabled={processingBookingId === (booking._id || booking.id)}
-                                        size="sm"
-                                        className="bg-green-600 hover:bg-green-700 text-white"
-                                      >
-                                        {processingBookingId === (booking._id || booking.id) ? (
-                                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                                        ) : (
-                                          <>
-                                            <Check className="h-4 w-4 mr-1" />
-                                            Accept
-                                          </>
-                                        )}
-                                      </Button>
-                                      <Button
-                                        onClick={() => handleBookingStatusUpdate(booking._id || booking.id, 'cancelled')}
-                                        disabled={processingBookingId === (booking._id || booking.id)}
-                                        size="sm"
-                                        variant="destructive"
-                                      >
-                                        {processingBookingId === (booking._id || booking.id) ? (
-                                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                                        ) : (
-                                          <>
-                                            <X className="h-4 w-4 mr-1" />
-                                            Decline
-                                          </>
-                                        )}
-                                      </Button>
-                                    </div>
-                                  ) : (
-                                    <span className="text-gray-500 text-sm">No actions available</span>
-                                  )}
+                                  <Button
+                                    onClick={() => {
+                                      setSelectedBooking(booking);
+                                      setShowBookingDetails(true);
+                                    }}
+                                    size="sm"
+                                    className="bg-venue-indigo hover:bg-venue-purple text-white"
+                                  >
+                                    View Details
+                                  </Button>
                                 </td>
                               </tr>
                             ))}
@@ -1262,6 +1285,167 @@ export default function AccountSettings() {
                       <div className="flex flex-col items-center justify-center py-12">
                         <Calendar className="h-12 w-12 text-gray-400 mb-3" />
                         <p className="text-gray-600">No bookings yet</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Booking Details Modal for Venue Owner */}
+                <BookingDetailsModal
+                  open={showBookingDetails}
+                  onOpenChange={setShowBookingDetails}
+                  booking={selectedBooking}
+                  onPaymentClick={handlePaymentClick}
+                  isProcessing={processingBookingId === selectedBooking?._id}
+                  onStatusUpdate={handleBookingStatusUpdate}
+                />
+                </>
+              )}
+
+              {/* Notifications Tab */}
+              {activeTab === 'notifications' && (
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                      <CardTitle>Notifications</CardTitle>
+                      <CardDescription>Updates on your bookings and inquiries</CardDescription>
+                    </div>
+                    <Button
+                      onClick={fetchNotifications}
+                      disabled={notificationsLoading}
+                      variant="outline"
+                      size="sm"
+                      className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white"
+                    >
+                      <RefreshCw className={`h-4 w-4 mr-2 ${notificationsLoading ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </Button>
+                  </CardHeader>
+                  <CardContent>
+                    {notificationsLoading ? (
+                      <div className="flex flex-col items-center justify-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-venue-indigo"></div>
+                        <p className="text-gray-600 mt-4">Loading notifications...</p>
+                      </div>
+                    ) : notificationsError ? (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                        <div className="flex items-start">
+                          <XCircle className="h-6 w-6 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-red-900 mb-1">Failed to Load Notifications</h3>
+                            <p className="text-red-700 text-sm mb-4">{notificationsError}</p>
+                            <Button
+                              onClick={fetchNotifications}
+                              disabled={notificationsLoading}
+                              size="sm"
+                              className="bg-red-600 hover:bg-red-700 text-white"
+                            >
+                              Try Again
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : notifications && notifications.length > 0 ? (
+                      <div className="space-y-4">
+                        {notifications.map((notification) => (
+                          <motion.div
+                            key={notification.id}
+                            variants={fadeUp}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.2 }}
+                            transition={transition}
+                          >
+                            <Card className={`border-l-4 ${
+                              notification.status === 'confirmed'
+                                ? 'border-l-green-600 bg-green-50'
+                                : notification.status === 'cancelled'
+                                ? 'border-l-red-600 bg-red-50'
+                                : 'border-l-amber-600 bg-amber-50'
+                            } hover:shadow-md transition-shadow`}>
+                              <CardContent className="p-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {/* Left Column - Notification Info */}
+                                  <div>
+                                    <div className="flex items-start gap-3 mb-3">
+                                      {notification.status === 'confirmed' ? (
+                                        <CheckCheck className="h-5 w-5 text-green-700 flex-shrink-0 mt-0.5" />
+                                      ) : notification.status === 'cancelled' ? (
+                                        <XCircle className="h-5 w-5 text-red-700 flex-shrink-0 mt-0.5" />
+                                      ) : (
+                                        <Clock className="h-5 w-5 text-amber-700 flex-shrink-0 mt-0.5" />
+                                      )}
+                                      <div>
+                                        <h3 className="font-semibold text-venue-dark">
+                                          {notification.status === 'confirmed' ? 'Booking Confirmed' : notification.status === 'cancelled' ? 'Booking Cancelled' : 'Booking Pending'}
+                                        </h3>
+                                        <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
+                                      </div>
+                                    </div>
+
+                                    <div className="space-y-2 mt-3">
+                                      <div>
+                                        <p className="text-xs text-gray-500">Venue</p>
+                                        <p className="text-venue-indigo font-medium">{notification.venue_name}</p>
+                                      </div>
+
+                                      <div>
+                                        <p className="text-xs text-gray-500">Event Date</p>
+                                        <p className="text-sm font-medium text-gray-800">
+                                          {new Date(notification.event_date).toLocaleDateString('en-IN', {
+                                            weekday: 'short',
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric'
+                                          })}
+                                        </p>
+                                      </div>
+
+                                      <div>
+                                        <p className="text-xs text-gray-500">Guest Count</p>
+                                        <p className="text-sm font-medium text-gray-800">{notification.guest_count} guests</p>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Right Column - Status */}
+                                  <div className="flex flex-col justify-between">
+                                    <div className="space-y-2">
+                                      <p className="text-xs text-gray-500 mb-2">Status</p>
+                                      <span className={`inline-block px-3 py-1.5 rounded-md text-xs font-semibold ${
+                                        notification.status === 'confirmed'
+                                          ? 'bg-green-100 text-green-700'
+                                          : notification.status === 'cancelled'
+                                          ? 'bg-red-100 text-red-700'
+                                          : 'bg-amber-100 text-amber-700'
+                                      }`}>
+                                        {notification.status === 'confirmed' ? 'Confirmed' : notification.status === 'cancelled' ? 'Cancelled' : 'Pending'}
+                                      </span>
+                                    </div>
+
+                                    <div className="mt-3 pt-3 border-t border-gray-200">
+                                      <p className="text-xs text-gray-500">
+                                        Updated {new Date(notification.updated_at).toLocaleDateString('en-IN', {
+                                          year: 'numeric',
+                                          month: 'short',
+                                          day: 'numeric',
+                                          hour: '2-digit',
+                                          minute: '2-digit'
+                                        })}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-12">
+                        <Bell className="h-12 w-12 text-gray-400 mb-3" />
+                        <p className="text-gray-600 text-lg font-medium">No notifications yet</p>
+                        <p className="text-gray-500 text-sm mt-1">You'll receive notifications when customers interact with your venues</p>
                       </div>
                     )}
                   </CardContent>
@@ -1737,6 +1921,8 @@ export default function AccountSettings() {
                 booking={selectedBooking}
                 onPaymentClick={handlePaymentClick}
                 isProcessing={processingPaymentBookingId === selectedBooking?._id}
+                onStatusUpdate={handleBookingStatusUpdate}
+                customerDetailsOnly={true}
               />
 
               {/* Notifications Tab */}
@@ -1766,6 +1952,24 @@ export default function AccountSettings() {
                       <div className="flex flex-col items-center justify-center py-12">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-venue-indigo"></div>
                         <p className="text-gray-600 mt-4">Loading notifications...</p>
+                      </div>
+                    ) : notificationsError ? (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                        <div className="flex items-start">
+                          <XCircle className="h-6 w-6 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-red-900 mb-1">Failed to Load Notifications</h3>
+                            <p className="text-red-700 text-sm mb-4">{notificationsError}</p>
+                            <Button
+                              onClick={fetchNotifications}
+                              disabled={notificationsLoading}
+                              size="sm"
+                              className="bg-red-600 hover:bg-red-700 text-white"
+                            >
+                              Try Again
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     ) : notifications && notifications.length > 0 ? (
                       <div className="space-y-4">
@@ -1836,15 +2040,8 @@ export default function AccountSettings() {
                                     </div>
                                   </div>
 
-                                  {/* Right Column - Amount and Status */}
+                                  {/* Right Column - Status */}
                                   <div className="flex flex-col justify-between">
-                                    <div className="bg-white rounded-lg p-3 mb-3">
-                                      <p className="text-xs text-gray-500 mb-1">Amount</p>
-                                      <p className="text-2xl font-bold text-venue-indigo">
-                                        ���{Number(notification.amount || 0).toLocaleString('en-IN')}
-                                      </p>
-                                    </div>
-
                                     <div className="space-y-2">
                                       <p className="text-xs text-gray-500 mb-2">Status</p>
                                       <span className={`inline-block px-3 py-1.5 rounded-md text-xs font-semibold ${
@@ -2299,6 +2496,59 @@ export default function AccountSettings() {
         onConfirm={handleDeleteAccount}
         isLoading={deleteAccountLoading}
       />
+
+      {/* Delete Venue Confirmation Dialog */}
+      <Dialog open={deleteVenueDialogOpen} onOpenChange={setDeleteVenueDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <Trash2 className="h-5 w-5" />
+              Delete Venue
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete <strong>{venueToDelete?.name}</strong>? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 my-4">
+            <p className="text-sm text-red-800">
+              <strong>Warning:</strong> Deleting this venue will permanently remove it from the system along with all associated data.
+            </p>
+          </div>
+
+          <DialogFooter className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setDeleteVenueDialogOpen(false);
+                setVenueToDelete(null);
+              }}
+              disabled={deletingVenueId !== null}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleDeleteVenue}
+              disabled={deletingVenueId !== null}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deletingVenueId === (venueToDelete?._id || venueToDelete?.id) ? (
+                <>
+                  <div className="h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Venue
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
