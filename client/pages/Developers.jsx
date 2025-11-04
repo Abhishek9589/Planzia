@@ -105,7 +105,6 @@ const techStack = [
     category: 'Database & APIs',
     technologies: [
       { name: 'MongoDB', icon: Database, color: '#13aa52' },
-      { name: 'MongoDB Atlas', icon: Cloud, color: '#13aa52' },
       { name: 'Google OAuth 2.0', icon: Shield, color: '#4285f4' },
       { name: 'Razorpay', icon: CreditCard, color: '#2f75d9' },
       { name: 'Cloudinary', icon: ImageIcon, color: '#3448c5' },
