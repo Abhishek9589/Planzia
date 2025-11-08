@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.resolve(__dirname, '../.env'), override: true });
+dotenv.config({ path: path.resolve(__dirname, '../../.env'), override: true });
 
 // Create transporter
 const transporter = nodemailer.createTransport({
@@ -643,7 +643,7 @@ export async function sendBookingConfirmationEmail(customerEmail, bookingData) {
               If you have any questions, please contact us or the venue owner directly.
             </p>
             <p style="color: #a0aec0; margin: 0; font-size: 12px;">
-              © ${new Date().getFullYear()} Planzia. All rights reserved.
+              �� ${new Date().getFullYear()} Planzia. All rights reserved.
             </p>
           </div>
         </div>

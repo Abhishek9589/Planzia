@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Notification } from '@/components/ui/notification';
 import { FloatingMessage } from '@/components/ui/floating-message';
+import { toast } from '@/components/ui/use-toast';
 import { RatingDisplay } from '@/components/RatingDisplay';
 import { RatingForm } from '@/components/RatingForm';
 import { FeedbackDisplay } from '@/components/FeedbackDisplay';
@@ -375,14 +376,14 @@ export default function VenueDetail() {
     }
 
     if (copied) {
-      setNotification({
-        type: 'success',
-        message: 'Venue link copied to clipboard!'
+      toast({
+        title: 'Share link copied'
       });
     } else {
-      setNotification({
-        type: 'error',
-        message: 'Failed to copy link. Please try again.'
+      toast({
+        title: 'Failed to copy link',
+        description: 'Please try again.',
+        variant: 'destructive'
       });
     }
     setTimeout(() => setNotification(null), 3000);

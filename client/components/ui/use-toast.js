@@ -3,7 +3,7 @@ import * as React from "react"
 // Define toast types
 const TOAST_LIMIT = 3
 const TOAST_REMOVE_DELAY = 400
-const DEFAULT_TOAST_DURATION = 10000
+const DEFAULT_TOAST_DURATION = 6000
 
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
