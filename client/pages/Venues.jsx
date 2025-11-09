@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { scrollToTop } from '@/lib/navigation';
 import { Button } from '@/components/ui/button';
@@ -202,20 +202,23 @@ export default function Venues() {
       const fetchAllRatings = async () => {
         setSortingLoading(true);
         try {
+          const ratingPromises = venues.map(venue =>
+            apiClient.getJson(`/api/ratings/venue/${venue.id}`)
+              .then(data => ({
+                id: venue.id,
+                data: data ? { average: data.average || 0, totalRatings: data.totalRatings || 0 } : { average: 0, totalRatings: 0 }
+              }))
+              .catch(() => ({
+                id: venue.id,
+                data: { average: 0, totalRatings: 0 }
+              }))
+          );
+
+          const results = await Promise.all(ratingPromises);
           const ratings = {};
-          for (const venue of venues) {
-            try {
-              const data = await apiClient.getJson(`/api/ratings/venue/${venue.id}`);
-              if (data) {
-                ratings[venue.id] = {
-                  average: data.average || 0,
-                  totalRatings: data.totalRatings || 0
-                };
-              }
-            } catch (error) {
-              ratings[venue.id] = { average: 0, totalRatings: 0 };
-            }
-          }
+          results.forEach(({ id, data }) => {
+            ratings[id] = data;
+          });
           setVenueRatings(ratings);
         } catch (error) {
           console.error('Error fetching ratings for sorting:', error);
@@ -407,7 +410,7 @@ export default function Venues() {
     }
   };
 
-  const getFilteredVenues = () => {
+  const filteredVenues = useMemo(() => {
     let filtered = venues;
 
     if (showFavoritesOnly) {
@@ -423,9 +426,7 @@ export default function Venues() {
     filtered = applySorting(filtered);
 
     return filtered;
-  };
-
-  const filteredVenues = getFilteredVenues();
+  }, [venues, showFavoritesOnly, priceRange, capacityRange, isFavorite, sortOption, venueRatings, user]);
 
   useEffect(() => {
     if (currentPage !== 1) {

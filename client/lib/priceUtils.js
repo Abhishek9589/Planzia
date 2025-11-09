@@ -136,34 +136,81 @@ export const getPricingInfo = (basePrice, displayType = 'listing') => {
  * @returns {object} Price breakdown component data
  */
 export const getPriceBreakdownComponent = (basePrice) => {
-  const breakdown = calculatePriceBreakdown(basePrice);
-  const finalPriceWithFee = breakdown.basePrice + breakdown.gst + breakdown.platformFee;
+  if (!basePrice || basePrice <= 0) {
+    return {
+      breakdown: {
+        basePrice: 0,
+        platformFee: 0,
+        gst: 0,
+        finalPrice: 0
+      },
+      items: [
+        {
+          label: 'Base Price',
+          value: 0,
+          formatted: formatPrice(0),
+          type: 'base'
+        },
+        {
+          label: 'Platform Fee (10%)',
+          value: 0,
+          formatted: formatPrice(0),
+          type: 'fee'
+        },
+        {
+          label: 'GST (18%)',
+          value: 0,
+          formatted: formatPrice(0),
+          type: 'tax'
+        },
+        {
+          label: 'Final Price',
+          value: 0,
+          formatted: formatPrice(0),
+          type: 'final'
+        }
+      ],
+      discountNote: ''
+    };
+  }
+
+  // New calculation: GST on (Base Price + Platform Fee)
+  const base = Math.round(basePrice);
+  const platformFee = Math.round(basePrice * PLATFORM_FEE_RATE);
+  const baseWithFee = base + platformFee;
+  const gst = Math.round(baseWithFee * GST_RATE);
+  const finalPrice = baseWithFee + gst;
 
   return {
-    breakdown,
+    breakdown: {
+      basePrice: base,
+      platformFee,
+      gst,
+      finalPrice
+    },
     items: [
       {
         label: 'Base Price',
-        value: breakdown.basePrice,
-        formatted: formatPrice(breakdown.basePrice),
+        value: base,
+        formatted: formatPrice(base),
         type: 'base'
       },
       {
-        label: 'GST (18%)',
-        value: breakdown.gst,
-        formatted: formatPrice(breakdown.gst),
-        type: 'tax'
-      },
-      {
         label: 'Platform Fee (10%)',
-        value: breakdown.platformFee,
-        formatted: formatPrice(breakdown.platformFee),
+        value: platformFee,
+        formatted: formatPrice(platformFee),
         type: 'fee'
       },
       {
+        label: 'GST (18%)',
+        value: gst,
+        formatted: formatPrice(gst),
+        type: 'tax'
+      },
+      {
         label: 'Final Price',
-        value: finalPriceWithFee,
-        formatted: formatPrice(finalPriceWithFee),
+        value: finalPrice,
+        formatted: formatPrice(finalPrice),
         type: 'final'
       }
     ],

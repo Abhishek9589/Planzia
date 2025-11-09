@@ -24,6 +24,13 @@ const VenueSchema = new mongoose.Schema({
   googleMapsUrl: { type: String, default: '' }
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
 
+// Performance indexes
+VenueSchema.index({ owner_id: 1 });
+VenueSchema.index({ status: 1, is_active: 1 });
+VenueSchema.index({ type: 1 });
+VenueSchema.index({ location: 1 });
+VenueSchema.index({ created_at: -1 });
+
 VenueSchema.virtual('id').get(function () { return this._id.toString(); });
 VenueSchema.set('toJSON', { virtuals: true });
 VenueSchema.set('toObject', { virtuals: true });

@@ -8,34 +8,62 @@ import mongoose from 'mongoose';
 
 const router = Router();
 
-// Get ratings for a venue (public)
+// Get ratings for a venue (public) - with pagination
 router.get('/venue/:venueId', async (req, res) => {
   try {
     const { venueId } = req.params;
-    
+    const { limit = 10, page = 1 } = req.query;
+
     if (!mongoose.Types.ObjectId.isValid(venueId)) {
       return res.status(400).json({ error: 'Invalid venue ID' });
     }
 
-    const ratings = await Rating.find({ venue_id: venueId })
-      .sort({ created_at: -1 })
-      .lean();
+    const limitInt = Math.min(parseInt(limit) || 10, 50);
+    const pageInt = Math.max(parseInt(page) || 1, 1);
+    const skipInt = (pageInt - 1) * limitInt;
 
-    const totalRatings = ratings.length;
-    const averageRating = totalRatings > 0
-      ? (ratings.reduce((sum, r) => sum + r.rating, 0) / totalRatings).toFixed(1)
-      : 0;
+    const venueId_obj = new mongoose.Types.ObjectId(venueId);
+
+    const aggregation = await Rating.aggregate([
+      { $match: { venue_id: venueId_obj } },
+      {
+        $facet: {
+          stats: [
+            {
+              $group: {
+                _id: null,
+                average: { $avg: '$rating' },
+                total: { $sum: 1 }
+              }
+            }
+          ],
+          ratings: [
+            { $sort: { created_at: -1 } },
+            { $skip: skipInt },
+            { $limit: limitInt },
+            {
+              $project: {
+                id: { $toString: '$_id' },
+                rating: 1,
+                feedback: 1,
+                user_name: { $ifNull: ['$user_name', 'Anonymous'] },
+                created_at: 1
+              }
+            }
+          ]
+        }
+      }
+    ]);
+
+    const stats = aggregation[0]?.stats[0] || { average: 0, total: 0 };
+    const ratings = aggregation[0]?.ratings || [];
 
     res.json({
-      averageRating: parseFloat(averageRating),
-      totalRatings,
-      ratings: ratings.map(r => ({
-        id: r._id.toString(),
-        rating: r.rating,
-        feedback: r.feedback,
-        user_name: r.user_name || 'Anonymous',
-        created_at: r.created_at
-      }))
+      averageRating: parseFloat((stats.average || 0).toFixed(1)),
+      totalRatings: stats.total,
+      currentPage: pageInt,
+      totalPages: Math.ceil(stats.total / limitInt),
+      ratings
     });
   } catch (error) {
     console.error('Error fetching ratings:', error);
@@ -149,21 +177,31 @@ router.post('/', authenticateToken, async (req, res) => {
       savedRating = newRating;
     }
 
-    const allRatings = await Rating.find({ venue_id: venueId }).lean();
-    const averageRating = allRatings.length > 0
-      ? (allRatings.reduce((sum, r) => sum + r.rating, 0) / allRatings.length).toFixed(1)
-      : 0;
+    const venueId_obj = new mongoose.Types.ObjectId(venueId);
+    const stats = await Rating.aggregate([
+      { $match: { venue_id: venueId_obj } },
+      {
+        $group: {
+          _id: null,
+          average: { $avg: '$rating' },
+          total: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const ratingStats = stats[0] || { average: 0, total: 0 };
+    const averageRating = parseFloat((ratingStats.average || 0).toFixed(1));
 
     await Venue.updateOne(
       { _id: venueId },
-      { rating: parseFloat(averageRating) }
+      { rating: averageRating }
     );
 
     res.status(201).json({
       message: 'Rating submitted successfully',
       ratingId: savedRating._id.toString(),
-      averageRating: parseFloat(averageRating),
-      totalRatings: allRatings.length
+      averageRating,
+      totalRatings: ratingStats.total
     });
   } catch (error) {
     console.error('Error submitting rating:', error);

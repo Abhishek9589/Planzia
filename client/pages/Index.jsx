@@ -434,6 +434,7 @@ export default function Index() {
                   <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 group hover:-translate-y-1">
                     <div className="relative h-64 overflow-hidden">
                       <img
+                        loading="lazy"
                         src={venue.image}
                         alt={venue.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"

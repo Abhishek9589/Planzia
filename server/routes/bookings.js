@@ -112,20 +112,18 @@ router.get('/owner', authenticateToken, async (req, res) => {
     if (payment_status) filter.payment_status = payment_status;
 
     const bookings = await Booking.find(filter)
+      .populate('venue_id', 'name location')
       .sort({ created_at: -1 })
       .skip(parseInt(offset))
       .limit(parseInt(limit))
       .lean();
 
-    const withVenue = await Promise.all(bookings.map(async b => {
-      const v = await Venue.findById(b.venue_id, { name: 1, location: 1 }).lean();
-      return {
-        ...b,
-        venue_name: v?.name,
-        venue_location: v?.location,
-        amount: Number(b.amount),
-        payment_amount: Number(b.payment_amount || b.amount)
-      };
+    const withVenue = bookings.map(b => ({
+      ...b,
+      venue_name: b.venue_id?.name,
+      venue_location: b.venue_id?.location,
+      amount: Number(b.amount),
+      payment_amount: Number(b.payment_amount || b.amount)
     }));
 
     res.json(withVenue);
@@ -146,23 +144,27 @@ router.get('/customer', authenticateToken, async (req, res) => {
     if (payment_status) filter.payment_status = payment_status;
 
     const bookings = await Booking.find(filter)
+      .populate({
+        path: 'venue_id',
+        select: 'name location owner_id',
+        populate: {
+          path: 'owner_id',
+          select: 'name mobile_number'
+        }
+      })
       .sort({ created_at: -1 })
       .skip(parseInt(offset))
       .limit(parseInt(limit))
       .lean();
 
-    const withVenueOwner = await Promise.all(bookings.map(async b => {
-      const v = await Venue.findById(b.venue_id, { name: 1, location: 1, owner_id: 1 }).lean();
-      const u = v ? await User.findById(v.owner_id, { name: 1, mobile_number: 1 }).lean() : null;
-      return {
-        ...b,
-        venue_name: v?.name,
-        venue_location: v?.location,
-        owner_name: u?.name,
-        owner_phone: u?.mobile_number,
-        amount: Number(b.amount),
-        payment_amount: Number(b.payment_amount || b.amount)
-      };
+    const withVenueOwner = bookings.map(b => ({
+      ...b,
+      venue_name: b.venue_id?.name,
+      venue_location: b.venue_id?.location,
+      owner_name: b.venue_id?.owner_id?.name,
+      owner_phone: b.venue_id?.owner_id?.mobile_number,
+      amount: Number(b.amount),
+      payment_amount: Number(b.payment_amount || b.amount)
     }));
 
     res.json(withVenueOwner);
@@ -326,13 +328,16 @@ router.get('/owner/recent', authenticateToken, async (req, res) => {
 
     const venueIds = await Venue.find({ owner_id: ownerId }, { _id: 1 }).lean();
     const bookings = await Booking.find({ venue_id: { $in: venueIds.map(v => v._id) } })
+      .populate('venue_id', 'name')
       .sort({ created_at: -1 })
       .limit(parseInt(limit))
       .lean();
 
-    const withVenue = await Promise.all(bookings.map(async b => {
-      const v = await Venue.findById(b.venue_id, { name: 1 }).lean();
-      return { ...b, venue_name: v?.name, amount: Number(b.amount), payment_amount: Number(b.payment_amount || b.amount) };
+    const withVenue = bookings.map(b => ({
+      ...b,
+      venue_name: b.venue_id?.name,
+      amount: Number(b.amount),
+      payment_amount: Number(b.payment_amount || b.amount)
     }));
 
     res.json(withVenue);
@@ -362,13 +367,17 @@ router.get('/owner/inquiries', authenticateToken, async (req, res) => {
     const { limit = 20 } = req.query;
     const venueIds = await Venue.find({ owner_id: ownerId }, { _id: 1 }).lean();
     const inquiries = await Booking.find({ venue_id: { $in: venueIds.map(v => v._id) }, status: 'pending' })
+      .populate('venue_id', 'name location')
       .sort({ created_at: -1 })
       .limit(parseInt(limit))
       .lean();
 
-    const mapped = await Promise.all(inquiries.map(async i => {
-      const v = await Venue.findById(i.venue_id, { name: 1, location: 1 }).lean();
-      return { ...i, venue_name: v?.name, venue_location: v?.location, amount: Number(i.amount), payment_amount: Number(i.payment_amount || i.amount) };
+    const mapped = inquiries.map(i => ({
+      ...i,
+      venue_name: i.venue_id?.name,
+      venue_location: i.venue_id?.location,
+      amount: Number(i.amount),
+      payment_amount: Number(i.payment_amount || i.amount)
     }));
 
     res.json(mapped);
@@ -480,13 +489,14 @@ router.get('/customer/notifications', authenticateToken, async (req, res) => {
     const customerId = req.user.id;
     const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const bookings = await Booking.find({ customer_id: customerId, updated_at: { $gt: since } })
+      .populate('venue_id', 'name')
       .sort({ updated_at: -1 })
       .limit(10)
       .lean();
 
-    const withMsg = await Promise.all(bookings.map(async b => {
-      const v = await Venue.findById(b.venue_id, { name: 1 }).lean();
-      const message = b.status === 'confirmed' ? `Your inquiry for ${v?.name} has been accepted!` : b.status === 'cancelled' ? `Your inquiry for ${v?.name} has been declined.` : `Your inquiry for ${v?.name} is pending review.`;
+    const withMsg = bookings.map(b => {
+      const venueName = b.venue_id?.name || b.venue_name || 'Your booked venue';
+      const message = b.status === 'confirmed' ? `Your inquiry for ${venueName} has been accepted!` : b.status === 'cancelled' ? `Your inquiry for ${venueName} has been declined.` : `Your inquiry for ${venueName} is pending review.`;
 
       // Calculate payment amount if not stored
       let displayAmount = b.payment_amount;
@@ -497,8 +507,8 @@ router.get('/customer/notifications', authenticateToken, async (req, res) => {
         displayAmount = Math.round(amountWithFee * (1 + GST_RATE));
       }
 
-      return { id: b._id.toString(), venue_id: b.venue_id.toString(), venue_name: v?.name, event_date: b.event_date, guest_count: b.guest_count, amount: displayAmount || b.amount, status: b.status, updated_at: b.updated_at, notification_type: 'inquiry_status', message };
-    }));
+      return { id: b._id.toString(), venue_id: b.venue_id?._id?.toString() || b.venue_id.toString(), venue_name: venueName, event_date: b.event_date, guest_count: b.guest_count, amount: displayAmount || b.amount, status: b.status, updated_at: b.updated_at, notification_type: 'inquiry_status', message };
+    });
 
     res.json(withMsg);
   } catch (error) {

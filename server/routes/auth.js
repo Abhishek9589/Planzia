@@ -96,7 +96,7 @@ router.get('/google/callback', async (req, res) => {
       }
     }
 
-    const accessToken = generateAccessToken({ id: user.id, email: user.email, user_type: user.user_type });
+    const accessToken = generateAccessToken({ id: user._id.toString(), email: user.email, user_type: user.user_type });
     const refreshToken = generateRefreshToken({ id: user.id, email: user.email });
 
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -212,7 +212,7 @@ router.post('/verify-otp', async (req, res) => {
 
     await OtpVerification.deleteMany({ email });
 
-    const accessToken = generateAccessToken({ id: user.id, email: user.email, user_type: user.user_type });
+    const accessToken = generateAccessToken({ id: user._id.toString(), email: user.email, user_type: user.user_type });
     const refreshToken = generateRefreshToken({ id: user.id, email: user.email });
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     await RefreshToken.create({ user_id: user.id, token: refreshToken, expires_at: expiresAt });

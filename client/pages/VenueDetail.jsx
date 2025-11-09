@@ -596,6 +596,7 @@ export default function VenueDetail() {
                   transition={{ ...transition, delay: (index % 8) * 0.03 }}
                 >
                   <img
+                    loading="lazy"
                     src={image}
                     alt={`${venue.name} ${index + 1}`}
                     className="w-full h-full object-cover"
