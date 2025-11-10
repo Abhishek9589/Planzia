@@ -25,7 +25,12 @@ export default function BookingDetailsModal({
   const fetchVenueDetails = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.getJson(`/api/venues/${booking.venue_id}`);
+      const venueId = typeof booking.venue_id === 'object' ? booking.venue_id?._id || booking.venue_id?.id : booking.venue_id;
+      if (!venueId) {
+        console.warn('Invalid venue ID:', booking.venue_id);
+        return;
+      }
+      const response = await apiClient.getJson(`/api/venues/${venueId}`);
       setVenueDetails(response);
     } catch (error) {
       console.error('Error fetching venue details:', error);

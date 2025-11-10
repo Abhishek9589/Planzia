@@ -40,13 +40,10 @@ const BookingSchema = new mongoose.Schema({
   special_requirements: { type: String },
   booking_date: { type: Date, default: Date.now },
   last_payment_reminder_sent_at: { type: Date },
-  payment_reminder_count: { type: Number, default: 0 },
-  rating_reminder_sent: { type: Boolean, default: false },
-  rating_reminder_sent_at: { type: Date }
+  payment_reminder_count: { type: Number, default: 0 }
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
 
 BookingSchema.index({ payment_deadline: 1, status: 1 });
-BookingSchema.index({ event_date: 1, rating_reminder_sent: 1 });
 BookingSchema.index({ status: 1, payment_status: 1, last_payment_reminder_sent_at: 1 });
 
 BookingSchema.virtual('id').get(function () { return this._id.toString(); });

@@ -31,7 +31,6 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AddVenue from "./pages/AddVenue";
 import FAQ from "./pages/FAQ";
 import Support from "./pages/Support";
-import Blog from "./pages/Blog";
 import Careers from "./pages/Careers";
 import WhyPlanzia from "./pages/WhyPlanzia";
 import TermsAndConditions from "./pages/TermsAndConditions";
@@ -71,7 +70,6 @@ const Shell = () => {
               <Route path="/contact" element={<Contact />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/support" element={<Support />} />
-              <Route path="/blog" element={<Blog />} />
               <Route path="/careers" element={<Careers />} />
               <Route path="/why-Planzia" element={<WhyPlanzia />} />
               <Route path="/terms-and-conditions" element={<TermsAndConditions />} />

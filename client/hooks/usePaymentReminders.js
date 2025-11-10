@@ -57,35 +57,3 @@ export function usePaymentReminders(bookings = []) {
     hasPendingPayments: pendingPaymentBookings.length > 0 || expiredBookings.length > 0
   };
 }
-
-export function useRatingReminders(bookings = []) {
-  const [eligibleForRating, setEligibleForRating] = useState([]);
-
-  useEffect(() => {
-    if (!Array.isArray(bookings)) {
-      return;
-    }
-
-    const now = new Date();
-    const eligible = [];
-
-    bookings.forEach((booking) => {
-      if (
-        booking.status === 'confirmed' &&
-        booking.payment_status === 'completed' &&
-        booking.rating_reminder_sent === false &&
-        booking.event_date &&
-        new Date(booking.event_date) < now
-      ) {
-        eligible.push(booking);
-      }
-    });
-
-    setEligibleForRating(eligible);
-  }, [bookings]);
-
-  return {
-    eligibleForRating,
-    hasRatingReminder: eligibleForRating.length > 0
-  };
-}

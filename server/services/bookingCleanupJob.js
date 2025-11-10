@@ -2,8 +2,7 @@ import Booking from '../models/Booking.js';
 import User from '../models/User.js';
 import Venue from '../models/Venue.js';
 import {
-  sendPaymentNotCompletedEmail,
-  sendRatingReminderEmail
+  sendPaymentNotCompletedEmail
 } from './emailService.js';
 
 let jobInterval = null;
@@ -19,7 +18,6 @@ export async function startBookingCleanupJob() {
     try {
       await processExpiredPayments();
       await processPeriodicPaymentReminders();
-      await processRatingReminders();
     } catch (error) {
       console.error('Error in booking cleanup job:', error);
     }
@@ -345,72 +343,6 @@ async function sendPeriodicPaymentReminderEmail(email, data) {
   } catch (error) {
     console.error('Error sending periodic payment reminder email:', error);
     return false;
-  }
-}
-
-async function processRatingReminders() {
-  try {
-    const now = new Date();
-
-    const pastEventBookings = await Booking.find({
-      status: 'confirmed',
-      payment_status: 'completed',
-      event_date: { $lt: now },
-      rating_reminder_sent: false
-    }).lean();
-
-    if (pastEventBookings.length === 0) {
-      return;
-    }
-
-    console.log(`Found ${pastEventBookings.length} bookings eligible for rating reminder`);
-
-    for (const booking of pastEventBookings) {
-      try {
-        const customer = await User.findById(booking.customer_id, {
-          name: 1,
-          email: 1
-        }).lean();
-
-        const venue = await Venue.findById(booking.venue_id, {
-          name: 1,
-          location: 1
-        }).lean();
-
-        if (customer && customer.email) {
-          try {
-            await sendRatingReminderEmail(customer.email, {
-              customer_name: customer.name,
-              venue_name: venue?.name,
-              venue_location: venue?.location,
-              event_date: booking.event_date,
-              booking_id: booking._id.toString()
-            });
-          } catch (emailError) {
-            console.error(
-              `Failed to send rating reminder email for booking ${booking._id}:`,
-              emailError
-            );
-          }
-        }
-
-        await Booking.updateOne(
-          { _id: booking._id },
-          {
-            $set: {
-              rating_reminder_sent: true,
-              rating_reminder_sent_at: new Date()
-            }
-          }
-        );
-
-        console.log(`Sent rating reminder for booking ${booking._id}`);
-      } catch (error) {
-        console.error(`Error processing rating reminder for booking ${booking._id}:`, error);
-      }
-    }
-  } catch (error) {
-    console.error('Error in processRatingReminders:', error);
   }
 }
 
