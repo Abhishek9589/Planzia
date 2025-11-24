@@ -39,7 +39,7 @@ export default function Navigation() {
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Venues', path: '/venues' },
-    { name: 'About', path: '/about' },
+    { name: 'About Us', path: '/about' },
     { name: 'Contact', path: '/contact' },
   ];
 
@@ -67,7 +67,7 @@ export default function Navigation() {
             <img
               src="/logo.png"
               alt="Planzia Logo"
-              className="h-16 object-contain"
+              className="h-12 object-contain"
             />
           </Link>
 

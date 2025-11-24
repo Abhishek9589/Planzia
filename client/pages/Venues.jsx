@@ -478,7 +478,7 @@ export default function Venues() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Filters Sidebar */}
           <motion.div
-            className={`lg:w-72 space-y-6 ${showFilters ? 'block' : 'hidden lg:block'} lg:sticky lg:top-24 lg:self-start`}
+            className={`lg:w-72 space-y-6 ${showFilters ? 'block' : 'hidden lg:block'} lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-100px)] lg:overflow-y-auto`}
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
@@ -690,18 +690,19 @@ export default function Venues() {
                       viewport={{ once: true, amount: 0.15 }}
                       transition={{ ...transition, delay: (idx % 4) * 0.05 }}
                     >
-                      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col h-full w-full">
-                        <div className="relative h-56 overflow-hidden">
+                      <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 group hover:-translate-y-1">
+                        <div className="relative h-64 overflow-hidden">
                           <img
+                            loading="lazy"
                             src={venue.image}
                             alt={venue.name}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                           />
-                          <div className="absolute top-4 right-4 flex gap-2">
+                          <div className="absolute top-4 right-4">
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-8 w-8 bg-white/90 hover:bg-white"
+                              className="h-10 w-10 bg-white/90 hover:bg-white shadow-lg"
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -709,7 +710,7 @@ export default function Venues() {
                               }}
                             >
                               <Heart
-                                className={`h-4 w-4 transition-colors ${
+                                className={`h-5 w-5 transition-colors ${
                                   isFavorite(venue.id)
                                     ? 'text-red-500 fill-red-500'
                                     : 'text-gray-600 hover:text-red-500'
@@ -717,47 +718,33 @@ export default function Venues() {
                               />
                             </Button>
                           </div>
-                          <div className="absolute top-4 left-4">
-                            <Badge variant="secondary" className="bg-venue-indigo text-white">
-                              {venue.type}
-                            </Badge>
-                          </div>
                         </div>
-
-                        <CardContent className="p-5 flex flex-col flex-1">
-                          <h3 className="text-lg font-semibold text-venue-dark mb-2 group-hover:text-venue-indigo transition-colors line-clamp-1">
-                            {venue.name}
-                          </h3>
-
-                          <div className="flex items-center text-gray-600 mb-3">
-                            <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
-                            <span className="text-sm line-clamp-1">{venue.location}</span>
-                          </div>
-
-                          <div className="flex items-center text-gray-600 mb-4">
-                            <Users className="h-4 w-4 mr-1 flex-shrink-0" />
-                            <span className="text-sm">Up to {venue.capacity} guests</span>
-                          </div>
-
-                          <div className="mb-4">
+                        <CardContent className="p-6">
+                          <h3 className="text-xl font-semibold text-venue-dark mb-2">{venue.name}</h3>
+                          <div className="flex items-center mb-3">
                             <RatingDisplay venueId={venue.id} />
                           </div>
-
-                          <div className="mt-auto space-y-3">
-                            <div className="text-center">
-                              <span className="text-xl font-bold text-venue-indigo">
-                                {getPricingInfo(venue.price, 'listing').formattedPrice}
-                              </span>
-                              <span className="text-gray-500 text-sm ml-1">/day</span>
+                          <div className="space-y-2 text-sm text-gray-600 mb-4">
+                            <div className="flex items-center">
+                              <MapPin className="h-4 w-4 mr-2 text-venue-indigo" />
+                              {venue.location}
                             </div>
-                            <Button
-                              asChild
-                              className="w-full bg-venue-indigo hover:bg-venue-purple text-white"
-                              onClick={scrollToTop}
-                            >
-                              <Link to={`/venue/${venue.id}`}>
-                                Book Now
-                              </Link>
+                            <div className="flex items-center">
+                              <Users className="h-4 w-4 mr-2 text-venue-indigo" />
+                              Up to {venue.capacity} guests
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {venue.facilities && venue.facilities.slice(0, 3).map((facility, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs bg-venue-lavender/80 text-venue-indigo">
+                                {facility}
+                              </Badge>
+                            ))}
+                          </div>
+                          <div className="flex items-center justify-between mt-6">
+                            <div className="text-2xl font-bold text-venue-indigo">{getPricingInfo(venue.price, 'listing').formattedPrice}</div>
+                            <Button asChild className="bg-venue-indigo hover:bg-venue-indigo/90 text-white">
+                              <Link to={`/venue/${venue.id}`}>View Details</Link>
                             </Button>
                           </div>
                         </CardContent>

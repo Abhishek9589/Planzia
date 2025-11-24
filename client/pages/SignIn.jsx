@@ -98,7 +98,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
+    <div className="min-h-screen bg-white/70 backdrop-blur-lg flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
       <div className="w-full max-w-md">
         {showExpiredNotice && (
           <motion.div

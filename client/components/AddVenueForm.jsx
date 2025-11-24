@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { AutocompleteInput } from '@/components/ui/autocomplete-input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Upload, Plus, Trash2, X } from 'lucide-react';
-import { VENUE_TYPES } from '@/constants/venueOptions';
+import { VENUE_TYPES, PREDEFINED_FACILITIES } from '@/constants/venueOptions';
 import { getUserFriendlyError } from '@/lib/errorMessages';
 import apiClient from '../lib/apiClient.js';
 import { City, State } from 'country-state-city';
@@ -21,7 +21,8 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
     footfall: '',
     price: '',
     googleMapsUrl: '',
-    facilities: [''],
+    selectedFacilities: [],
+    customFacility: '',
     images: []
   });
 
@@ -86,16 +87,16 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
 
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
-    if (formData.images.length + files.length > 10) {
-      setErrors(prev => ({ ...prev, images: 'Maximum 10 images allowed' }));
+    if (formData.images.length + files.length > 5) {
+      setErrors(prev => ({ ...prev, images: 'Maximum 5 images allowed' }));
       return;
     }
 
     // Process files one by one for better performance
     for (const file of files) {
-      // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        setErrors(prev => ({ ...prev, images: 'Each image must be less than 10MB' }));
+      // Validate file size (max 3MB)
+      if (file.size > 3 * 1024 * 1024) {
+        setErrors(prev => ({ ...prev, images: 'Each image must be less than 3MB' }));
         continue;
       }
 
@@ -125,28 +126,37 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
     }));
   };
 
-  const handleFacilityChange = (index, value) => {
-    const newFacilities = [...formData.facilities];
-    newFacilities[index] = value;
-    setFormData(prev => ({
-      ...prev,
-      facilities: newFacilities
-    }));
-  };
-
-  const addFacility = () => {
-    setFormData(prev => ({
-      ...prev,
-      facilities: [...prev.facilities, '']
-    }));
-  };
-
-  const removeFacility = (index) => {
-    if (formData.facilities.length > 1) {
-      setFormData(prev => ({
+  const toggleFacility = (facilityName) => {
+    setFormData(prev => {
+      const isSelected = prev.selectedFacilities.some(
+        f => f.toLowerCase() === facilityName.toLowerCase()
+      );
+      return {
         ...prev,
-        facilities: prev.facilities.filter((_, i) => i !== index)
-      }));
+        selectedFacilities: isSelected
+          ? prev.selectedFacilities.filter(f => f.toLowerCase() !== facilityName.toLowerCase())
+          : [...prev.selectedFacilities, facilityName]
+      };
+    });
+  };
+
+  const handleCustomFacilityChange = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      customFacility: value
+    }));
+  };
+
+  const addCustomFacility = () => {
+    if (formData.customFacility.trim()) {
+      const trimmedFacility = formData.customFacility.trim();
+      if (!formData.selectedFacilities.some(f => f.toLowerCase() === trimmedFacility.toLowerCase())) {
+        setFormData(prev => ({
+          ...prev,
+          selectedFacilities: [...prev.selectedFacilities, trimmedFacility],
+          customFacility: ''
+        }));
+      }
     }
   };
 
@@ -293,7 +303,7 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
           footfall: parseInt(formData.footfall),
           price: parseInt(formData.price),
           images: imageUrls,
-          facilities: formData.facilities.filter(f => f.trim()).map(f => f.trim().toUpperCase()),
+          facilities: formData.selectedFacilities.map(f => f.toUpperCase()),
           googleMapsUrl: formData.googleMapsUrl || ''
         };
 
@@ -314,7 +324,8 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
           footfall: '',
           price: '',
           googleMapsUrl: '',
-          facilities: [''],
+          selectedFacilities: [],
+          customFacility: '',
           images: []
         });
         setStateInputValue('');
@@ -502,41 +513,46 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
 
           {/* Facilities */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-3">
               Facilities (Optional)
             </label>
-            <div className="space-y-2">
-              {formData.facilities.map((facility, index) => (
-                <div key={index} className="flex gap-2 items-start min-w-0">
-                  <div className="flex-1 min-w-0">
-                    <Input
-                      value={facility}
-                      onChange={(e) => handleFacilityChange(index, e.target.value)}
-                      placeholder="Enter facility (e.g., AC, Parking, Catering) - Optional"
-                      className="h-10 border-gray-300 focus:border-venue-indigo focus:ring-venue-indigo"
-                    />
-                  </div>
-                  {formData.facilities.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="h-10 w-10 flex-shrink-0"
-                      onClick={() => removeFacility(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {PREDEFINED_FACILITIES.map((facility) => (
+                <button
+                  key={facility}
+                  type="button"
+                  onClick={() => toggleFacility(facility)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    formData.selectedFacilities.some(f => f.toLowerCase() === facility.toLowerCase())
+                      ? 'bg-venue-indigo text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  {facility}
+                </button>
               ))}
+            </div>
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <Input
+                  value={formData.customFacility}
+                  onChange={(e) => handleCustomFacilityChange(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addCustomFacility();
+                    }
+                  }}
+                  placeholder="Add custom facility (optional)"
+                  className="h-10 border-gray-300 focus:border-venue-indigo focus:ring-venue-indigo"
+                />
+              </div>
               <Button
                 type="button"
-                variant="outline"
-                onClick={addFacility}
-                className="h-10 text-sm border-gray-300 hover:bg-gray-50 text-venue-indigo hover:text-venue-indigo focus:text-venue-indigo focus:border-venue-indigo w-fit"
+                onClick={addCustomFacility}
+                className="h-10 bg-venue-indigo hover:bg-venue-purple text-white"
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Another Facility
+                <Plus className="h-4 w-4" />
               </Button>
             </div>
             {errors.facilities && (
@@ -547,7 +563,7 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
           {/* Images */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Images (Optional - up to 10 allowed)
+              Images (Optional - up to 5 allowed)
             </label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
               <input
@@ -561,12 +577,12 @@ export default function AddVenueForm({ isOpen, onClose, onSubmit }) {
               <label htmlFor="image-upload" className="cursor-pointer">
                 <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                 <p className="text-gray-600 font-medium">Click to upload venue images</p>
-                <p className="text-sm text-gray-500 mt-1">PNG, JPG up to 10MB each</p>
+                <p className="text-sm text-gray-500 mt-1">PNG, JPG up to 3MB each</p>
               </label>
             </div>
 
             <p className="text-sm text-gray-500 mt-2">
-              {formData.images.length}/10 images uploaded {formData.images.length === 0 && '(Images are optional)'}
+              {formData.images.length}/5 images uploaded {formData.images.length === 0 && '(Images are optional)'}
             </p>
 
             {formData.images.length > 0 && (

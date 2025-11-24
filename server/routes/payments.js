@@ -6,7 +6,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import Booking from '../models/Booking.js';
 import Venue from '../models/Venue.js';
 import User from '../models/User.js';
-import { sendPaymentCompletedEmail } from '../services/emailService.js';
+import { sendPaymentCompletedEmail } from '../services/email/index.js';
 
 const router = Router();
 

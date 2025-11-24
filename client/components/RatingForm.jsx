@@ -5,6 +5,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { RatingFormLoadingDialog } from './RatingFormLoadingDialog';
+import { RatingFormErrorDialog } from './RatingFormErrorDialog';
+import { RatingFormNotAvailableDialog } from './RatingFormNotAvailableDialog';
 import apiClient from '../lib/apiClient';
 
 export function RatingForm({ bookingId, venueId, venueName, isOpen, onClose, onRatingSubmitted }) {
@@ -82,73 +85,20 @@ export function RatingForm({ bookingId, venueId, venueName, isOpen, onClose, onR
   };
 
   if (loading) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Loading...</DialogTitle>
-          </DialogHeader>
-          <div className="flex items-center justify-center py-8">
-            <p className="text-gray-500">Checking rating eligibility...</p>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
+    return <RatingFormLoadingDialog isOpen={isOpen} onClose={onClose} />;
   }
 
   if (!ratingStatus) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Error</DialogTitle>
-          </DialogHeader>
-          <div className="flex items-center gap-2 py-4 text-red-600">
-            <AlertCircle className="h-5 w-5" />
-            <p>{error || 'Failed to load rating form'}</p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={onClose}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    );
+    return <RatingFormErrorDialog isOpen={isOpen} onClose={onClose} error={error} />;
   }
 
   if (!ratingStatus.canRate) {
-    const eventDate = new Date(ratingStatus.eventDate);
-    const formattedDate = eventDate.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-
     return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Rating Not Available</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="flex items-start gap-3 bg-blue-50 p-4 rounded-lg">
-              <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="font-semibold text-blue-900 mb-1">Event Date Not Passed</p>
-                <p className="text-sm text-blue-700">
-                  You can rate this venue only after your event date ({formattedDate}) has passed.
-                </p>
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={onClose}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <RatingFormNotAvailableDialog
+        isOpen={isOpen}
+        onClose={onClose}
+        eventDate={ratingStatus.eventDate}
+      />
     );
   }
 

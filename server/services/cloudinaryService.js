@@ -65,15 +65,8 @@ export async function uploadImage(imageData, folder = 'Planzia', publicId = null
     const uploadOptions = {
       folder: folder,
       resource_type: 'auto',
-      quality: 'auto:low', // Reduced quality for faster upload
-      fetch_format: 'auto',
-      transformation: [
-        {
-          width: 800,  // Reduced from 1200 for faster processing
-          height: 600, // Reduced from 800 for faster processing
-          crop: 'limit'
-        }
-      ]
+      quality: 'auto:good', // Medium-to-high quality for better visual clarity
+      fetch_format: 'auto'
     };
 
     if (publicId) {

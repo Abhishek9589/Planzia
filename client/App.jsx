@@ -46,7 +46,7 @@ const Shell = () => {
   const authPaths = new Set(["/signin", "/signup", "/verify-otp", "/forgot-password"]);
   const isVenueDetailPage = location.pathname.match(/^\/venue\/[^/]+$/);
   const isAccountPage = location.pathname === "/account-settings" || location.pathname.startsWith("/admin");
-  const hideFooter = authPaths.has(location.pathname) || !!isVenueDetailPage || isAccountPage;
+  const hideFooter = authPaths.has(location.pathname) || !!isVenueDetailPage || isAccountPage || location.pathname === "/venues";
 
   return (
     <>

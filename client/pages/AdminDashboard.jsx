@@ -1322,11 +1322,11 @@ export default function AdminDashboard() {
                 </label>
                 <Input
                   type="text"
-                  placeholder="Enter 6-digit code"
+                  placeholder="Enter 8-digit code"
                   value={emailOtp}
                   onChange={(e) => setEmailOtp(e.target.value)}
                   className="w-full"
-                  maxLength={6}
+                  maxLength={8}
                 />
               </div>
               <div className="flex gap-3">

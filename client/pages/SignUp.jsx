@@ -68,6 +68,12 @@ export default function SignUp() {
     });
   };
 
+  const validateFullName = (name) => {
+    // Only alphabet letters and spaces allowed
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    return nameRegex.test(name.trim()) && name.trim().length > 0;
+  };
+
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -75,18 +81,18 @@ export default function SignUp() {
 
   const validatePhone = (phone) => {
     const digits = phone.replace(/\D/g, '');
-    let normalizedPhone = digits;
-    if (normalizedPhone.length === 12 && normalizedPhone.startsWith('91')) {
-      normalizedPhone = normalizedPhone.slice(2);
-    }
-    if (normalizedPhone.length === 11 && normalizedPhone.startsWith('0')) {
-      normalizedPhone = normalizedPhone.slice(1);
-    }
-    return normalizedPhone.length === 10;
+    // Exact 10 digits
+    return digits.length === 10;
   };
 
   const validatePassword = (password) => {
-    return password.length >= 6;
+    // Minimum 8 characters with uppercase, lowercase, special characters, and numbers
+    if (password.length < 8) return false;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    return hasUppercase && hasLowercase && hasNumbers && hasSpecialChar;
   };
 
   const handleSubmit = async (e) => {
@@ -105,6 +111,12 @@ export default function SignUp() {
       // Validate required fields
       if (!formData.fullName.trim()) {
         setError('Full name is required.');
+        setLoading(false);
+        return;
+      }
+
+      if (!validateFullName(formData.fullName)) {
+        setError('Full name must contain only alphabet letters and spaces.');
         setLoading(false);
         return;
       }
@@ -128,7 +140,7 @@ export default function SignUp() {
       }
 
       if (!validatePhone(formData.phoneNumber)) {
-        setError('Please enter a valid 10-digit phone number.');
+        setError('Please enter exactly 10 digits for the phone number.');
         setLoading(false);
         return;
       }
@@ -152,7 +164,7 @@ export default function SignUp() {
       }
 
       if (!validatePassword(formData.password)) {
-        setError('Password must be at least 6 characters long.');
+        setError('Password must be at least 8 characters long and contain uppercase letters, lowercase letters, numbers, and special characters.');
         setLoading(false);
         return;
       }
@@ -201,7 +213,7 @@ export default function SignUp() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
+    <div className="min-h-screen bg-white/70 backdrop-blur-lg flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
       <div className="w-full max-w-6xl">
         {/* Header */}
         <motion.div
@@ -489,7 +501,7 @@ export default function SignUp() {
                             required
                             value={formData.password}
                             onChange={handleChange}
-                            placeholder="Create a password (at least 6 characters)"
+                            placeholder="Create a password (minimum 8 characters with uppercase, lowercase, numbers, and special characters)"
                             className="pl-10 pr-10 h-12 border-gray-300 focus:border-venue-indigo focus:ring-venue-indigo"
                           />
                           <button
@@ -565,7 +577,7 @@ export default function SignUp() {
                       <Button
                         type="submit"
                         disabled={loading}
-                        className="w-full sm:w-auto px-8 h-12 bg-venue-indigo hover:bg-venue-purple text-white font-medium text-base disabled:opacity-50 transition-colors"
+                        className="w-full sm:w-auto px-8 h-12 bg-venue-indigo hover:bg-[#5a6549] text-white font-medium text-base disabled:opacity-50 transition-colors"
                       >
                         {loading ? 'Creating Account...' : 'Create Account'}
                       </Button>

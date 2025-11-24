@@ -26,6 +26,37 @@ export const VENUE_TYPES = [
   'Stadiums & arenas'
 ];
 
+export const PREDEFINED_FACILITIES = [
+  'Air Conditioning',
+  'Parking',
+  'Catering',
+  'WiFi',
+  'AV Equipment',
+  'Projector',
+  'Sound System',
+  'Stage',
+  'Dance Floor',
+  'Kitchen',
+  'Garden Area',
+  'Swimming Pool',
+  'Gym',
+  'Spa',
+  'Lawn',
+  'Terrace',
+  'Lounge',
+  'Bar',
+  'Restaurant',
+  'In-house Catering',
+  'Ambient Lighting',
+  'Modern Décor',
+  'Luxury Furnishings',
+  'River View',
+  'Sea View',
+  'City View',
+  'Patio',
+  'Gazebo'
+];
+
 // For filters - includes "All" options
 export const FILTER_AREAS = ['All Locations', ...LOCALITY_AREAS];
 export const FILTER_VENUE_TYPES = ['All Types', ...VENUE_TYPES];

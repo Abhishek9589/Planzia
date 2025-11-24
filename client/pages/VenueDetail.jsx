@@ -432,16 +432,26 @@ export default function VenueDetail() {
         {/* Full Width Image Gallery with Overlay Info */}
         <motion.div
           id="hero-section"
-          className="relative w-full h-96 md:h-[550px] overflow-hidden"
+          className="relative w-full h-96 md:h-[550px] overflow-hidden flex items-center justify-center"
           variants={fadeUp}
           initial="hidden"
           animate="visible"
           transition={transition}
         >
+          {/* Blurred background */}
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url(${venueImages[selectedImage]})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'blur(20px) brightness(0.7)',
+            }}
+          />
           <img
             src={venueImages[selectedImage]}
             alt={venue.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain relative z-10"
           />
 
           {/* Image Navigation */}
@@ -560,7 +570,7 @@ export default function VenueDetail() {
                       }
                       setShowMultiDayModal(true);
                     }}
-                    className="bg-venue-indigo hover:bg-venue-purple text-white w-full md:w-auto px-8"
+                    className="bg-venue-indigo hover:bg-[#5a6549] text-white w-full md:w-auto px-8"
                     size="lg"
                   >
                     Start Booking Process
@@ -643,10 +653,6 @@ export default function VenueDetail() {
                           viewport={{ once: true, amount: 0.2 }}
                           transition={{ ...transition, delay: (index % 8) * 0.04 }}
                         >
-                          {facility.toLowerCase().includes('wifi') && <Wifi className="h-6 w-6 mb-2 text-venue-indigo" />}
-                          {facility.toLowerCase().includes('parking') && <Car className="h-6 w-6 mb-2 text-venue-indigo" />}
-                          {facility.toLowerCase().includes('catering') && <Coffee className="h-6 w-6 mb-2 text-venue-indigo" />}
-                          {!facility.toLowerCase().includes('wifi') && !facility.toLowerCase().includes('parking') && !facility.toLowerCase().includes('catering') && <div className="h-6 w-6 mb-2" />}
                           <span className="font-medium text-sm text-center text-gray-700">{facility}</span>
                         </motion.div>
                       ))}
@@ -708,7 +714,7 @@ export default function VenueDetail() {
                       href={venue.googleMapsUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-venue-indigo hover:bg-venue-purple text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                      className="inline-flex items-center gap-2 bg-venue-indigo hover:bg-[#5a6549] text-white px-6 py-2 rounded-lg font-medium transition-colors"
                     >
                       View on Google Maps
                       <ExternalLink className="h-4 w-4" />
@@ -739,7 +745,7 @@ export default function VenueDetail() {
                   <p className="text-gray-600 mb-4">Have you already hosted an event at this venue? Share your feedback with others!</p>
                   <Button
                     onClick={() => setShowRatingForm(true)}
-                    className="w-full bg-venue-indigo hover:bg-venue-purple text-white"
+                    className="w-full bg-venue-indigo hover:bg-[#5a6549] text-white"
                   >
                     <Star className="h-4 w-4 mr-2" />
                     Rate This Venue
@@ -1012,7 +1018,7 @@ export default function VenueDetail() {
               <Button
                 type="submit"
                 disabled={isSubmitting || !selectedDate || !bookingForm.timeFromHour || !bookingForm.timeFromMinute || !bookingForm.timeToHour || !bookingForm.timeToMinute}
-                className="bg-venue-indigo hover:bg-venue-purple text-white w-full sm:w-auto"
+                className="bg-venue-indigo hover:bg-[#5a6549] text-white w-full sm:w-auto"
               >
                 {isSubmitting ? 'Sending Inquiry...' : 'Send Inquiry'}
               </Button>
@@ -1038,7 +1044,7 @@ export default function VenueDetail() {
             <Button variant="outline" onClick={() => setShowLoginDialog(false)}>
               Close
             </Button>
-            <Button asChild className="bg-venue-indigo hover:bg-venue-purple text-white">
+            <Button asChild className="bg-venue-indigo hover:bg-[#5a6549] text-white">
               <Link to="/signin">Go to Sign In</Link>
             </Button>
           </DialogFooter>

@@ -27,7 +27,6 @@ Planzia is a modern web application that streamlines the process of discovering,
 - **TanStack Query** - Server state management
 - **Framer Motion** - Animation library
 - **React Hook Form** - Form state management
-- **Zod** - TypeScript-first schema validation
 
 ### Backend
 - **Node.js** - JavaScript runtime

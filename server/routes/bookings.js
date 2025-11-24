@@ -11,7 +11,7 @@ import {
   sendInquiryAcceptedToCustomer,
   sendInquiryRejectedToAdmin,
   sendInquiryRejectedToCustomer
-} from '../services/emailService.js';
+} from '../services/email/index.js';
 import { triggerPaymentReminderForBooking } from '../services/bookingCleanupJob.js';
 
 const router = Router();
@@ -677,7 +677,7 @@ router.post('/:id/cancel', authenticateToken, async (req, res) => {
                 <tr>
                   <td style="padding: 0;">
                     <div style="text-align: center; margin: 0 0 32px 0;">
-                      <img src="https://cdn.builder.io/api/v1/image/assets%2F86425921e7704103a71faf5b04ebcd1a%2F4184ebb3262f4bbcb03f0987cf646790?format=webp&width=400" alt="Planzia Logo" style="height: 40px; width: auto; display: block; margin: 0 auto; object-fit: contain;" />
+                      <img src="https://drive.google.com/uc?export=view&id=1APD3W2MpXe8fAZd3b00tz4e_kMpW5CoV" alt="Planzia Logo" style="height: 40px; width: auto; display: block; margin: 0 auto; object-fit: contain;" />
                     </div>
                     <h1 style="color: #1a1a1a; margin: 0 0 32px 0; font-size: 18px; font-weight: 400; line-height: 1.4; text-align: center;">Booking Cancelled by <strong>Customer</strong></h1>
                     <div style="border: 1px solid #d0d7de; border-radius: 6px; padding: 20px; margin: 0 0 32px 0; background-color: #f6f8fa;">

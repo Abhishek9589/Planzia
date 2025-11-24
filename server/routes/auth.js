@@ -2,7 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
 import { authenticateToken } from '../middleware/auth.js';
-import { sendOTPEmail } from '../services/emailService.js';
+import { sendOTPEmail } from '../services/email/index.js';
 import User from '../models/User.js';
 import OtpVerification from '../models/OtpVerification.js';
 import RefreshToken from '../models/RefreshToken.js';
@@ -136,18 +136,35 @@ router.post('/register', async (req, res) => {
   try {
     const { email, name, userType = 'customer', password = null, mobileNumber = null, state = null, city = null, businessName = null } = req.body;
     if (!email || !name) return res.status(400).json({ error: 'Email and name are required' });
+
+    // Validate name - only alphabet letters and spaces
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!nameRegex.test(name.trim())) return res.status(400).json({ error: 'Full name must contain only alphabet letters and spaces' });
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) return res.status(400).json({ error: 'Please enter a valid email address' });
     if (!['customer', 'venue-owner'].includes(userType)) return res.status(400).json({ error: 'Invalid user type' });
     if (userType === 'venue-owner' && !password) return res.status(400).json({ error: 'Password is required for venue owners' });
-    if (password && password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+
+    // Validate password - minimum 8 characters with uppercase, lowercase, numbers, and special characters
+    if (password) {
+      if (password.length < 8) {
+        return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+      }
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumbers = /[0-9]/.test(password);
+      const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+      if (!hasUppercase || !hasLowercase || !hasNumbers || !hasSpecialChar) {
+        return res.status(400).json({ error: 'Password must contain uppercase letters, lowercase letters, numbers, and special characters' });
+      }
+    }
+
     if (mobileNumber) {
       const digits = String(mobileNumber).replace(/\D/g, '');
-      let d = digits;
-      if (d.length === 12 && d.startsWith('91')) d = d.slice(2);
-      if (d.length === 11 && d.startsWith('0')) d = d.slice(1);
-      if (d.length < 10) return res.status(400).json({ error: 'Phone number is too short. Enter exactly 10 digits.' });
-      if (d.length > 10) return res.status(400).json({ error: 'Phone number is too long. Enter exactly 10 digits.' });
+      // Exact 10 digits required
+      if (digits.length !== 10) return res.status(400).json({ error: 'Phone number must be exactly 10 digits' });
     }
 
     const existing = await User.findOne({ email });
@@ -185,8 +202,8 @@ router.post('/register', async (req, res) => {
 
     await User.create(userData);
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    const otp = Math.floor(10000000 + Math.random() * 90000000).toString();
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
     await OtpVerification.create({ email, otp, expires_at: expiresAt });
 
     await sendOTPEmail(email, otp, name, 'Account Verification');
@@ -205,7 +222,14 @@ router.post('/verify-otp', async (req, res) => {
     if (!email || !otp) return res.status(400).json({ error: 'Email and OTP are required' });
 
     const otpRow = await OtpVerification.findOne({ email, otp, expires_at: { $gt: new Date() } }).sort({ created_at: -1 }).lean();
-    if (!otpRow) return res.status(400).json({ error: 'Invalid or expired OTP' });
+    if (!otpRow) {
+      // Check if OTP exists but is expired
+      const expiredOtp = await OtpVerification.findOne({ email, otp }).sort({ created_at: -1 }).lean();
+      if (expiredOtp) {
+        return res.status(400).json({ error: 'OTP expired' });
+      }
+      return res.status(400).json({ error: 'You have entered wrong OTP' });
+    }
 
     const user = await User.findOneAndUpdate({ email, is_verified: false }, { $set: { is_verified: true } }, { new: true, projection: { password_hash: 0 } });
     if (!user) return res.status(404).json({ error: 'User not found or already verified' });
@@ -253,8 +277,8 @@ router.post('/resend-otp', async (req, res) => {
     const user = await User.findOne({ email: { $in: [email, existingOtp.email] } }, { name: 1, _id: 1 }).lean();
     const userName = user?.name || 'User';
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    const otp = Math.floor(10000000 + Math.random() * 90000000).toString();
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
 
     // Determine purpose based on pending data
     const pendingData = existingOtp.pending_data;
@@ -370,8 +394,8 @@ router.post('/forgot-password', async (req, res) => {
     const user = await User.findOne({ email, is_verified: true }).lean();
     if (!user) return res.status(404).json({ error: "Email not found in our records" });
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    const otp = Math.floor(10000000 + Math.random() * 90000000).toString();
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
     await OtpVerification.deleteMany({ email });
     await OtpVerification.create({ email, otp, expires_at: expiresAt });
 
@@ -396,9 +420,9 @@ router.post('/verify-otp-for-password-reset', async (req, res) => {
       // Check if OTP exists but is expired
       const expiredOtp = await OtpVerification.findOne({ email, otp }).sort({ created_at: -1 }).lean();
       if (expiredOtp) {
-        return res.status(400).json({ error: 'Your verification code has expired. Please request a new one.' });
+        return res.status(400).json({ error: 'OTP expired' });
       }
-      return res.status(400).json({ error: 'The verification code is incorrect. Please check and try again.' });
+      return res.status(400).json({ error: 'You have entered wrong OTP' });
     }
 
     res.json({ message: 'OTP verified successfully' });
@@ -413,7 +437,18 @@ router.post('/reset-password', async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
     if (!email || !otp || !newPassword) return res.status(400).json({ error: 'Email, OTP, and new password are required' });
-    if (newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+
+    // Validate password - minimum 8 characters with uppercase, lowercase, numbers, and special characters
+    if (newPassword.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+
+    const hasUppercase = /[A-Z]/.test(newPassword);
+    const hasLowercase = /[a-z]/.test(newPassword);
+    const hasNumbers = /[0-9]/.test(newPassword);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
+
+    if (!hasUppercase || !hasLowercase || !hasNumbers || !hasSpecialChar) {
+      return res.status(400).json({ error: 'Password must contain uppercase letters, lowercase letters, numbers, and special characters' });
+    }
 
     const otpRow = await OtpVerification.findOne({ email, otp, expires_at: { $gt: new Date() } }).sort({ created_at: -1 }).lean();
     if (!otpRow) return res.status(400).json({ error: 'Invalid or expired OTP' });
@@ -436,7 +471,14 @@ router.post('/verify-email-update', async (req, res) => {
     if (!email || !otp) return res.status(400).json({ error: 'Email and OTP are required' });
 
     const otpRow = await OtpVerification.findOne({ email, otp, expires_at: { $gt: new Date() } }).sort({ created_at: -1 }).lean();
-    if (!otpRow) return res.status(400).json({ error: 'Invalid or expired OTP' });
+    if (!otpRow) {
+      // Check if OTP exists but is expired
+      const expiredOtp = await OtpVerification.findOne({ email, otp }).sort({ created_at: -1 }).lean();
+      if (expiredOtp) {
+        return res.status(400).json({ error: 'OTP expired' });
+      }
+      return res.status(400).json({ error: 'You have entered wrong OTP' });
+    }
 
     const pendingData = JSON.parse(otpRow.pending_data || '{}');
     const { userId, name, mobileNumber, state, city, businessName, password } = pendingData;
@@ -468,16 +510,32 @@ router.put('/update-profile', authenticateToken, async (req, res) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) return res.status(400).json({ error: 'Invalid email format' });
 
+    // Validate name - only alphabet letters and spaces
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!nameRegex.test(name.trim())) return res.status(400).json({ error: 'Full name must contain only alphabet letters and spaces' });
+
     // Normalize phone number: keep digits, drop +91 or leading 0
     let normalizedPhone = null;
     if (mobileNumber) {
       const digits = String(mobileNumber).replace(/\D/g, '');
-      let d = digits;
-      if (d.length === 12 && d.startsWith('91')) d = d.slice(2);
-      if (d.length === 11 && d.startsWith('0')) d = d.slice(1);
-      if (d.length < 10) return res.status(400).json({ error: 'Phone number is too short. Enter exactly 10 digits.' });
-      if (d.length > 10) return res.status(400).json({ error: 'Phone number is too long. Enter exactly 10 digits.' });
-      normalizedPhone = d;
+      // Exact 10 digits required
+      if (digits.length !== 10) return res.status(400).json({ error: 'Phone number must be exactly 10 digits' });
+      normalizedPhone = digits;
+    }
+
+    // Validate password if provided - minimum 8 characters with uppercase, lowercase, numbers, and special characters
+    if (password) {
+      if (password.length < 8) {
+        return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+      }
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumbers = /[0-9]/.test(password);
+      const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+      if (!hasUppercase || !hasLowercase || !hasNumbers || !hasSpecialChar) {
+        return res.status(400).json({ error: 'Password must contain uppercase letters, lowercase letters, numbers, and special characters' });
+      }
     }
 
     const current = await User.findById(userId, { email: 1 }).lean();
@@ -488,8 +546,8 @@ router.put('/update-profile', authenticateToken, async (req, res) => {
       const exists = await User.findOne({ email, _id: { $ne: userId } }, { _id: 1 }).lean();
       if (exists) return res.status(400).json({ error: 'Email is already taken by another user' });
 
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+      const otp = Math.floor(10000000 + Math.random() * 90000000).toString();
+      const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
       await OtpVerification.deleteMany({ email });
       await OtpVerification.create({ email, otp, expires_at: expiresAt, pending_data: JSON.stringify({ userId, name, email, mobileNumber: normalizedPhone, state, city, businessName, password }) });
 
@@ -533,9 +591,18 @@ router.put('/change-password', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Please confirm your new password' });
     }
 
-    // Validate new password length
-    if (newPassword.length < 6) {
-      return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+    // Validate new password - minimum 8 characters with uppercase, lowercase, numbers, and special characters
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters long' });
+    }
+
+    const hasUppercase = /[A-Z]/.test(newPassword);
+    const hasLowercase = /[a-z]/.test(newPassword);
+    const hasNumbers = /[0-9]/.test(newPassword);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
+
+    if (!hasUppercase || !hasLowercase || !hasNumbers || !hasSpecialChar) {
+      return res.status(400).json({ error: 'Password must contain uppercase letters, lowercase letters, numbers, and special characters' });
     }
 
     // Check if passwords match

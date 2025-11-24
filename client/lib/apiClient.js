@@ -408,7 +408,10 @@ class ApiClient {
           originalError
         }));
         const friendly = getUserFriendlyError(originalError, 'general');
-        dispatchAppError('Request Failed', friendly);
+        // Only dispatch app-error if not explicitly skipped (for contexts like OTP that handle errors locally)
+        if (options.skipErrorDispatch !== true) {
+          dispatchAppError('Request Failed', friendly);
+        }
         throw new Error(friendly);
       }
 

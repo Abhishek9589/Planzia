@@ -38,14 +38,23 @@ export const getUserFriendlyError = (error, context = 'general') => {
 
   // Authentication context specific errors
   if (context === 'signup') {
+    if (lowerCaseError.includes('full name') && lowerCaseError.includes('alphabet')) {
+      return 'Full name must contain only alphabet letters and spaces.';
+    }
+    if (lowerCaseError.includes('phone') && lowerCaseError.includes('10 digits')) {
+      return 'Phone number must be exactly 10 digits.';
+    }
+    if (lowerCaseError.includes('password') && lowerCaseError.includes('8 characters')) {
+      return 'Password must be at least 8 characters long with uppercase letters, lowercase letters, numbers, and special characters.';
+    }
+    if (lowerCaseError.includes('password') && lowerCaseError.includes('uppercase')) {
+      return 'Password must contain uppercase letters, lowercase letters, numbers, and special characters.';
+    }
     if (lowerCaseError.includes('email') && lowerCaseError.includes('exists')) {
       return 'An account with this email already exists. Please sign in instead.';
     }
     if (lowerCaseError.includes('email') && lowerCaseError.includes('invalid')) {
       return 'Please enter a valid email address.';
-    }
-    if (lowerCaseError.includes('password') && lowerCaseError.includes('weak')) {
-      return 'Please choose a stronger password with at least 6 characters.';
     }
     if (lowerCaseError.includes('user type')) {
       return 'Please select whether you are a Customer or Venue Owner.';
@@ -80,6 +89,12 @@ export const getUserFriendlyError = (error, context = 'general') => {
   }
 
   if (context === 'otp') {
+    if (lowerCaseError.includes('you have entered wrong otp')) {
+      return 'You have entered wrong OTP.';
+    }
+    if (lowerCaseError.includes('otp expired')) {
+      return 'OTP expired. Please request a new one.';
+    }
     if ((lowerCaseError.includes('verification code') && lowerCaseError.includes('incorrect')) ||
         (lowerCaseError.includes('invalid') && lowerCaseError.includes('otp'))) {
       return 'The verification code is incorrect. Please check and try again.';
@@ -97,6 +112,12 @@ export const getUserFriendlyError = (error, context = 'general') => {
   }
 
   if (context === 'password-reset') {
+    if (lowerCaseError.includes('you have entered wrong otp')) {
+      return 'You have entered wrong OTP.';
+    }
+    if (lowerCaseError.includes('otp expired')) {
+      return 'OTP expired. Please request a new one.';
+    }
     if ((lowerCaseError.includes('email') && lowerCaseError.includes('not found')) ||
         (lowerCaseError.includes('email') && lowerCaseError.includes("doesn't exist"))) {
       return 'No account found with this email address.';

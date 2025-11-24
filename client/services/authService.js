@@ -54,7 +54,7 @@ class AuthService {
 
   async verifyOTP(email, otp) {
     try {
-      const data = await apiClient.postJson(`${API_BASE}/verify-otp`, { email, otp });
+      const data = await apiClient.postJson(`${API_BASE}/verify-otp`, { email, otp }, { skipErrorDispatch: true });
 
       // Store tokens
       this.setTokens(data.accessToken, data.refreshToken);
@@ -69,7 +69,7 @@ class AuthService {
 
   async resendOTP(email) {
     try {
-      const data = await apiClient.postJson(`${API_BASE}/resend-otp`, { email });
+      const data = await apiClient.postJson(`${API_BASE}/resend-otp`, { email }, { skipErrorDispatch: true });
       return data;
     } catch (error) {
       console.error('Resend OTP error:', error);
@@ -259,7 +259,7 @@ class AuthService {
 
   async forgotPassword(email) {
     try {
-      const data = await apiClient.postJson(`${API_BASE}/forgot-password`, { email });
+      const data = await apiClient.postJson(`${API_BASE}/forgot-password`, { email }, { skipErrorDispatch: true });
       return data;
     } catch (error) {
       console.error('Forgot password error:', error);
@@ -275,7 +275,7 @@ class AuthService {
         email,
         otp,
         newPassword
-      });
+      }, { skipErrorDispatch: true });
       return data;
     } catch (error) {
       console.error('Reset password error:', error);

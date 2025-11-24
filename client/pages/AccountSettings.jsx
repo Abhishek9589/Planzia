@@ -16,7 +16,8 @@ import AddVenueForm from '@/components/AddVenueForm';
 import EditVenueForm from '@/components/EditVenueForm';
 import DeleteAccountDialog from '@/components/DeleteAccountDialog';
 import { ToggleSwitch } from '@/components/ui/toggle-switch';
-import BookingDetailsModal from '@/pages/BookingDetailsModal';
+import VenueOwnerBookingDetailsModal from '@/components/VenueOwnerBookingDetailsModal';
+import CustomerBookingDetailsModal from '@/components/CustomerBookingDetailsModal';
 import venueService from '../services/venueService';
 import {
   ArrowLeft,
@@ -513,8 +514,17 @@ export default function AccountSettings() {
 
     if (!passwordData.newPassword) {
       newErrors.newPassword = 'New password is required';
-    } else if (passwordData.newPassword.length < 6) {
-      newErrors.newPassword = 'Password must be at least 6 characters long';
+    } else if (passwordData.newPassword.length < 8) {
+      newErrors.newPassword = 'Password must be at least 8 characters long';
+    } else {
+      const hasUppercase = /[A-Z]/.test(passwordData.newPassword);
+      const hasLowercase = /[a-z]/.test(passwordData.newPassword);
+      const hasNumbers = /[0-9]/.test(passwordData.newPassword);
+      const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(passwordData.newPassword);
+
+      if (!hasUppercase || !hasLowercase || !hasNumbers || !hasSpecialChar) {
+        newErrors.newPassword = 'Password must contain uppercase letters, lowercase letters, numbers, and special characters';
+      }
     }
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -1037,7 +1047,7 @@ export default function AccountSettings() {
                   </Card>
 
                   {/* Booking Details Modal for Recent Bookings */}
-                  <BookingDetailsModal
+                  <VenueOwnerBookingDetailsModal
                     open={showBookingDetails}
                     onOpenChange={setShowBookingDetails}
                     booking={selectedBooking}
@@ -1291,7 +1301,7 @@ export default function AccountSettings() {
                 </Card>
 
                 {/* Booking Details Modal for Venue Owner */}
-                <BookingDetailsModal
+                <VenueOwnerBookingDetailsModal
                   open={showBookingDetails}
                   onOpenChange={setShowBookingDetails}
                   booking={selectedBooking}
@@ -1914,15 +1924,13 @@ export default function AccountSettings() {
                 </Card>
               )}
 
-              {/* Booking Details Modal */}
-              <BookingDetailsModal
+              {/* Booking Details Modal for Customer */}
+              <CustomerBookingDetailsModal
                 open={showBookingDetails}
                 onOpenChange={setShowBookingDetails}
                 booking={selectedBooking}
                 onPaymentClick={handlePaymentClick}
                 isProcessing={processingPaymentBookingId === selectedBooking?._id}
-                onStatusUpdate={handleBookingStatusUpdate}
-                customerDetailsOnly={true}
               />
 
               {/* Notifications Tab */}
@@ -2417,7 +2425,7 @@ export default function AccountSettings() {
               <Input
                 id="otp"
                 type="text"
-                placeholder="Enter 6-digit code"
+                placeholder="Enter 8-digit code"
                 value={emailVerificationOtp}
                 onChange={(e) => {
                   setEmailVerificationOtp(e.target.value);
@@ -2425,7 +2433,7 @@ export default function AccountSettings() {
                     setErrors(prev => ({ ...prev, emailVerification: '' }));
                   }
                 }}
-                maxLength="6"
+                maxLength="8"
                 className={`text-center text-lg tracking-widest font-semibold ${
                   errors.emailVerification ? 'border-red-500' : ''
                 }`}

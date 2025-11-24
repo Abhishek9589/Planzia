@@ -43,8 +43,8 @@ router.post('/images', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Images array is required' });
     }
 
-    if (images.length > 10) {
-      return res.status(400).json({ error: 'Maximum 10 images allowed' });
+    if (images.length > 5) {
+      return res.status(400).json({ error: 'Maximum 5 images allowed' });
     }
 
     // Validate all images are base64 format

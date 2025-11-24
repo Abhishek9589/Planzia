@@ -85,10 +85,10 @@ const techStack = [
     technologies: [
       { name: 'React', icon: Code2, color: '#61dafb' },
       { name: 'Vite', icon: Zap, color: '#646cff' },
-      { name: 'React Router', icon: Globe, color: '#f44250' },
       { name: 'Tailwind CSS', icon: Package, color: '#0ea5e9' },
       { name: 'Radix UI', icon: FileJson, color: '#1a1a1a' },
-      { name: 'TanStack Query', icon: Database, color: '#ef4444' }
+      { name: 'TanStack Query', icon: Database, color: '#ef4444' },
+      { name: 'Framer Motion', icon: Layers, color: '#000000' },
     ]
   },
   {
@@ -96,26 +96,20 @@ const techStack = [
     technologies: [
       { name: 'Node.js', icon: Server, color: '#68a063' },
       { name: 'Express', icon: Cpu, color: '#000000' },
+      { name: 'MongoDB', icon: Database, color: '#13aa52' },
+      { name: 'Mongoose', icon: HardDrive, color: '#ff6b6b' },
       { name: 'JWT', icon: Key, color: '#000000' },
       { name: 'Nodemailer', icon: Mail, color: '#1a73e8' },
-      { name: 'Mongoose', icon: HardDrive, color: '#ff6b6b' }
+      { name: 'Passport.js', icon: Shield, color: '#34e27a' }
     ]
   },
   {
-    category: 'Database & APIs',
+    category: 'Infrastructure & Services',
     technologies: [
-      { name: 'MongoDB', icon: Database, color: '#13aa52' },
+      { name: 'AWS', icon: Cloud, color: '#ff9900' },
+      { name: 'Cloudinary', icon: ImageIcon, color: '#3448c5' },
       { name: 'Google OAuth 2.0', icon: Shield, color: '#4285f4' },
       { name: 'Razorpay', icon: CreditCard, color: '#2f75d9' },
-      { name: 'Cloudinary', icon: ImageIcon, color: '#3448c5' },
-      { name: 'Nodemailer SMTP', icon: Mail, color: '#1a73e8' }
-    ]
-  },
-  {
-    category: 'Infrastructure',
-    technologies: [
-      { name: 'AWS (Frontend)', icon: Cloud, color: '#ff9900' },
-      { name: 'AWS (Backend)', icon: Cloud, color: '#ff9900' },
       { name: 'MongoDB Atlas', icon: Database, color: '#13aa52' }
     ]
   }

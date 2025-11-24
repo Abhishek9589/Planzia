@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 import { scrollToTop } from '@/lib/navigation';
@@ -124,6 +124,7 @@ export default function Index() {
   const [locations, setLocations] = useState([]);
   const { toggleFavorite, isFavorite } = useFavorites();
   const { isLoggedIn } = useAuth();
+  const featuredVenuesRef = useRef(null);
 
   const handleFavoriteClick = async (venueId) => {
     if (!isLoggedIn) {
@@ -136,6 +137,31 @@ export default function Index() {
   useEffect(() => {
     loadPopularVenues();
     loadFilterOptions();
+  }, []);
+
+  // Handle mouse wheel scrolling for featured venues (non-touch devices)
+  useEffect(() => {
+    const container = featuredVenuesRef.current;
+    if (!container) return;
+
+    const handleWheel = (e) => {
+      // Only handle horizontal scroll if scrollable
+      if (container.scrollWidth <= container.clientWidth) return;
+
+      // Prevent default vertical scroll behavior
+      e.preventDefault();
+
+      // Scroll horizontally based on wheel direction
+      const scrollAmount = e.deltaY > 0 ? 300 : -300;
+      container.scrollLeft += scrollAmount;
+    };
+
+    // Add wheel listener with passive: false to allow preventDefault
+    container.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+    };
   }, []);
 
   const loadPopularVenues = async () => {
@@ -404,27 +430,32 @@ export default function Index() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {loading ? (
-              Array(6).fill(0).map((_, index) => (
-                <Card key={index} className="overflow-hidden animate-pulse">
-                  <div className="h-64 bg-gray-200"></div>
-                  <CardContent className="p-6 space-y-4">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : popularVenues.length === 0 ? (
-              <div className="col-span-full text-center py-12">
-                <p className="text-gray-500 text-lg mb-4">No venues available at the moment</p>
-                <p className="text-gray-400">Check back later for amazing venue listings</p>
-              </div>
-            ) : (
-              popularVenues.map((venue, idx) => (
+          {loading ? (
+            <div ref={featuredVenuesRef} className="flex overflow-x-auto gap-8 pb-4 scroll-smooth snap-x snap-mandatory" style={{ scrollBehavior: 'smooth' }}>
+              {Array(6).fill(0).map((_, index) => (
+                <div key={index} className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3">
+                  <Card className="overflow-hidden animate-pulse">
+                    <div className="h-64 bg-gray-200"></div>
+                    <CardContent className="p-6 space-y-4">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </div>
+          ) : popularVenues.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg mb-4">No venues available at the moment</p>
+              <p className="text-gray-400">Check back later for amazing venue listings</p>
+            </div>
+          ) : (
+            <div ref={featuredVenuesRef} className="flex overflow-x-auto gap-8 pb-4 scroll-smooth snap-x snap-mandatory" style={{ scrollBehavior: 'smooth' }}>
+              {popularVenues.map((venue, idx) => (
                 <motion.div
                   key={venue.id}
+                  className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3"
                   variants={fadeUp}
                   initial="hidden"
                   whileInView="visible"
@@ -505,9 +536,9 @@ export default function Index() {
                     </CardContent>
                   </Card>
                 </motion.div>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
 
           <div className="text-center mt-12">
             <Button asChild size="lg" className="bg-venue-indigo hover:bg-venue-indigo/90 text-white" onClick={scrollToTop}>

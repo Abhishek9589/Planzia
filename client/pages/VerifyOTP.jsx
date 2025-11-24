@@ -18,7 +18,7 @@ const fadeUp = {
 };
 
 export default function VerifyOTP() {
-  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
+  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -45,13 +45,13 @@ export default function VerifyOTP() {
     if (numericValue.length > 1) {
       // If pasted multiple digits, fill remaining fields
       const newDigits = [...otpDigits];
-      for (let i = index; i < 6 && i - index < numericValue.length; i++) {
+      for (let i = index; i < 8 && i - index < numericValue.length; i++) {
         newDigits[i] = numericValue[i - index];
       }
       setOtpDigits(newDigits);
 
       // Focus on next empty field or last field
-      const nextIndex = Math.min(index + numericValue.length, 5);
+      const nextIndex = Math.min(index + numericValue.length, 7);
       if (otpRefs.current[nextIndex]) {
         setTimeout(() => otpRefs.current[nextIndex]?.focus(), 0);
       }
@@ -61,7 +61,7 @@ export default function VerifyOTP() {
       setOtpDigits(newDigits);
 
       // Auto-focus next field if digit was entered
-      if (numericValue && index < 5) {
+      if (numericValue && index < 7) {
         setTimeout(() => otpRefs.current[index + 1]?.focus(), 0);
       }
     }
@@ -82,7 +82,7 @@ export default function VerifyOTP() {
       }
     } else if (e.key === 'ArrowLeft' && index > 0) {
       otpRefs.current[index - 1]?.focus();
-    } else if (e.key === 'ArrowRight' && index < 5) {
+    } else if (e.key === 'ArrowRight' && index < 7) {
       otpRefs.current[index + 1]?.focus();
     }
   };
@@ -91,8 +91,8 @@ export default function VerifyOTP() {
     e.preventDefault();
     const otpCode = otpDigits.join('');
 
-    if (otpCode.length !== 6) {
-      setError('Please enter the complete 6-digit verification code.');
+    if (otpCode.length !== 8) {
+      setError('Please enter the complete 8-digit verification code.');
       return;
     }
 
@@ -123,7 +123,7 @@ export default function VerifyOTP() {
 
     try {
       await resendOTP(email);
-      setOtpDigits(['', '', '', '', '', '']);
+      setOtpDigits(['', '', '', '', '', '', '', '']);
       setResendCooldown(60); // 60 second cooldown
       otpRefs.current[0]?.focus();
       setSuccess('New verification code sent to your email');
@@ -140,9 +140,9 @@ export default function VerifyOTP() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
+    <div className="min-h-screen bg-white/70 backdrop-blur-lg flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
       <motion.div
-        className="w-full max-w-md"
+        className="w-full max-w-lg"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
@@ -154,7 +154,7 @@ export default function VerifyOTP() {
               Verify Code
             </CardTitle>
             <CardDescription className="text-gray-600">
-              Enter the 6-digit verification code sent to your email
+              Enter the 8-digit verification code sent to your email
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -197,14 +197,14 @@ export default function VerifyOTP() {
                   ))}
                 </div>
                 <p className="text-xs text-gray-500 text-center">
-                  Enter the 6-digit code sent to {email}
+                  Enter the 8-digit code sent to {email}
                 </p>
               </div>
 
               <Button
                 type="submit"
-                disabled={loading || otpDigits.join('').length !== 6}
-                className="w-full h-11 bg-venue-indigo hover:bg-venue-purple text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading || otpDigits.join('').length !== 8}
+                className="w-full h-11 bg-venue-indigo hover:bg-[#5a6549] text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Verifying...' : 'Verify Code'}
               </Button>

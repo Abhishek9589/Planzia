@@ -24,7 +24,7 @@ export default function ForgotPassword() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
+  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '', '', '']);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [verifiedOtp, setVerifiedOtp] = useState('');
@@ -80,13 +80,13 @@ export default function ForgotPassword() {
     if (numericValue.length > 1) {
       // If pasted multiple digits, fill remaining fields
       const newDigits = [...otpDigits];
-      for (let i = index; i < 6 && i - index < numericValue.length; i++) {
+      for (let i = index; i < 8 && i - index < numericValue.length; i++) {
         newDigits[i] = numericValue[i - index];
       }
       setOtpDigits(newDigits);
 
       // Focus on next empty field or last field
-      const nextIndex = Math.min(index + numericValue.length, 5);
+      const nextIndex = Math.min(index + numericValue.length, 7);
       if (otpRefs.current[nextIndex]) {
         setTimeout(() => otpRefs.current[nextIndex]?.focus(), 0);
       }
@@ -96,7 +96,7 @@ export default function ForgotPassword() {
       setOtpDigits(newDigits);
 
       // Auto-focus next field if digit was entered
-      if (numericValue && index < 5) {
+      if (numericValue && index < 7) {
         setTimeout(() => otpRefs.current[index + 1]?.focus(), 0);
       }
     }
@@ -117,7 +117,7 @@ export default function ForgotPassword() {
       }
     } else if (e.key === 'ArrowLeft' && index > 0) {
       otpRefs.current[index - 1]?.focus();
-    } else if (e.key === 'ArrowRight' && index < 5) {
+    } else if (e.key === 'ArrowRight' && index < 7) {
       otpRefs.current[index + 1]?.focus();
     }
   };
@@ -128,8 +128,8 @@ export default function ForgotPassword() {
     setError('');
 
     const otp = otpDigits.join('');
-    if (!otp || otp.length !== 6) {
-      setError('Please enter all 6 digits of your verification code.');
+    if (!otp || otp.length !== 8) {
+      setError('Please enter all 8 digits of your verification code.');
       setIsLoading(false);
       return;
     }
@@ -182,7 +182,7 @@ export default function ForgotPassword() {
     try {
       await forgotPassword(email);
       setSuccess(true);
-      setOtpDigits(['', '', '', '', '', '']);
+      setOtpDigits(['', '', '', '', '', '', '', '']);
       setResendCooldown(60); // 60 second cooldown
       otpRefs.current[0]?.focus();
       toast({
@@ -206,6 +206,16 @@ export default function ForgotPassword() {
     }
   };
 
+  const validateNewPassword = (password) => {
+    // Minimum 8 characters with uppercase, lowercase, special characters, and numbers
+    if (password.length < 8) return false;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]/.test(password);
+    return hasUppercase && hasLowercase && hasNumbers && hasSpecialChar;
+  };
+
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -217,8 +227,8 @@ export default function ForgotPassword() {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setError('🔐 Your password must be at least 6 characters long.');
+    if (!validateNewPassword(newPassword)) {
+      setError('Password must be at least 8 characters long and contain uppercase letters, lowercase letters, numbers, and special characters.');
       setIsLoading(false);
       return;
     }
@@ -251,8 +261,8 @@ export default function ForgotPassword() {
 
       if (lowerCaseError.includes('expired') || lowerCaseError.includes('invalid')) {
         setError('⏱️ Your verification session has expired. Please start over.');
-      } else if (lowerCaseError.includes('password') && (lowerCaseError.includes('weak') || lowerCaseError.includes('strong'))) {
-        setError('🔐 Please choose a stronger password with at least 6 characters.');
+      } else if (lowerCaseError.includes('password') && (lowerCaseError.includes('8 characters') || lowerCaseError.includes('uppercase'))) {
+        setError('Password must be at least 8 characters long with uppercase letters, lowercase letters, numbers, and special characters.');
       } else {
         setError(getUserFriendlyError(error, 'password-reset') || 'Unable to reset password. Please try again.');
       }
@@ -263,7 +273,7 @@ export default function ForgotPassword() {
 
   if (currentStep === 4 && success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
+      <div className="min-h-screen bg-white/70 backdrop-blur-lg flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
         <motion.div
           className="w-full max-w-md"
           variants={fadeUp}
@@ -290,7 +300,7 @@ export default function ForgotPassword() {
                 </p>
                 <Button
                   asChild
-                  className="w-full h-11 bg-venue-indigo hover:bg-venue-purple text-white font-medium"
+                  className="w-full h-11 bg-venue-indigo hover:bg-[#5a6549] text-white font-medium"
                 >
                   <Link to="/signin">
                     Return to Sign In
@@ -305,7 +315,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
+    <div className="min-h-screen bg-white/70 backdrop-blur-lg flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
       <motion.div
         className="w-full max-w-md"
         variants={fadeUp}
@@ -323,7 +333,7 @@ export default function ForgotPassword() {
               {currentStep === 1
                 ? 'Enter your email address and we\'ll send you a verification code to reset your password'
                 : currentStep === 2
-                ? 'Enter the 6-digit verification code sent to your email'
+                ? 'Enter the 8-digit verification code sent to your email'
                 : 'Enter your new password'
               }
             </CardDescription>
@@ -368,7 +378,7 @@ export default function ForgotPassword() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-11 bg-venue-indigo hover:bg-venue-purple text-white font-medium"
+                  className="w-full h-11 bg-venue-indigo hover:bg-[#5a6549] text-white font-medium"
                 >
                   {isLoading ? 'Sending...' : 'Send Reset Code'}
                 </Button>
@@ -400,14 +410,14 @@ export default function ForgotPassword() {
                     ))}
                   </div>
                   <p className="text-xs text-gray-500 text-center">
-                    Enter the 6-digit code sent to your email
+                    Enter the 8-digit code sent to your email
                   </p>
                 </div>
 
                 <Button
                   type="submit"
-                  disabled={isLoading || otpDigits.join('').length !== 6}
-                  className="w-full h-11 bg-venue-indigo hover:bg-venue-purple text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isLoading || otpDigits.join('').length !== 8}
+                  className="w-full h-11 bg-venue-indigo hover:bg-[#5a6549] text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'Verifying...' : 'Verify Code'}
                 </Button>
@@ -440,7 +450,7 @@ export default function ForgotPassword() {
                     id="newPassword"
                     name="newPassword"
                     type="password"
-                    placeholder="Enter new password"
+                    placeholder="Enter new password (minimum 8 characters with uppercase, lowercase, numbers, and special characters)"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
@@ -467,7 +477,7 @@ export default function ForgotPassword() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-11 bg-venue-indigo hover:bg-venue-purple text-white font-medium"
+                  className="w-full h-11 bg-venue-indigo hover:bg-[#5a6549] text-white font-medium"
                 >
                   {isLoading ? 'Resetting...' : 'Reset Password'}
                 </Button>
