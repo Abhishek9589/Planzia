@@ -71,8 +71,8 @@ export default {
         },
       },
       fontFamily: {
-        'poppins': ['Poppins', 'sans-serif'],
-        'inter': ['Inter', 'sans-serif'],
+        'outfit': ['Outfit', 'sans-serif'],
+        'momo': ['Momo Trust Display', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
