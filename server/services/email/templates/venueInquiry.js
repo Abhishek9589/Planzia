@@ -1,7 +1,7 @@
 import transporter from '../transporter.js';
 
 export async function sendVenueInquiryEmail(ownerEmail, inquiryData) {
-  const { venue, customer, event } = inquiryData;
+  const { venue, customer, event, priceBreakdown } = inquiryData;
 
   const mailOptions = {
     from: {
@@ -18,9 +18,10 @@ export async function sendVenueInquiryEmail(ownerEmail, inquiryData) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>New Booking Inquiry</title>
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Momo+Trust+Display&family=Outfit:wght@100..900&display=swap');
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+          body { font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+          h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
         </style>
       </head>
       <body style="margin: 0; padding: 40px 20px; background-color: #ffffff; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
@@ -29,11 +30,6 @@ export async function sendVenueInquiryEmail(ownerEmail, inquiryData) {
         <table role="presentation" width="100%" style="max-width: 600px; margin: 0 auto; border-collapse: collapse;">
           <tr>
             <td style="padding: 0;">
-
-              <!-- Logo -->
-              <div style="text-align: center; margin: 0 0 32px 0;">
-                <img src="https://drive.google.com/uc?export=view&id=1APD3W2MpXe8fAZd3b00tz4e_kMpW5CoV" alt="Planzia Logo" style="height: 40px; width: auto; display: block; margin: 0 auto; object-fit: contain;" />
-              </div>
 
               <!-- Heading -->
               <h1 style="color: #1a1a1a; margin: 0 0 32px 0; font-size: 18px; font-weight: 400; line-height: 1.4; text-align: center;">
@@ -70,13 +66,35 @@ export async function sendVenueInquiryEmail(ownerEmail, inquiryData) {
 
                 <!-- Event Details -->
                 <div style="margin: 0;">
-                  <p style="color: #424a52; margin: 0 0 8px 0; font-size: 13px; font-weight: 500;">Event Date:</p>
-                  <p style="color: #1a1a1a; margin: 0 0 8px 0; font-size: 14px; font-weight: 400;">${new Date(event.date).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                  <p style="color: #424a52; margin: 0 0 8px 0; font-size: 13px; font-weight: 500;">Event Type:</p>
+                  <p style="color: #424a52; margin: 0 0 8px 0; font-size: 13px; font-weight: 500;">Event Dates & Times:</p>
+                  ${event.dates_timings && event.dates_timings.length > 0 ? event.dates_timings.map((dateInfo, index) => `
+                    <p style="color: #1a1a1a; margin: 0 0 8px 0; font-size: 13px; font-weight: 400;">
+                      <strong>Date ${index + 1}:</strong> ${new Date(dateInfo.date).toLocaleDateString('en-IN', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+                      ${dateInfo.timing && dateInfo.timing.timeFromHour ? ` • ${dateInfo.timing.timeFromHour}:${dateInfo.timing.timeFromMinute || '00'} ${dateInfo.timing.timeFromPeriod} - ${dateInfo.timing.timeToHour}:${dateInfo.timing.timeToMinute || '00'} ${dateInfo.timing.timeToPeriod}` : ''}
+                    </p>
+                  `).join('') : `
+                    <p style="color: #1a1a1a; margin: 0 0 8px 0; font-size: 13px; font-weight: 400;">${new Date(event.date).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  `}
+                  <p style="color: #424a52; margin: 0 0 8px 0; font-size: 13px; font-weight: 500; margin-top: 12px;">Event Type:</p>
                   <p style="color: #1a1a1a; margin: 0 0 8px 0; font-size: 14px; font-weight: 400;">${event.type}</p>
                   <p style="color: #424a52; margin: 0 0 8px 0; font-size: 13px; font-weight: 500;">Guest Count:</p>
                   <p style="color: #1a1a1a; margin: 0; font-size: 14px; font-weight: 400;">${event.guestCount}</p>
                 </div>
+
+                <!-- Price Breakdown -->
+                ${priceBreakdown ? `
+                <div style="margin: 16px 0 0 0; background-color: #e6f3ff; border: 1px solid #38b2ac; border-radius: 6px; padding: 12px;">
+                  <p style="color: #0c5460; margin: 0 0 8px 0; font-size: 13px; font-weight: 500;">Price Breakdown:</p>
+                  ${priceBreakdown.days > 1 ? `
+                    <p style="color: #0c5460; margin: 0 0 4px 0; font-size: 13px; font-weight: 400;">Base Price: ₹${Number(priceBreakdown.perDay).toLocaleString('en-IN', { maximumFractionDigits: 0 })} × ${priceBreakdown.days} days = ₹${Number(priceBreakdown.baseTotal).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+                  ` : `
+                    <p style="color: #0c5460; margin: 0 0 4px 0; font-size: 13px; font-weight: 400;">Base Price: ₹${Number(priceBreakdown.baseTotal).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+                  `}
+                  <p style="color: #0c5460; margin: 0 0 4px 0; font-size: 13px; font-weight: 400;">Platform Fee (10%): ₹${Number(priceBreakdown.platformFee).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+                  <p style="color: #0c5460; margin: 0 0 4px 0; font-size: 13px; font-weight: 400;">GST (18%): ₹${Number(priceBreakdown.gst).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+                  <p style="color: #0c5460; margin: 0; font-size: 13px; font-weight: 600; border-top: 1px solid #38b2ac; padding-top: 8px; margin-top: 8px;">Total Amount: ₹${Number(priceBreakdown.total).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+                </div>
+                ` : ''}
 
               </div>
 

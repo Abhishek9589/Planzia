@@ -10,6 +10,7 @@ import { getUserFriendlyError } from '../lib/errorMessages';
 import { AlertCircle, CheckCircle, ArrowLeft, RotateCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { safeNavigateBack } from '@/lib/navigationUtils';
 
 const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] };
 const fadeUp = {
@@ -229,13 +230,11 @@ export default function VerifyOTP() {
             <div className="text-center">
               <Button
                 variant="ghost"
-                asChild
-                className="text-venue-purple hover:text-venue-indigo"
+                className="text-venue-purple hover:text-venue-indigo inline-flex items-center"
+                onClick={() => safeNavigateBack(navigate, '/signin')}
               >
-                <Link to="/signin" className="inline-flex items-center">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Sign In
-                </Link>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Sign In
               </Button>
             </div>
           </CardContent>

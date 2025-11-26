@@ -6,10 +6,7 @@ import User from '../models/User.js';
 import {
   sendVenueInquiryEmail,
   sendInquiryNotificationToPlanzia,
-  sendBookingCancellationEmail,
-  sendInquiryAcceptedToAdmin,
   sendInquiryAcceptedToCustomer,
-  sendInquiryRejectedToAdmin,
   sendInquiryRejectedToCustomer
 } from '../services/email/index.js';
 import { triggerPaymentReminderForBooking } from '../services/bookingCleanupJob.js';
@@ -266,7 +263,7 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
     const { status } = req.body;
     const ownerId = req.user.id;
 
-    if (!['pending', 'confirmed', 'cancelled'].includes(status)) {
+    if (!['pending', 'confirmed', 'cancelled', 'rejected'].includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
 
@@ -280,9 +277,15 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
 
     const previousStatus = booking.status;
     let paymentStatus = 'not_required';
-    if (status === 'confirmed') paymentStatus = 'pending';
+    let updateData = { status, payment_status: paymentStatus };
 
-    await Booking.updateOne({ _id: id }, { $set: { status, payment_status: paymentStatus } });
+    if (status === 'confirmed') {
+      paymentStatus = 'pending';
+      updateData.payment_status = 'pending';
+      updateData.payment_deadline = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    }
+
+    await Booking.updateOne({ _id: id }, { $set: updateData });
 
     if (status === 'confirmed') {
       await Venue.updateOne({ _id: booking.venue_id }, { $inc: { total_bookings: 1 } });
@@ -294,20 +297,23 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
       const baseInquiryData = {
         venue: { id: venue._id.toString(), name: venue.name, location: venue.location, price: booking.amount },
         event: { date: booking.event_date, type: booking.event_type, guestCount: booking.guest_count, specialRequests: booking.special_requirements || 'None' },
-        owner: { name: owner?.name || 'Venue Owner', email: owner?.email || 'Not provided', phone: owner?.mobile_number || 'Not provided' }
+        owner: { name: owner?.name || 'Venue Owner', email: owner?.email || 'Not provided', phone: owner?.mobile_number || 'Not provided' },
+        dates_timings: booking.dates_timings || [],
+        price_per_day: venue.price_per_day || 0
       };
 
       if (status === 'confirmed') {
         try {
-          const adminInquiryData = { ...baseInquiryData, customer: { name: booking.customer_name, email: booking.customer_email, phone: booking.customer_phone } };
-          await sendInquiryAcceptedToAdmin(adminInquiryData);
-          const customerInquiryData = { ...baseInquiryData, customer: { name: booking.customer_name, email: booking.customer_email, phone: booking.customer_phone } };
+          const customerInquiryData = {
+            ...baseInquiryData,
+            customer: { name: booking.customer_name, email: booking.customer_email, phone: booking.customer_phone },
+            dates_timings: booking.dates_timings || [],
+            price_per_day: venue?.price_per_day || 0
+          };
           await sendInquiryAcceptedToCustomer(booking.customer_email, customerInquiryData);
         } catch (emailError) { console.error('Error sending inquiry acceptance emails:', emailError); }
       } else if (status === 'cancelled') {
         try {
-          const adminInquiryData = { ...baseInquiryData, customer: { name: booking.customer_name, email: booking.customer_email, phone: booking.customer_phone } };
-          await sendInquiryRejectedToAdmin(adminInquiryData);
           const customerInquiryData = { ...baseInquiryData, customer: { name: booking.customer_name, email: booking.customer_email, phone: booking.customer_phone } };
           await sendInquiryRejectedToCustomer(booking.customer_email, customerInquiryData);
         } catch (emailError) { console.error('Error sending inquiry rejection emails:', emailError); }
@@ -460,9 +466,29 @@ router.post('/inquiry', authenticateToken, async (req, res) => {
       phone: dbOwner?.mobile_number || venue_owner?.phone || null
     };
 
+    // Calculate pricing for multiple days
+    const numDays = (storedDateTimings && storedDateTimings.length) ? storedDateTimings.length : 1;
+    const basePricePerDay = venue.price_per_day || venue.price_min || 50000;
+    const basePriceTotal = basePricePerDay * numDays;
+    const PLATFORM_FEE_RATE = 0.10;
+    const platformFee = Math.round(basePriceTotal * PLATFORM_FEE_RATE);
+    const gstAmount = Math.round((basePriceTotal + platformFee) * GST_RATE);
+    const totalWithGst = basePriceTotal + platformFee + gstAmount;
+
+    const priceBreakdown = {
+      perDay: basePricePerDay,
+      days: numDays,
+      baseTotal: basePriceTotal,
+      platformFee,
+      gst: gstAmount,
+      total: totalWithGst,
+      venueOwnerGets: basePriceTotal
+    };
+
     const baseInquiryData = {
-      venue: { id: venue_id, name: venue_name, location: venue.location || 'Location not specified', price: venue.price_per_day || venue.price || 'Price not specified' },
-      event: { type: eventType, date: event_date, guestCount, specialRequests: user_details.specialRequests || 'None' },
+      venue: { id: venue_id, name: venue_name, location: venue.location || 'Location not specified', price: basePriceTotal, price_per_day: basePricePerDay },
+      event: { type: eventType, date: event_date, guestCount, specialRequests: user_details.specialRequests || 'None', dates_timings: storedDateTimings },
+      priceBreakdown,
       owner: ownerInfo
     };
 
@@ -629,29 +655,19 @@ router.post('/:id/cancel', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Booking not found' });
     }
 
-    // Customer can only cancel if booking is confirmed and payment is not yet completed
-    if (booking.status !== 'confirmed' || booking.payment_status === 'completed') {
-      return res.status(400).json({ error: 'This booking cannot be cancelled' });
+    // Customer can cancel anytime unless already cancelled
+    if (booking.status === 'cancelled') {
+      return res.status(400).json({ error: 'This booking has already been cancelled' });
+    }
+
+    // If booking is paid, inform customer to contact support but still process cancellation
+    const isPaid = booking.payment_status === 'completed';
+    if (isPaid) {
+      // Still allow the cancellation, but the frontend will show a message about contacting support for refunds
     }
 
     // Update booking to cancelled
-    await Booking.updateOne({ _id: id }, { $set: { status: 'cancelled', payment_status: 'cancelled' } });
-
-    // Send cancellation email to customer
-    if (booking.customer_email) {
-      try {
-        await sendBookingCancellationEmail(booking.customer_email, {
-          customer_name: booking.customer_name,
-          venue_name: booking.venue_name,
-          venue_location: booking.venue_location,
-          event_date: booking.event_date,
-          booking_id: id,
-          amount: booking.payment_amount || booking.amount
-        });
-      } catch (emailError) {
-        console.error('Error sending booking cancellation email:', emailError);
-      }
-    }
+    await Booking.updateOne({ _id: id }, { $set: { status: 'cancelled' } });
 
     // Notify venue owner of cancellation
     const venue = await Venue.findById(booking.venue_id).lean();
@@ -681,7 +697,7 @@ router.post('/:id/cancel', authenticateToken, async (req, res) => {
                     </div>
                     <h1 style="color: #1a1a1a; margin: 0 0 32px 0; font-size: 18px; font-weight: 400; line-height: 1.4; text-align: center;">Booking Cancelled by <strong>Customer</strong></h1>
                     <div style="border: 1px solid #d0d7de; border-radius: 6px; padding: 20px; margin: 0 0 32px 0; background-color: #f6f8fa;">
-                      <p style="color: #1a1a1a; margin: 0 0 16px 0; font-size: 14px; font-weight: 400; line-height: 1.5;">Your confirmed booking has been cancelled by the customer.</p>
+                      <p style="color: #1a1a1a; margin: 0 0 16px 0; font-size: 14px; font-weight: 400; line-height: 1.5;">A booking has been cancelled by the customer.</p>
                       <div style="margin: 0;">
                         <p style="color: #424a52; margin: 0 0 8px 0; font-size: 13px; font-weight: 500;">Booking ID:</p>
                         <p style="color: #1a1a1a; margin: 0 0 16px 0; font-size: 14px; font-weight: 400;">#${id}</p>

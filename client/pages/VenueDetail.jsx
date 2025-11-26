@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { scrollToTop } from '@/lib/navigation';
+import { safeNavigateBack } from '@/lib/navigationUtils';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -510,15 +511,15 @@ export default function VenueDetail() {
           {/* Top Left - Back Button & Badge */}
           <div className="absolute top-4 left-4 flex items-center gap-2 z-20">
             <Button
-              asChild
               variant="ghost"
-              className="bg-white/90 hover:bg-white text-venue-indigo hover:text-venue-purple"
-              onClick={scrollToTop}
+              className="bg-white/90 hover:bg-white text-venue-indigo hover:text-venue-purple flex items-center gap-2"
+              onClick={() => {
+                scrollToTop();
+                safeNavigateBack(navigate, '/venues');
+              }}
             >
-              <Link to="/venues" className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </Link>
+              <ArrowLeft className="h-4 w-4" />
+              Back
             </Button>
             <Badge className="bg-venue-indigo text-white text-lg px-4 py-2">
               {venue.type || 'Venue'}

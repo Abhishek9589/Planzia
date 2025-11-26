@@ -139,30 +139,6 @@ export default function Index() {
     loadFilterOptions();
   }, []);
 
-  // Handle mouse wheel scrolling for featured venues (non-touch devices)
-  useEffect(() => {
-    const container = featuredVenuesRef.current;
-    if (!container) return;
-
-    const handleWheel = (e) => {
-      // Only handle horizontal scroll if scrollable
-      if (container.scrollWidth <= container.clientWidth) return;
-
-      // Prevent default vertical scroll behavior
-      e.preventDefault();
-
-      // Scroll horizontally based on wheel direction
-      const scrollAmount = e.deltaY > 0 ? 300 : -300;
-      container.scrollLeft += scrollAmount;
-    };
-
-    // Add wheel listener with passive: false to allow preventDefault
-    container.addEventListener('wheel', handleWheel, { passive: false });
-
-    return () => {
-      container.removeEventListener('wheel', handleWheel);
-    };
-  }, []);
 
   const loadPopularVenues = async () => {
     try {
@@ -202,7 +178,11 @@ export default function Index() {
         })
       );
 
-      setPopularVenues(venuesWithRatings);
+      const topRatedVenues = venuesWithRatings
+        .sort((a, b) => b.rating - a.rating)
+        .slice(0, 3);
+
+      setPopularVenues(topRatedVenues);
     } catch (error) {
       console.error('Error loading popular venues:', error);
       const fallbackVenues = [
@@ -267,7 +247,10 @@ export default function Index() {
           rating: 4.7
         }
       ];
-      setPopularVenues(fallbackVenues);
+      const topRatedFallback = fallbackVenues
+        .sort((a, b) => b.rating - a.rating)
+        .slice(0, 3);
+      setPopularVenues(topRatedFallback);
     } finally {
       setLoading(false);
     }
@@ -431,9 +414,9 @@ export default function Index() {
           </motion.div>
 
           {loading ? (
-            <div ref={featuredVenuesRef} className="flex overflow-x-auto gap-8 pb-4 scroll-smooth snap-x snap-mandatory" style={{ scrollBehavior: 'smooth' }}>
-              {Array(6).fill(0).map((_, index) => (
-                <div key={index} className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Array(3).fill(0).map((_, index) => (
+                <div key={index}>
                   <Card className="overflow-hidden animate-pulse">
                     <div className="h-64 bg-gray-200"></div>
                     <CardContent className="p-6 space-y-4">
@@ -451,19 +434,19 @@ export default function Index() {
               <p className="text-gray-400">Check back later for amazing venue listings</p>
             </div>
           ) : (
-            <div ref={featuredVenuesRef} className="flex overflow-x-auto gap-8 pb-4 scroll-smooth snap-x snap-mandatory" style={{ scrollBehavior: 'smooth' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {popularVenues.map((venue, idx) => (
                 <motion.div
                   key={venue.id}
-                  className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3"
                   variants={fadeUp}
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{ ...transition, delay: idx * 0.05 }}
+                  className="h-full"
                 >
-                  <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 group hover:-translate-y-1">
-                    <div className="relative h-64 overflow-hidden">
+                  <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 group hover:-translate-y-1 h-full flex flex-col">
+                    <div className="relative h-64 overflow-hidden flex-shrink-0">
                       <img
                         loading="lazy"
                         src={venue.image}
@@ -491,8 +474,8 @@ export default function Index() {
                         </Button>
                       </div>
                     </div>
-                    <CardContent className="p-6">
-                      <h3 className="text-xl font-semibold text-venue-dark mb-2">{venue.name}</h3>
+                    <CardContent className="p-6 flex flex-col flex-grow">
+                      <h3 className="text-xl font-semibold text-venue-dark mb-2 line-clamp-2">{venue.name}</h3>
                       <div className="flex items-center mb-3">
                         {venue.rating > 0 ? (
                           <>
@@ -512,22 +495,22 @@ export default function Index() {
                       </div>
                       <div className="space-y-2 text-sm text-gray-600 mb-4">
                         <div className="flex items-center">
-                          <MapPin className="h-4 w-4 mr-2 text-venue-indigo" />
-                          {venue.location}
+                          <MapPin className="h-4 w-4 mr-2 text-venue-indigo flex-shrink-0" />
+                          <span className="truncate">{venue.location}</span>
                         </div>
                         <div className="flex items-center">
-                          <Users className="h-4 w-4 mr-2 text-venue-indigo" />
-                          {venue.capacity}
+                          <Users className="h-4 w-4 mr-2 text-venue-indigo flex-shrink-0" />
+                          <span className="truncate">{venue.capacity}</span>
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-2 mb-4 flex-grow">
                         {venue.facilities && venue.facilities.slice(0, 3).map((facility, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs bg-venue-lavender/80 text-venue-indigo">
+                          <Badge key={index} variant="secondary" className="bg-venue-lavender/80 text-venue-indigo text-xs">
                             {facility}
                           </Badge>
                         ))}
                       </div>
-                      <div className="flex items-center justify-between mt-6">
+                      <div className="flex items-center justify-between mt-auto pt-4 border-t">
                         <div className="text-2xl font-bold text-venue-indigo">{venue.price}</div>
                         <Button asChild className="bg-venue-indigo hover:bg-venue-indigo/90 text-white">
                           <Link to={`/venue/${venue.id}`}>View Details</Link>

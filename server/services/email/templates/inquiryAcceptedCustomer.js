@@ -1,7 +1,20 @@
 import transporter from '../transporter.js';
+import { formatScheduleWithTimes, calculatePriceBreakdown, generatePriceBreakupHTML } from '../utils/emailHelpers.js';
 
 export async function sendInquiryAcceptedToCustomer(customerEmail, inquiryData) {
-  const { venue, customer, event } = inquiryData;
+  const { venue, customer, event, dates_timings, price_per_day } = inquiryData;
+
+  // Format schedule with times
+  const schedule = formatScheduleWithTimes(dates_timings);
+
+  // Calculate price breakdown
+  let priceBreakdown = null;
+  let priceBreakupHTML = '';
+
+  if (price_per_day && schedule.numberOfDays > 0) {
+    priceBreakdown = calculatePriceBreakdown(price_per_day, schedule.numberOfDays);
+    priceBreakupHTML = generatePriceBreakupHTML(priceBreakdown);
+  }
 
   const mailOptions = {
     from: {
@@ -18,9 +31,10 @@ export async function sendInquiryAcceptedToCustomer(customerEmail, inquiryData) 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Inquiry Accepted</title>
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Momo+Trust+Display&family=Outfit:wght@100..900&display=swap');
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+          body { font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+          h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
         </style>
       </head>
       <body style="margin: 0; padding: 40px 20px; background-color: #ffffff; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
@@ -29,11 +43,6 @@ export async function sendInquiryAcceptedToCustomer(customerEmail, inquiryData) 
         <table role="presentation" width="100%" style="max-width: 600px; margin: 0 auto; border-collapse: collapse;">
           <tr>
             <td style="padding: 0;">
-
-              <!-- Logo -->
-              <div style="text-align: center; margin: 0 0 32px 0;">
-                <img src="https://drive.google.com/uc?export=view&id=1APD3W2MpXe8fAZd3b00tz4e_kMpW5CoV" alt="Planzia Logo" style="height: 40px; width: auto; display: block; margin: 0 auto; object-fit: contain;" />
-              </div>
 
               <!-- Heading -->
               <h1 style="color: #1a1a1a; margin: 0 0 32px 0; font-size: 18px; font-weight: 400; line-height: 1.4; text-align: center;">
@@ -65,12 +74,20 @@ export async function sendInquiryAcceptedToCustomer(customerEmail, inquiryData) 
                 <!-- Event Details -->
                 <div style="margin: 0 0 16px 0;">
                   <p style="color: #424a52; margin: 0 0 8px 0; font-size: 13px; font-weight: 500;">Event Details:</p>
-                  <p style="color: #1a1a1a; margin: 0 0 4px 0; font-size: 13px; font-weight: 400;">Date: ${new Date(event.date).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                   <p style="color: #1a1a1a; margin: 0 0 4px 0; font-size: 13px; font-weight: 400;">Type: ${event.type}</p>
-                  <p style="color: #1a1a1a; margin: 0; font-size: 13px; font-weight: 400;">Guest Count: ${event.guestCount}</p>
+                  <p style="color: #1a1a1a; margin: 0 0 4px 0; font-size: 13px; font-weight: 400;">Guest Count: ${event.guestCount}</p>
+                  <p style="color: #1a1a1a; margin: 0 0 8px 0; font-size: 13px; font-weight: 400;">Total Days: ${schedule.numberOfDays} ${schedule.numberOfDays === 1 ? 'day' : 'days'}</p>
+
+                  <p style="color: #424a52; margin: 0 0 8px 0; font-size: 13px; font-weight: 500;">Event Schedule:</p>
+                  <div style="margin: 0; background-color: #fafbfc; padding: 12px; border-radius: 4px; border-left: 3px solid #ed8936;">
+                    ${schedule.scheduleHTML}
+                  </div>
                 </div>
 
               </div>
+
+              <!-- Price Breakup -->
+              ${priceBreakupHTML}
 
               <!-- Payment Instructions -->
               <p style="color: #1a1a1a; margin: 0 0 8px 0; font-size: 14px; font-weight: 400; line-height: 1.5;">

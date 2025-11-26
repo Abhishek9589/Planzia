@@ -18,6 +18,7 @@ import DeleteAccountDialog from '@/components/DeleteAccountDialog';
 import { ToggleSwitch } from '@/components/ui/toggle-switch';
 import VenueOwnerBookingDetailsModal from '@/components/VenueOwnerBookingDetailsModal';
 import CustomerBookingDetailsModal from '@/components/CustomerBookingDetailsModal';
+import CancelBookingDialog from '@/components/CancelBookingDialog';
 import venueService from '../services/venueService';
 import {
   ArrowLeft,
@@ -39,7 +40,7 @@ import {
   TrendingUp,
   CheckCircle2,
   Trash2,
-
+  Edit2,
   MapPin,
   Users,
   Check,
@@ -103,6 +104,7 @@ export default function AccountSettings() {
   const [processingPaymentBookingId, setProcessingPaymentBookingId] = useState(null);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showBookingDetails, setShowBookingDetails] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const [profileData, setProfileData] = useState({
     name: '',
@@ -713,7 +715,7 @@ export default function AccountSettings() {
       } else if (lowerCaseError.includes('password') && lowerCaseError.includes('match')) {
         userFriendlyMessage = '⚠️ The new passwords you entered do not match. Please check and try again.';
       } else if (lowerCaseError.includes('password') && (lowerCaseError.includes('weak') || lowerCaseError.includes('strong'))) {
-        userFriendlyMessage = '🔐 Your password must be at least 6 characters long.';
+        userFriendlyMessage = '�� Your password must be at least 6 characters long.';
       } else if (lowerCaseError.includes('same') || lowerCaseError.includes('old password')) {
         userFriendlyMessage = '⚠️ Your new password cannot be the same as your current password.';
       } else {
@@ -1015,15 +1017,37 @@ export default function AccountSettings() {
                                     {new Date(booking.event_date || booking.created_at).toLocaleDateString('en-IN')}
                                   </td>
                                   <td className="py-3 px-4">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                      booking.status === 'confirmed'
-                                        ? 'bg-green-100 text-green-800'
-                                        : booking.status === 'pending'
-                                        ? 'bg-yellow-100 text-yellow-800'
-                                        : 'bg-red-100 text-red-800'
-                                    }`}>
-                                      {booking.status}
-                                    </span>
+                                    {(() => {
+                                      if (booking.status === 'rejected') {
+                                        return (
+                                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <X className="h-3.5 w-3.5" />
+                                            Rejected
+                                          </span>
+                                        );
+                                      } else if (booking.status === 'cancelled') {
+                                        return (
+                                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            <X className="h-3.5 w-3.5" />
+                                            Cancelled
+                                          </span>
+                                        );
+                                      } else if (booking.status === 'pending') {
+                                        return (
+                                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <Clock className="h-3.5 w-3.5" />
+                                            Pending
+                                          </span>
+                                        );
+                                      } else if (booking.status === 'confirmed') {
+                                        return (
+                                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                            <CreditCard className="h-3.5 w-3.5" />
+                                            Payment Due
+                                          </span>
+                                        );
+                                      }
+                                    })()}
                                   </td>
                                   <td className="py-3 px-4">
                                     <Button
@@ -1137,14 +1161,16 @@ export default function AccountSettings() {
                                       disabled={togglingVenueId === (venue._id || venue.id)}
                                     />
                                   </div>
-                                  <div className="space-y-2">
+                                  <div className="flex gap-2">
                                     <Button
                                       asChild
                                       variant="outline"
-                                      className="w-full border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white"
+                                      size="icon"
+                                      className="flex-1 border-venue-indigo text-venue-indigo hover:bg-venue-indigo hover:text-white"
+                                      title="View Details"
                                     >
                                       <Link to={`/venue/${venue._id || venue.id}`}>
-                                        View Details
+                                        <Eye className="h-4 w-4" />
                                       </Link>
                                     </Button>
                                     <Button
@@ -1153,9 +1179,11 @@ export default function AccountSettings() {
                                         setEditVenueDialogOpen(true);
                                       }}
                                       variant="outline"
-                                      className="w-full border-venue-purple text-venue-purple hover:bg-venue-purple hover:text-white transition-colors"
+                                      size="icon"
+                                      className="flex-1 border-venue-purple text-venue-purple hover:bg-venue-purple hover:text-white transition-colors"
+                                      title="Edit Venue"
                                     >
-                                      Edit Venue
+                                      <Edit2 className="h-4 w-4" />
                                     </Button>
                                     <Button
                                       onClick={() => {
@@ -1163,10 +1191,11 @@ export default function AccountSettings() {
                                         setDeleteVenueDialogOpen(true);
                                       }}
                                       variant="outline"
-                                      className="w-full border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                                      size="icon"
+                                      className="flex-1 border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                                      title="Delete Venue"
                                     >
-                                      <Trash2 className="h-4 w-4 mr-2" />
-                                      Delete Venue
+                                      <Trash2 className="h-4 w-4" />
                                     </Button>
                                   </div>
                                 </CardContent>
@@ -1263,7 +1292,9 @@ export default function AccountSettings() {
                                 </td>
                                 <td className="py-3 px-4">
                                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                    booking.payment_status === 'completed'
+                                    booking.status === 'cancelled' || booking.status === 'rejected'
+                                      ? 'bg-red-100 text-red-800'
+                                      : booking.payment_status === 'completed'
                                       ? 'bg-green-100 text-green-800'
                                       : booking.payment_status === 'pending'
                                       ? 'bg-yellow-100 text-yellow-800'
@@ -1271,7 +1302,7 @@ export default function AccountSettings() {
                                       ? 'bg-red-100 text-red-800'
                                       : 'bg-gray-100 text-gray-800'
                                   }`}>
-                                    {booking.payment_status || 'Not Paid'}
+                                    {booking.status === 'cancelled' || booking.status === 'rejected' ? 'Cancelled' : booking.payment_status || 'Not Paid'}
                                   </span>
                                 </td>
                                 <td className="py-3 px-4">
@@ -1427,7 +1458,7 @@ export default function AccountSettings() {
                                           ? 'bg-green-100 text-green-700'
                                           : notification.status === 'cancelled'
                                           ? 'bg-red-100 text-red-700'
-                                          : 'bg-amber-100 text-amber-700'
+                                          : 'bg-yellow-100 text-yellow-700'
                                       }`}>
                                         {notification.status === 'confirmed' ? 'Confirmed' : notification.status === 'cancelled' ? 'Cancelled' : 'Pending'}
                                       </span>
@@ -1864,21 +1895,46 @@ export default function AccountSettings() {
                                   </p>
                                 </div>
 
-                                {/* Middle - Payment Status */}
+                                {/* Status with Icon */}
                                 <div className="flex items-center gap-2">
-                                  {booking.payment_status === 'completed' ? (
-                                    <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                      ✓ Paid
-                                    </span>
-                                  ) : (
-                                    <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                      Pending
-                                    </span>
-                                  )}
+                                  {(() => {
+                                    // Determine inquiry status based on booking state
+                                    if (booking.status === 'cancelled') {
+                                      return (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                          <X className="h-3.5 w-3.5" />
+                                          Cancelled
+                                        </span>
+                                      );
+                                    } else if (booking.status === 'pending') {
+                                      return (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                          <Clock className="h-3.5 w-3.5" />
+                                          Pending
+                                        </span>
+                                      );
+                                    } else if (booking.status === 'confirmed') {
+                                      if (booking.payment_status === 'completed') {
+                                        return (
+                                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <Check className="h-3.5 w-3.5" />
+                                            Confirmed
+                                          </span>
+                                        );
+                                      } else {
+                                        return (
+                                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                            <CreditCard className="h-3.5 w-3.5" />
+                                            Payment Due
+                                          </span>
+                                        );
+                                      }
+                                    }
+                                  })()}
                                 </div>
 
                                 {/* Right - Action Buttons */}
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 flex-wrap">
                                   {booking.payment_status !== 'completed' && booking.status === 'confirmed' && (
                                     <Button
                                       onClick={() => handlePaymentClick(booking._id, booking.payment_amount || booking.amount, booking.venue_name)}
@@ -1894,6 +1950,19 @@ export default function AccountSettings() {
                                           Pay Now
                                         </>
                                       )}
+                                    </Button>
+                                  )}
+                                  {booking.status !== 'cancelled' && (
+                                    <Button
+                                      onClick={() => {
+                                        setSelectedBooking(booking);
+                                        setShowCancelDialog(true);
+                                      }}
+                                      variant="destructive"
+                                      size="sm"
+                                      className="bg-red-600 hover:bg-red-700 text-white"
+                                    >
+                                      Cancel
                                     </Button>
                                   )}
                                   <Button
@@ -1931,6 +2000,21 @@ export default function AccountSettings() {
                 booking={selectedBooking}
                 onPaymentClick={handlePaymentClick}
                 isProcessing={processingPaymentBookingId === selectedBooking?._id}
+                onBookingCancelled={() => {
+                  setShowBookingDetails(false);
+                  fetchCustomerBookings();
+                }}
+              />
+
+              {/* Cancel Booking Dialog */}
+              <CancelBookingDialog
+                open={showCancelDialog}
+                onOpenChange={setShowCancelDialog}
+                booking={selectedBooking}
+                onCancelSuccess={() => {
+                  setShowCancelDialog(false);
+                  fetchCustomerBookings();
+                }}
               />
 
               {/* Notifications Tab */}
@@ -2057,7 +2141,7 @@ export default function AccountSettings() {
                                           ? 'bg-green-100 text-green-700'
                                           : notification.status === 'cancelled'
                                           ? 'bg-red-100 text-red-700'
-                                          : 'bg-amber-100 text-amber-700'
+                                          : 'bg-yellow-100 text-yellow-700'
                                       }`}>
                                         {notification.status === 'confirmed' ? 'Accepted' : notification.status === 'cancelled' ? 'Declined' : 'Pending'}
                                       </span>

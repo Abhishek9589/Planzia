@@ -18,11 +18,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, "../.env"), override: true });
 
-export function createServer() {
+export async function createServer() {
   const app = express();
 
   // Initialize database
-  initializeDatabase();
+  await initializeDatabase();
 
   // Start booking cleanup job
   startBookingCleanupJob();
@@ -44,8 +44,8 @@ export function createServer() {
     "origin": "*",
   }));
 
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
   // Note: Session and Passport were removed as authentication uses stateless JWTs in routes/auth.js.
 

@@ -28,7 +28,6 @@ import VenueDetail from "./pages/VenueDetail";
 import Favorites from "./pages/Favorites";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-import AddVenue from "./pages/AddVenue";
 import FAQ from "./pages/FAQ";
 import Support from "./pages/Support";
 import Careers from "./pages/Careers";
@@ -82,7 +81,6 @@ const Shell = () => {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/add-venue" element={<AddVenue />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </motion.div>

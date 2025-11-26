@@ -1,9 +1,12 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Home, ArrowLeft } from 'lucide-react';
 import { scrollToTop } from '@/lib/navigation';
+import { safeNavigateBack } from '@/lib/navigationUtils';
 
 export default function NotFound() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 pt-16">
       <div className="max-w-md w-full text-center">
@@ -31,11 +34,16 @@ export default function NotFound() {
         </div>
 
         <div className="mt-8">
-          <Button asChild variant="ghost" className="text-venue-indigo">
-            <Link to={-1}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Go Back
-            </Link>
+          <Button
+            variant="ghost"
+            className="text-venue-indigo flex items-center gap-2"
+            onClick={() => {
+              scrollToTop();
+              safeNavigateBack(navigate, '/');
+            }}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Go Back
           </Button>
         </div>
       </div>

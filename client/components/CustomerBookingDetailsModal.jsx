@@ -1,18 +1,21 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { MapPin, Calendar, Users, CreditCard, ExternalLink, CheckCircle, Clock } from 'lucide-react';
+import { MapPin, Calendar, Users, CreditCard, ExternalLink, CheckCircle, Clock, Trash2 } from 'lucide-react';
 import apiClient from '../lib/apiClient';
+import CancelBookingDialog from './CancelBookingDialog';
 
 export default function CustomerBookingDetailsModal({
   open,
   onOpenChange,
   booking,
   onPaymentClick,
-  isProcessing
+  isProcessing,
+  onBookingCancelled
 }) {
   const [venueDetails, setVenueDetails] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   useEffect(() => {
     if (open && booking?.venue_id) {
@@ -280,7 +283,7 @@ export default function CustomerBookingDetailsModal({
                   <p className="text-xs font-medium text-gray-600 uppercase">Booking Status</p>
                 </div>
                 <p className={`text-sm font-semibold capitalize ${getStatusTextColor(booking.status)}`}>
-                  {booking.status === 'confirmed' ? 'Confirmed' : booking.status}
+                  {booking.status === 'confirmed' ? 'Confirmed' : booking.status === 'cancelled' ? 'Cancelled' : booking.status}
                 </p>
               </div>
 
@@ -295,6 +298,19 @@ export default function CustomerBookingDetailsModal({
               </div>
             </div>
           </div>
+
+          {/* Refund Information - shown when booking is paid */}
+          {booking.payment_status === 'completed' && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <h3 className="font-semibold text-amber-900 mb-2">Refund Policy</h3>
+              <p className="text-sm text-amber-800 mb-3">
+                If you wish to cancel this paid booking, a refund can be processed. However, please note that a small deduction such as GST will be applied from the refunded amount.
+              </p>
+              <p className="text-xs text-amber-700">
+                For refund assistance, please contact our customer care team at support@planzia.com or call us for immediate support.
+              </p>
+            </div>
+          )}
 
           {/* Special Requirements */}
           {booking.special_requirements && (
@@ -324,7 +340,7 @@ export default function CustomerBookingDetailsModal({
                 onOpenChange(false);
               }}
               disabled={isProcessing}
-              className="bg-venue-indigo hover:bg-venue-indigo/90 text-white transition-all order-2 sm:order-1"
+              className="bg-venue-indigo hover:bg-venue-indigo/90 text-white transition-all order-3 sm:order-1"
             >
               {isProcessing ? (
                 <>
@@ -339,13 +355,36 @@ export default function CustomerBookingDetailsModal({
               )}
             </Button>
           )}
+          {booking.status !== 'cancelled' && (
+            <Button
+              onClick={() => setShowCancelDialog(true)}
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700 text-white order-2 sm:order-2"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Cancel Booking
+            </Button>
+          )}
           <Button
             onClick={() => onOpenChange(false)}
-            className="order-1 sm:order-2 bg-amber-800 hover:bg-amber-900 text-white border-0"
+            className="order-1 sm:order-3 bg-gray-600 hover:bg-gray-700 text-white border-0"
           >
             Close
           </Button>
         </DialogFooter>
+
+        {/* Cancel Booking Dialog */}
+        <CancelBookingDialog
+          open={showCancelDialog}
+          onOpenChange={setShowCancelDialog}
+          booking={booking}
+          onCancelSuccess={() => {
+            if (onBookingCancelled) {
+              onBookingCancelled();
+            }
+            onOpenChange(false);
+          }}
+        />
       </DialogContent>
     </Dialog>
   );

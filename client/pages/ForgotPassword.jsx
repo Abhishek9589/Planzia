@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +11,7 @@ import { AlertCircle, CheckCircle, ArrowLeft, RotateCw } from 'lucide-react';
 import { getUserFriendlyError } from '../lib/errorMessages';
 import { motion } from 'framer-motion';
 import apiClient from '../lib/apiClient';
+import { safeNavigateBack } from '@/lib/navigationUtils';
 
 const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] };
 const fadeUp = {
@@ -19,6 +20,7 @@ const fadeUp = {
 };
 
 export default function ForgotPassword() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -299,12 +301,10 @@ export default function ForgotPassword() {
                   You can now sign in with your new password.
                 </p>
                 <Button
-                  asChild
                   className="w-full h-11 bg-venue-indigo hover:bg-[#5a6549] text-white font-medium"
+                  onClick={() => safeNavigateBack(navigate, '/signin')}
                 >
-                  <Link to="/signin">
-                    Return to Sign In
-                  </Link>
+                  Return to Sign In
                 </Button>
               </div>
             </CardContent>
@@ -487,13 +487,11 @@ export default function ForgotPassword() {
             <div className="text-center">
               <Button
                 variant="ghost"
-                asChild
-                className="text-venue-purple hover:text-venue-indigo"
+                className="text-venue-purple hover:text-venue-indigo inline-flex items-center"
+                onClick={() => safeNavigateBack(navigate, '/signin')}
               >
-                <Link to="/signin" className="inline-flex items-center">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Sign In
-                </Link>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Sign In
               </Button>
             </div>
           </CardContent>

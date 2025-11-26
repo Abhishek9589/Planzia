@@ -95,7 +95,9 @@ router.get('/check/:bookingId', authenticateToken, async (req, res) => {
     today.setHours(0, 0, 0, 0);
     eventDate.setHours(0, 0, 0, 0);
 
-    const canRate = today > eventDate;
+    const eventDatePassed = today > eventDate;
+    const paymentCompleted = booking.payment_status === 'completed';
+    const canRate = eventDatePassed && paymentCompleted;
     const nextDay = new Date(eventDate);
     nextDay.setDate(nextDay.getDate() + 1);
 
@@ -104,11 +106,28 @@ router.get('/check/:bookingId', authenticateToken, async (req, res) => {
       user_id: userId
     }).lean();
 
+    let paymentReason = null;
+    if (!paymentCompleted) {
+      if (booking.payment_status === 'pending') {
+        paymentReason = 'Payment is still pending. Please complete the payment to rate this venue.';
+      } else if (booking.payment_status === 'failed') {
+        paymentReason = 'Payment failed. Please complete the payment to rate this venue.';
+      } else if (booking.payment_status === 'not_required') {
+        paymentReason = 'This booking does not require payment. You may be ineligible to rate.';
+      } else {
+        paymentReason = `Payment status is ${booking.payment_status}. Complete payment to rate.`;
+      }
+    }
+
     res.json({
       canRate,
       hasRated: !!existingRating,
       eventDate: booking.event_date,
       nextRatingDate: nextDay,
+      eventDatePassed,
+      paymentCompleted,
+      paymentStatus: booking.payment_status,
+      paymentReason,
       existingRating: existingRating ? {
         id: existingRating._id.toString(),
         rating: existingRating.rating,
@@ -142,6 +161,10 @@ router.post('/', authenticateToken, async (req, res) => {
 
     if (booking.customer_id.toString() !== userId) {
       return res.status(403).json({ error: 'Access denied' });
+    }
+
+    if (booking.payment_status !== 'completed') {
+      return res.status(403).json({ error: 'Payment must be completed before rating this venue' });
     }
 
     const eventDate = new Date(booking.event_date);

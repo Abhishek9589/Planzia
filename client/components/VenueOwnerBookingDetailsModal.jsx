@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { MapPin, Calendar, Users, CreditCard, ExternalLink, CheckCircle, Clock } from 'lucide-react';
+import { MapPin, Calendar, Users, CreditCard, ExternalLink, CheckCircle, Clock, X } from 'lucide-react';
 import apiClient from '../lib/apiClient';
 
 export default function VenueOwnerBookingDetailsModal({
@@ -250,25 +250,52 @@ export default function VenueOwnerBookingDetailsModal({
           {/* Status Section */}
           <div className="space-y-3">
             <h3 className="font-semibold text-gray-900">Status</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="rounded-lg bg-gray-50 p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  {getStatusIcon(booking.status)}
-                  <p className="text-xs font-medium text-gray-600 uppercase">Booking Status</p>
-                </div>
-                <p className={`text-sm font-semibold capitalize ${getStatusTextColor(booking.status)}`}>
-                  {booking.status === 'confirmed' ? 'Confirmed' : booking.status}
-                </p>
-              </div>
-
-              <div className="rounded-lg bg-gray-50 p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  {getPaymentStatusIcon(booking.payment_status)}
-                  <p className="text-xs font-medium text-gray-600 uppercase">Payment Status</p>
-                </div>
-                <p className={`text-sm font-semibold ${getPaymentStatusTextColor(booking.payment_status)}`}>
-                  {booking.payment_status === 'completed' ? 'Paid' : booking.payment_status === 'pending' ? 'Pending' : booking.payment_status}
-                </p>
+            <div className="rounded-lg bg-gray-50 p-4">
+              <p className="text-xs font-medium text-gray-600 uppercase mb-2">Inquiry Status</p>
+              <div className="flex items-center gap-2">
+                {(() => {
+                  if (booking.status === 'rejected') {
+                    return (
+                      <>
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          <X className="h-3.5 w-3.5" />
+                          Rejected
+                        </span>
+                        <p className="text-sm text-gray-600">Inquiry has been declined</p>
+                      </>
+                    );
+                  } else if (booking.status === 'cancelled') {
+                    return (
+                      <>
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          <X className="h-3.5 w-3.5" />
+                          Cancelled
+                        </span>
+                        <p className="text-sm text-gray-600">Customer cancelled this inquiry</p>
+                      </>
+                    );
+                  } else if (booking.status === 'pending') {
+                    return (
+                      <>
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          <Clock className="h-3.5 w-3.5" />
+                          Pending
+                        </span>
+                        <p className="text-sm text-gray-600">Awaiting your response</p>
+                      </>
+                    );
+                  } else if (booking.status === 'confirmed') {
+                    return (
+                      <>
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                          <CreditCard className="h-3.5 w-3.5" />
+                          Payment Due
+                        </span>
+                        <p className="text-sm text-gray-600">Awaiting payment from customer</p>
+                      </>
+                    );
+                  }
+                })()}
               </div>
             </div>
           </div>
@@ -318,7 +345,7 @@ export default function VenueOwnerBookingDetailsModal({
               </Button>
               <Button
                 onClick={() => {
-                  onStatusUpdate(booking._id || booking.id, 'cancelled');
+                  onStatusUpdate(booking._id || booking.id, 'rejected');
                   onOpenChange(false);
                 }}
                 disabled={isProcessing}

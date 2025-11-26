@@ -6,7 +6,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import Booking from '../models/Booking.js';
 import Venue from '../models/Venue.js';
 import User from '../models/User.js';
-import { sendPaymentCompletedEmail } from '../services/email/index.js';
+import { sendPaymentCompletedEmail, sendPaymentCompletedAdminEmail } from '../services/email/index.js';
 
 const router = Router();
 
@@ -190,8 +190,8 @@ router.post('/verify-payment', authenticateToken, async (req, res) => {
     );
 
     const updatedBooking = await Booking.findById(booking_id).lean();
-    const venue = await Venue.findById(updatedBooking.venue_id, { name: 1, location: 1 }).lean();
-    const customer = await User.findById(customerId, { name: 1 }).lean();
+    const venue = await Venue.findById(updatedBooking.venue_id, { name: 1, location: 1, owner_id: 1, capacity: 1, price_per_day: 1 }).lean();
+    const customer = await User.findById(customerId, { name: 1, email: 1, phone: 1 }).lean();
 
     if (updatedBooking.customer_email) {
       try {
@@ -201,10 +201,43 @@ router.post('/verify-payment', authenticateToken, async (req, res) => {
           venue_location: venue?.location || 'Location',
           event_date: updatedBooking.event_date,
           booking_id: booking_id,
-          amount: updatedBooking.payment_amount || updatedBooking.amount
+          amount: updatedBooking.payment_amount || updatedBooking.amount,
+          dates_timings: updatedBooking.dates_timings || [],
+          price_per_day: venue?.price_per_day || 0,
+          payment_amount: updatedBooking.payment_amount || updatedBooking.amount
         });
       } catch (emailError) {
         console.error('Error sending payment completed email:', emailError);
+      }
+    }
+
+    const adminEmail = process.env.Planzia_ADMIN_EMAIL || process.env.EMAIL_USER;
+    if (adminEmail) {
+      try {
+        const owner = await User.findById(venue?.owner_id, { name: 1, email: 1, phone: 1 }).lean();
+
+        await sendPaymentCompletedAdminEmail(adminEmail, {
+          booking_id: booking_id,
+          dates_timings: updatedBooking.dates_timings || [],
+          price_per_day: venue?.price_per_day || 0,
+          event_type: updatedBooking.event_type,
+          guest_count: updatedBooking.guest_count,
+          special_requirements: updatedBooking.special_requirements
+        }, {
+          name: venue?.name || 'Venue',
+          location: venue?.location || 'Location',
+          capacity: venue?.capacity || 0
+        }, {
+          name: owner?.name || 'Not provided',
+          email: owner?.email || 'Not provided',
+          phone: owner?.phone || 'Not provided'
+        }, {
+          name: customer?.name || 'Valued Customer',
+          email: customer?.email || 'Not provided',
+          phone: customer?.phone || 'Not provided'
+        });
+      } catch (emailError) {
+        console.error('Error sending payment completed admin notification:', emailError);
       }
     }
 

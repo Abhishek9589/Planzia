@@ -49,9 +49,10 @@ export async function sendOTPEmail(email, otp, name = 'User', purpose = 'Verific
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${getPageTitle()}</title>
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Momo+Trust+Display&family=Outfit:wght@100..900&display=swap');
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+          body { font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+          h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
         </style>
       </head>
       <body style="margin: 0; padding: 40px 20px; background-color: #ffffff; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
@@ -60,11 +61,6 @@ export async function sendOTPEmail(email, otp, name = 'User', purpose = 'Verific
         <table role="presentation" width="100%" style="max-width: 600px; margin: 0 auto; border-collapse: collapse;">
           <tr>
             <td style="padding: 0;">
-
-              <!-- Logo -->
-              <div style="text-align: center; margin: 0 0 32px 0;">
-                <img src="https://drive.google.com/uc?export=view&id=1APD3W2MpXe8fAZd3b00tz4e_kMpW5CoV" alt="Planzia Logo" style="height: 40px; width: auto; display: block; margin: 0 auto; object-fit: contain;" />
-              </div>
 
               <!-- Heading with Username -->
               <h1 style="color: #1a1a1a; margin: 0 0 32px 0; font-size: 18px; font-weight: 400; line-height: 1.4; text-align: center;">

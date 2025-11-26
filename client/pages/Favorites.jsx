@@ -130,14 +130,14 @@ export default function Favorites() {
                       {venue.description}
                     </p>
 
-                    <div className="flex flex-wrap gap-1 mb-4">
+                    <div className="flex flex-wrap gap-2 mb-4">
                       {venue.facilities && venue.facilities.slice(0, 3).map((facility, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
+                        <Badge key={index} variant="secondary" className="bg-venue-lavender/80 text-venue-indigo text-xs">
                           {facility}
                         </Badge>
                       ))}
                       {venue.facilities && venue.facilities.length > 3 && (
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="bg-venue-lavender/80 text-venue-indigo text-xs">
                           +{venue.facilities.length - 3} more
                         </Badge>
                       )}

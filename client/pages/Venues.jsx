@@ -690,8 +690,8 @@ export default function Venues() {
                       viewport={{ once: true, amount: 0.15 }}
                       transition={{ ...transition, delay: (idx % 4) * 0.05 }}
                     >
-                      <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 group hover:-translate-y-1">
-                        <div className="relative h-64 overflow-hidden">
+                      <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 group hover:-translate-y-1 h-full flex flex-col">
+                        <div className="relative h-64 overflow-hidden flex-shrink-0">
                           <img
                             loading="lazy"
                             src={venue.image}
@@ -719,29 +719,29 @@ export default function Venues() {
                             </Button>
                           </div>
                         </div>
-                        <CardContent className="p-6">
-                          <h3 className="text-xl font-semibold text-venue-dark mb-2">{venue.name}</h3>
+                        <CardContent className="p-6 flex flex-col flex-grow">
+                          <h3 className="text-xl font-semibold text-venue-dark mb-2 line-clamp-2">{venue.name}</h3>
                           <div className="flex items-center mb-3">
                             <RatingDisplay venueId={venue.id} />
                           </div>
                           <div className="space-y-2 text-sm text-gray-600 mb-4">
                             <div className="flex items-center">
-                              <MapPin className="h-4 w-4 mr-2 text-venue-indigo" />
-                              {venue.location}
+                              <MapPin className="h-4 w-4 mr-2 text-venue-indigo flex-shrink-0" />
+                              <span className="truncate">{venue.location}</span>
                             </div>
                             <div className="flex items-center">
-                              <Users className="h-4 w-4 mr-2 text-venue-indigo" />
-                              Up to {venue.capacity} guests
+                              <Users className="h-4 w-4 mr-2 text-venue-indigo flex-shrink-0" />
+                              <span className="truncate">Up to {venue.capacity} guests</span>
                             </div>
                           </div>
-                          <div className="flex flex-wrap gap-2 mb-4">
+                          <div className="flex flex-wrap gap-2 mb-4 flex-grow">
                             {venue.facilities && venue.facilities.slice(0, 3).map((facility, index) => (
-                              <Badge key={index} variant="secondary" className="text-xs bg-venue-lavender/80 text-venue-indigo">
+                              <Badge key={index} variant="secondary" className="bg-venue-lavender/80 text-venue-indigo text-xs">
                                 {facility}
                               </Badge>
                             ))}
                           </div>
-                          <div className="flex items-center justify-between mt-6">
+                          <div className="flex items-center justify-between mt-auto pt-4 border-t">
                             <div className="text-2xl font-bold text-venue-indigo">{getPricingInfo(venue.price, 'listing').formattedPrice}</div>
                             <Button asChild className="bg-venue-indigo hover:bg-venue-indigo/90 text-white">
                               <Link to={`/venue/${venue.id}`}>View Details</Link>
