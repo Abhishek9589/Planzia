@@ -239,7 +239,7 @@ export default function SignUp() {
               <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left Column - User Type Selection */}
                 <div className="lg:col-span-1 space-y-6">
-                  <div className="sticky top-8">
+                  <div className="lg:sticky lg:top-8">
                     <label className="block text-sm font-medium text-gray-700 mb-4">
                       I want to sign up as:
                     </label>

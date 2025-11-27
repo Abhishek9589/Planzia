@@ -157,11 +157,23 @@ export default function VenueDetail() {
         const data = await apiClient.getJson(`/api/ratings/venue/${id}`);
         const ratingElement = document.getElementById('hero-rating');
         const countElement = document.getElementById('hero-rating-count');
+        const mobileRatingElement = document.getElementById('mobile-hero-rating');
+        const mobileCountElement = document.getElementById('mobile-hero-rating-count');
+
+        const ratingValue = (data.averageRating || 0).toFixed(1);
+        const countValue = `(${data.totalRatings || 0})`;
+
         if (ratingElement) {
-          ratingElement.textContent = (data.averageRating || 0).toFixed(1);
+          ratingElement.textContent = ratingValue;
         }
         if (countElement) {
-          countElement.textContent = `(${data.totalRatings || 0})`;
+          countElement.textContent = countValue;
+        }
+        if (mobileRatingElement) {
+          mobileRatingElement.textContent = ratingValue;
+        }
+        if (mobileCountElement) {
+          mobileCountElement.textContent = countValue;
         }
       } catch (err) {
         console.error('Error fetching ratings for hero:', err);
@@ -508,8 +520,8 @@ export default function VenueDetail() {
             </Button>
           </div>
 
-          {/* Top Left - Back Button & Badge */}
-          <div className="absolute top-4 left-4 flex items-center gap-2 z-20">
+          {/* Top Left - Back Button & Badge (Desktop Only) */}
+          <div className="hidden md:flex absolute top-4 left-4 items-center gap-2 z-20">
             <Button
               variant="ghost"
               className="bg-white/90 hover:bg-white text-venue-indigo hover:text-venue-purple flex items-center gap-2"
@@ -526,8 +538,8 @@ export default function VenueDetail() {
             </Badge>
           </div>
 
-          {/* Bottom Overlay - Venue Info Card */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent pt-20 pb-6 px-4 md:px-6 z-20">
+          {/* Bottom Overlay - Venue Info Card (Desktop Only) */}
+          <div className="hidden md:block absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent pt-20 pb-6 px-4 md:px-6 z-20">
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
                 {/* Left: Venue Details */}
@@ -581,6 +593,85 @@ export default function VenueDetail() {
             </div>
           </div>
         </motion.div>
+
+        {/* Mobile Only - Venue Info Card Below Hero */}
+        <div className="md:hidden bg-white border-b">
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            {/* Mobile Back Button */}
+            <Button
+              variant="ghost"
+              className="text-venue-indigo hover:text-venue-purple flex items-center gap-2 mb-4 -ml-3"
+              onClick={() => {
+                scrollToTop();
+                safeNavigateBack(navigate, '/venues');
+              }}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+
+            {/* Title */}
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">{venue.name}</h1>
+
+            {/* Venue Type Badge */}
+            <div className="mb-3">
+              <Badge className="bg-venue-indigo text-white text-sm px-3 py-1">
+                {venue.type || 'Venue'}
+              </Badge>
+            </div>
+
+            {/* Rating */}
+            <div className="flex items-center gap-4 flex-wrap mb-4">
+              <div className="flex items-center gap-1">
+                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                <span className="font-semibold text-sm text-gray-800" id="mobile-hero-rating">--</span>
+                <span className="text-sm text-gray-600" id="mobile-hero-rating-count">-</span>
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className="flex items-center gap-3 text-gray-700 mb-3">
+              <MapPin className="h-5 w-5 flex-shrink-0 text-venue-indigo" />
+              <span className="text-base">{venue.location}</span>
+            </div>
+
+            {/* Capacity */}
+            <div className="flex items-center gap-3 text-gray-700 mb-6">
+              <Users className="h-5 w-5 flex-shrink-0 text-venue-indigo" />
+              <span className="text-base">Up to {venue.capacity} guests</span>
+            </div>
+
+            {/* Price */}
+            <div className="mb-6">
+              {(() => {
+                const priceBreakdown = getPriceBreakdownComponent(venue.price);
+                const finalPrice = priceBreakdown.items.find(item => item.type === 'final');
+                return (
+                  <div className="text-gray-800">
+                    <p className="text-sm text-gray-600 mb-1">Starting from</p>
+                    <p className="text-2xl font-bold text-venue-indigo">{finalPrice?.formatted || 'Contact for pricing'}</p>
+                    <p className="text-sm text-gray-600">per day</p>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Booking Button */}
+            <Button
+              onClick={() => {
+                if (!isLoggedIn) {
+                  setShowLoginDialog(true);
+                  return;
+                }
+                setShowMultiDayModal(true);
+              }}
+              className="bg-venue-indigo hover:bg-[#5a6549] text-white w-full px-8"
+              size="lg"
+            >
+              Start Booking Process
+            </Button>
+          </div>
+        </div>
 
         {/* Thumbnail Gallery */}
         {venueImages.length > 1 && (

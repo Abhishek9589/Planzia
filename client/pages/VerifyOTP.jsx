@@ -143,43 +143,43 @@ export default function VerifyOTP() {
   return (
     <div className="min-h-screen bg-white/70 backdrop-blur-lg flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 pt-16">
       <motion.div
-        className="w-full max-w-lg"
+        className="w-full max-w-sm sm:max-w-lg"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
         transition={transition}
       >
         <Card className="shadow-2xl border-0">
-          <CardHeader className="space-y-2 text-center pb-6">
-            <CardTitle className="text-2xl font-bold text-venue-dark">
+          <CardHeader className="space-y-2 text-center pb-4 sm:pb-6">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-venue-dark">
               Verify Code
             </CardTitle>
-            <CardDescription className="text-gray-600">
+            <CardDescription className="text-xs sm:text-sm text-gray-600">
               Enter the 8-digit verification code sent to your email
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 sm:space-y-6">
             {error && (
-              <Alert variant="destructive" className="border-red-200 bg-red-50">
+              <Alert variant="destructive" className="border-red-200 bg-red-50 text-sm sm:text-base">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-red-800">
+                <AlertDescription className="text-red-800 text-xs sm:text-sm">
                   {error}
                 </AlertDescription>
               </Alert>
             )}
 
             {success && (
-              <Alert className="border-green-200 bg-green-50">
+              <Alert className="border-green-200 bg-green-50 text-sm sm:text-base">
                 <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">
+                <AlertDescription className="text-green-800 text-xs sm:text-sm">
                   {success}
                 </AlertDescription>
               </Alert>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex gap-2 justify-center">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex gap-3 sm:gap-2 justify-center flex-wrap">
                   {otpDigits.map((digit, index) => (
                     <input
                       key={index}
@@ -193,11 +193,11 @@ export default function VerifyOTP() {
                       onChange={(e) => handleOtpDigitChange(index, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(index, e)}
                       placeholder="0"
-                      className="w-12 h-12 text-center text-lg font-semibold border-2 border-gray-300 rounded-lg focus:border-venue-indigo focus:outline-none focus:ring-2 focus:ring-venue-indigo focus:ring-offset-0 transition-colors"
+                      className="w-16 h-16 sm:w-12 sm:h-12 text-center text-2xl sm:text-lg font-semibold border-2 border-gray-300 rounded-lg focus:border-venue-indigo focus:outline-none focus:ring-2 focus:ring-venue-indigo focus:ring-offset-0 transition-colors"
                     />
                   ))}
                 </div>
-                <p className="text-xs text-gray-500 text-center">
+                <p className="text-xs sm:text-xs text-gray-500 text-center">
                   Enter the 8-digit code sent to {email}
                 </p>
               </div>
@@ -205,20 +205,20 @@ export default function VerifyOTP() {
               <Button
                 type="submit"
                 disabled={loading || otpDigits.join('').length !== 8}
-                className="w-full h-11 bg-venue-indigo hover:bg-[#5a6549] text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-12 sm:h-11 bg-venue-indigo hover:bg-[#5a6549] text-white font-medium text-base sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Verifying...' : 'Verify Code'}
               </Button>
 
-              <div className="space-y-3 border-t border-gray-200 pt-4">
+              <div className="space-y-2 sm:space-y-3 border-t border-gray-200 pt-3 sm:pt-4">
                 <div className="text-center">
-                  <p className="text-sm text-gray-600 mb-2">Didn't receive the code?</p>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-2">Didn't receive the code?</p>
                   <Button
                     type="button"
                     onClick={handleResend}
                     disabled={resendCooldown > 0 || resendLoading || loading}
                     variant="ghost"
-                    className="text-venue-indigo hover:text-venue-purple hover:bg-transparent disabled:text-gray-400 disabled:cursor-not-allowed"
+                    className="text-venue-indigo hover:text-venue-purple hover:bg-transparent disabled:text-gray-400 disabled:cursor-not-allowed text-sm sm:text-base"
                   >
                     <RotateCw className={`h-4 w-4 mr-2 ${resendLoading ? 'animate-spin' : ''}`} />
                     {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : resendLoading ? 'Sending...' : 'Resend Code'}
@@ -230,7 +230,7 @@ export default function VerifyOTP() {
             <div className="text-center">
               <Button
                 variant="ghost"
-                className="text-venue-purple hover:text-venue-indigo inline-flex items-center"
+                className="text-venue-purple hover:text-venue-indigo inline-flex items-center text-sm sm:text-base"
                 onClick={() => safeNavigateBack(navigate, '/signin')}
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />

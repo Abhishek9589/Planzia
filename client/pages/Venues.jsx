@@ -14,7 +14,7 @@ import { useAuth } from '../contexts/AuthContext';
 import venueService from '../services/venueService';
 import apiClient from '../lib/apiClient';
 import { getUserFriendlyError } from '../lib/errorMessages';
-import { getPricingInfo } from '../lib/priceUtils';
+import { formatPrice } from '../lib/priceUtils';
 import { PUNE_AREAS, VENUE_TYPES } from '@/constants/venueOptions';
 import {
   MapPin,
@@ -742,7 +742,7 @@ export default function Venues() {
                             ))}
                           </div>
                           <div className="flex items-center justify-between mt-auto pt-4 border-t">
-                            <div className="text-2xl font-bold text-venue-indigo">{getPricingInfo(venue.price, 'listing').formattedPrice}</div>
+                            <div className="text-2xl font-bold text-venue-indigo">{formatPrice(venue.price)}</div>
                             <Button asChild className="bg-venue-indigo hover:bg-venue-indigo/90 text-white">
                               <Link to={`/venue/${venue.id}`}>View Details</Link>
                             </Button>

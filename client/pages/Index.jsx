@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { scrollToTop } from '@/lib/navigation';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { PUNE_AREAS, VENUE_TYPES } from '@/constants/venueOptions';
 import { useFavorites } from '../hooks/useFavorites';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserFriendlyError } from '../lib/errorMessages';
-import { getPricingInfo } from '../lib/priceUtils';
+import { getPricingInfo, formatPrice } from '../lib/priceUtils';
 import {
   Search,
   MapPin,
@@ -123,7 +123,8 @@ export default function Index() {
   const [venueTypes, setVenueTypes] = useState([]);
   const [locations, setLocations] = useState([]);
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user, isVenueOwner } = useAuth();
+  const navigate = useNavigate();
   const featuredVenuesRef = useRef(null);
 
   const handleFavoriteClick = async (venueId) => {
@@ -149,14 +150,13 @@ export default function Index() {
 
       const formattedVenues = venues.map(venue => {
         const basePrice = parseFloat(venue.price_per_day || venue.price);
-        const pricingInfo = getPricingInfo(basePrice, 'listing');
 
         return {
           id: venue._id || venue.id,
           name: venue.name,
           location: venue.location,
           capacity: `Up to ${venue.capacity} guests`,
-          price: pricingInfo.formattedPrice,
+          price: formatPrice(basePrice),
           image: venue.images && venue.images.length > 0 ? venue.images[0] : "https://images.unsplash.com/photo-1524824267900-2fa9cbf7a506?w=400&h=300&fit=crop&q=80",
           facilities: venue.facilities || [],
           rating: 0
@@ -233,7 +233,7 @@ export default function Index() {
           capacity: "Up to 600 guests",
           price: "₹75,000",
           image: "https://plus.unsplash.com/premium_photo-1664530452329-42682d3a73a7?w=400&h=300&fit=crop&q=80",
-          facilities: ["Luxury D��cor", "In-house Catering", "Parking"],
+          facilities: ["Luxury Décor", "In-house Catering", "Parking"],
           rating: 4.9
         },
         {
@@ -278,6 +278,17 @@ export default function Index() {
     }
   };
 
+  const handleListVenueClick = () => {
+    // If user is logged in as a venue owner, redirect to account settings
+    if (isLoggedIn && isVenueOwner()) {
+      navigate('/account-settings');
+    } else {
+      // Otherwise (not logged in or logged in as customer), redirect to signup
+      navigate('/signup');
+    }
+    scrollToTop();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-white to-venue-lavender/10">
       {/* Hero Section */}
@@ -312,13 +323,12 @@ export default function Index() {
                   <Link to="/venues">Find Venues</Link>
                 </Button>
                 <Button
-                  asChild
                   size="lg"
                   variant="outline"
                   className="border-venue-indigo text-venue-indigo hover:bg-venue-indigo/10 hover:text-venue-indigo transition-colors"
-                  onClick={scrollToTop}
+                  onClick={handleListVenueClick}
                 >
-                  <Link to="/signup">List Your Venue</Link>
+                  List Your Venue
                 </Button>
               </div>
             </motion.div>
@@ -511,7 +521,7 @@ export default function Index() {
                         ))}
                       </div>
                       <div className="flex items-center justify-between mt-auto pt-4 border-t">
-                        <div className="text-2xl font-bold text-venue-indigo">{venue.price}</div>
+                        <div className="text-2xl font-bold text-venue-indigo">{formatPrice(typeof venue.price === 'string' ? parseFloat(venue.price.replace(/₹|,/g, '')) : venue.price)}</div>
                         <Button asChild className="bg-venue-indigo hover:bg-venue-indigo/90 text-white">
                           <Link to={`/venue/${venue.id}`}>View Details</Link>
                         </Button>
